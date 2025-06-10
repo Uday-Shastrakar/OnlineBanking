@@ -1,0 +1,9 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./path-to-your-build-directory:/usr/share/nginx/html
+      - ./path-to-your-nginx-config/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"

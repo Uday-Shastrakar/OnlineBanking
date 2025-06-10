@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  authentication:
+    image: uday2626/authentication:v1
+    ports:
+      - "9093:9093"
+    networks:
+      - bank_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authdb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "3306:3306"
+    networks:
+      - bank_network
+
+networks:
+  bank_network:
+    driver: overlay

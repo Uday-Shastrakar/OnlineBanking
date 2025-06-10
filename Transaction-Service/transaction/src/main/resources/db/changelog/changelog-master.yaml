@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: mohit.kulkarni
+      changes:
+        - sqlFile:
+            path: db/changelog/0001-create-transaction-table.sql
+

@@ -1,0 +1,58 @@
+/* Cards.css */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  padding: 5px;
+  padding-left: 50px;
+  object-fit: cover;
+padding-bottom: 50px;
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  align-items: center;
+}
+
+.card img {
+  border-radius: 8px 8px 0 0;
+  overflow-clip-margin: content-box;
+  overflow: clip;
+  align-items: center;
+  height: 200px;
+}
+
+.card-content {
+  padding: 16px;
+  align-items: center;
+}
+
+.card-content h5 {
+  margin-bottom: 12px;
+  font-weight: bold;
+  color: #333;
+  align-items: center;
+}
+
+.card-content p {
+  color: #777;
+  line-height: 1.6;
+  align-items: center;
+}
+
+.section h2 {
+  font-size: 2.5em;
+  margin-bottom: px;
+  margin-left: 42%;
+  align-items: center;
+}
+

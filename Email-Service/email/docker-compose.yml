@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  email_service:
+    image: uday2626/email:v1
+    ports:
+      - "9097:9097"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - bank_network
+
+networks:
+  bank_network:
+    driver: overlay

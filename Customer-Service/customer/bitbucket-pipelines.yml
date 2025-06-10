@@ -1,0 +1,18 @@
+image: maven:3.8.5-openjdk-17
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Build and Test
+          caches:
+            - maven
+          script:
+            - mvn clean install
+      - step:
+          name: Build Docker Image
+          services:
+            - docker
+          script:
+            - docker login -u "uday2626" -p "Uday@1234"
+            - mvn compile jib:build

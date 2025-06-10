@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: "customer"
+  config:
+    import: "optional:configserver:http://192.168.1.100:9092/"
+
+  datasource:
+    url: jdbc:mysql://192.168.1.100:3306/customer
+    username: bankuser
+    password: numsbank
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+
+info:
+  app:
+    name: "customer"
+    description: "Application for online banking accounts."
+    version: "1.0"
+
+server:
+  port: 9094
+
+feign:
+  client:
+    config:
+      account-service:
+        url: ${account-service.url}
+account-service:
+  url: http://localhost:9095
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://192.168.1.100:8761/eureka

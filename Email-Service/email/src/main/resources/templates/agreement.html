@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Voice Over Artist Agreement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            display: flex;
+            border: 2px solid #000;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .left, .right {
+            flex: 1;
+        }
+
+        .left {
+            padding-right: 20px;
+            border-right: 1px solid #000;
+            text-align: left; /* Aligning content to the left in the left section */
+        }
+
+        .right {
+            padding-left: 20px;
+            text-align: left; /* Aligning content to the left in the right section */
+        }
+
+        .content {
+            margin-bottom: 10px;
+        }
+
+        .content strong {
+            margin-right: 10px;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .signatures div {
+            flex: 1;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>AGREEMENT</h2>
+    <p style="margin-left: 65%;" ><strong>Effective Date:</strong> <span th:text="${agreement.effectiveDate}"></span></p>
+
+    <table border="1">
+        <tr>
+            <td>
+                <div><strong>Name:</strong> <span th:text="${agreement.voiceOverArtistName}"></span></div>
+                <div><strong>Address:</strong> <span th:text="${agreement.voiceOverArtistAddress}"></span></div>
+                <div><strong>PAN:</strong> <span th:text="${agreement.voiceOverArtistPAN}"></span></div>
+                <div><strong>GST:</strong> <span th:text="${agreement.voiceOverArtistGST}"></span></div>
+                <div>(Hereinafter referred to as <strong>Voice Over Artist)</strong></div>
+            </td>
+            <td>
+                <div ><strong>Name:</strong> <span th:text="${agreement.companyName}"></span></div>
+                <div style="margin-top: 50px;">(Hereinafter referred to as <strong>Company)</strong></div>
+            </td>
+        </tr>
+    </table>
+
+    <h4>Whereas:</h4>
+    <ol>
+        <li>The Company has engaged the services of the Voice Over Artist for the purposes of rendering its voiceover performances/recitations based on the script provided by the Company, and the Voice Over Artist has agreed to render such services of voiceover as per the terms mentioned hereunder <strong> ("Services")</strong>, for use/incorporation in the Projects to be produced by the Company, and as more particularly mentioned in Schedule I <strong>("Recording(s)")</strong>.</li>
+        <li>The Company is desirous of acquiring, and the Voice Over Artist is willing to assign and transfer unto the Company all copyright, performer’s rights, title, and interest in the said Recording(s)</li>
+    </ol>
+
+
+
+    <h4>Now this Deed Witnessed</h4>
+    <p><strong style="margin-right: 10px;">(a)</strong> In consideration of Voice Over Artist performing services in relation to recording the Recording and fulfillment of its obligations hereunder and irrevocably and beneficially transferring and assigning all rights including copyright in the said Recording(s) including all the rights in the proceeds of the Services and the performer’s right in the voiceover performance/recitation of the said Recording(s) in favor of the Company for the entire period of protection as conferred by the Copyright Act 1957 (including any revisions, revivals and amendments) throughout the World without any restrictions, limitations or reservations the entire rights, title and interest in and to the said Recording(s), the Voice Over Artist shall be entitled to an all- inclusive amount fixed fee <strong> Rs. __________/- (Rupees __________) </strong>plus applicable taxes per Recording, the receipt and sufficiency whereof is hereby confirmed and acknowledged by the Voice Over Artist. The rights assigned include without limitation all the rights as conferred upon a performer under Sec. 38 A in the Copyright (Amendment) Act, 2012 and rights to receive royalties. All payments to the Voice Over Artist for service rendered shall be made in the following manner: </p>
+
+    <p><strong>a.</strong>50% of the Remuneration shall be paid within 7 (seven) days from the date of signing of this Agreement; </p>
+    <p><strong>b.</strong>The remaining 50% of the Remuneration shall be paid within 7 (seven) days from the date completion of the dubbing.</p>
+
+    <p><strong style="margin-right: 10px;">(b)</strong>This Agreement shall come into force upon the Effective Date and shall continue to be in force until completion of full, final and complete performance of all Services, obligations, undertakings and warranties of the Parties and notwithstanding anything contained herein, the Term for the ownership of rights shall be perpetuity<strong>("TERM")</strong>. The Territory of this Agreement shall be the entire universe<strong> ("Territory")</strong></p>
+
+    <p><strong style="margin-right: 10px;">(c)</strong>	The rights assigned herein shall include but are not restricted to all rights of publication of the said Recording(s), whether as whole or in part, in any/all manners, for any purpose, on any/all mediums and in any/all and forms, including without limitation on all types of paper, plastic surfaces, glass surfaces, metal surfaces, magnetic tape, vinyl, optical disc, silicon surfaces, celluloid, direct or relay broadcasting/transmission (including any rebroadcast /re-transmission) on television, radio, internet, telecommunication networks and any other mode through electromagnetic waves, air diffusion, through wires, fiber optics or a combination thereof, in cinematograph films, performing in public, and whether in visual, aural or somatosensory (sense of touch) form. Further, the parties herein agree that the rights also include all the rights in the proceeds/ results of the Services rendered in relation to the producing and recording of the Recording(s) and the rights in the Performance of the Recordings for territory of the world in perpetuity for exploitation through all modes, mediums and format currently in use or which is discovered in future.</p>
+
+    <p><strong style="margin-right: 10px;">(d)</strong>The assignment of rights in the said Recording(s) shall be applied to any mode or medium. For the purposes of this clause the Parties hereby mutually agree that, “Mode or medium” refers to any technology or process or method (regardless of the contrivance, appliance, device, analog, matrix, equipment, plate or format employing that medium or method) which is in existence and / or in commercial use anywhere in the World whether or not in the field of cinematograph films or sound recordings.</p>
+    <p><strong style="margin-right: 10px;">(e)</strong>The Company shall be entitled to publish, communicate to public, re-produce, adapt, modify, edit, alter, dub, subtitle, or do any other act or exercise any other rights in respect of the Recording, Services or any elements thereof and any other elements of the Recording or Services without reference to the Voice Over Artist and that Voice Over Artist or any other persons claiming through Voice Over Artist shall have no rights, claim or lien on the same.</p>
+    <p><strong style="margin-right: 10px;">(f)</strong>Further, the Voice Over Artist hereby grants an irrevocable and exclusive license during the entire term of the copyright to the Company and/or her transferees/sub-licensees, for the territory of the entire World to exploit all assigned copyrights in any new mode or medium which is not in existence or in commercial use as on date.</p>
+    <p><strong style="margin-right: 10px;">(g)</strong>Further, the Voice Over Artist hereby agrees that the Company will be entitled to the utilization of the name, likeness, signature/ photograph including any past or existing credentials of the Voice Over Artist for the purposes of promotion of the Recording or any other works in which the Recording that are incorporated, at Company’s sole discretion for the entire period as conferred by the applicable law (including any revisions and revivals), throughout the world, to exploit all the aforesaid rights in the Recording in any new mode or medium which is not in existence or in commercial use as on date of this Agreement. The Voice Over Artist hereby consents to and allows the  Company  to   add   name,   logo   and   description   of   the Voice Over Artist in Company’s list of vendors/customers, business associates, Company’s website and in presentations, reports, regulatory filings, and publications;</p>
+    <p><strong style="margin-right: 10px;">(h)</strong>In the event the Company and/or your subsequent assignees or licensees of the Company are unable to exploit any of the rights in the said Recording(s) due to any reason whatsoever, then assignment of such rights shall not be considered to have lapsed pursuant to Section 19(4) of the Copyright Act, 1957, as applicable from time to time.</p>
+    <p><strong style="margin-right: 10px;">(i)</strong>The Voice Over Artist hereby waives and agrees to waive any royalty which may accrue in her favour by operation of law or otherwise.</p>
+    <p><strong style="margin-right: 10px;">(j)</strong>The Voice Over Artist hereby represents and warrants that (1) the said Recording(s) are original and are free from any encumbrances; (2) have not assigned or agreed to assign the rights of the said Recording(s) to any third party; (3) The Voice Over Artist shall perform its obligations/services under this Agreement in a timely manner and in compliance with the applicable laws; The Voice Over Artist agree to indemnify, defend and hold harmless the Company and the producers/assignees subsequent assignees, licensees, associates and agents against all claims, losses, suits, demands, damages, costs and expenses (including reasonable attorney fee) resulting from any misrepresentation and/or any breach hereunder.</p>
+    <p><strong style="margin-right: 10px;">(k)</strong>In the event, for any reason whatsoever, Voice Over Artist fails or refuses to render the said Performance/s or any other additional services under this Agreement on the date, time and place as required by the Company then the Company shall be entitled to immediately terminate this Agreement and shall further be entitled to a full refund of the amounts paid to the Voice Over Artist under this Agreement.</p>
+    <p><strong style="margin-right: 10px;">(l)</strong>The Voice Over Artist shall not transfer or assign or novate this Agreement or any of his rights or obligations under this Agreement to any third party without prior written consent of the Company. The Company may freely assign / re-assign, novate without reference to the Voice Over Artist, this Agreement or any of its rights or liabilities under this Agreement, whether in part or whole, to any third party, for any purpose whatsoever.</p>
+    <p><strong style="margin-right: 10px;">(m)</strong>This Agreement shall be governed by and interpreted in accordance with the Applicable Laws and in any matter or dispute arising between the Parties under this Agreement the Courts in Kolkata, India alone shall have jurisdiction.</p>
+    <p><strong style="margin-right: 10px;">(n)</strong>The Voice Over Artist agrees to indemnify, defend and hold harmless the Company and the producers/assignees, subsequent assignees, licensees, associates and agents against all claims, losses, suits, demands, damages, costs and expenses (including reasonable attorney fee) resulting from any breach of representations and warranties hereunder.</p>
+
+    <p><strong>IN WITNESS WHEREOF the Company and the Voice Over Artist has hereunto set and subscribed to their respective hands on the day, month and year first above written.</strong></p>
+    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+        <thead>
+        <tr>
+            <th style="border: 1px solid black; padding: 8px;">
+                <strong>By the hand of the Voice Over Artist</strong>
+            </th>
+            <th style="border: 1px solid black; padding: 8px;">
+                <strong>For and on behalf of Company</strong>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="height: 70px; border: 1px solid black;"></td>
+            <td style="height: 70px; border: 1px solid black;"></td>
+        </tr>
+        <tr>
+            <!-- Left Column: Voice Over Artist Name -->
+            <td style="border: 1px solid black; padding: 8px;">
+                <strong>Name:</strong> <span th:text="${agreement.voiceOverArtistName}"></span>
+            </td>
+            <!-- Right Column: Company Representative Name and Designation -->
+            <td style="border: 1px solid black; padding: 8px;">
+                <strong>Name:</strong> <span th:text="${agreement.companyRepresentativeName}"></span>
+                <strong>Designation:</strong> <span th:text="${agreement.companyRepresentativeDesignation}"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+
+
+    <h4 style="margin-left: 45%; text-decoration: underline;page-break-before: always;">Schedule 1</h4>
+    <p><strong>Project Title: As mentioned below</strong> <span th:text="${agreement.projectTitle}"></span></p>
+    <p><strong>Recording(s) Details</strong></p>
+    <table>
+        <thead>
+        <tr>
+            <th>No. of Recordings</th>
+            <th>Project Title</th>
+            <th>Language</th>
+            <th>Voiceover Artist</th>
+            <th>Script By</th>
+            <th>Duration</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr style="height: 50px;" th:each="recording : ${agreement.recordings}">
+            <td th:text="${recording.numberOfRecordings}"></td>
+            <td th:text="${recording.projectTitle}"></td>
+            <td th:text="${recording.language}"></td>
+            <td th:text="${recording.voiceoverArtist}"></td>
+            <td th:text="${recording.scriptBy}"></td>
+            <td th:text="${recording.duration}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p><strong>IN WITNESS WHEREOF the Company/Assignee and the Producer/Assignor has hereunto set and subscribed to their respective hands on the day, month and year first above written.</strong></p>
+
+    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+        <thead>
+        <tr>
+            <th style="border: 1px solid black; padding: 8px;">
+                <strong>By the hand of the Assignor / Assignor</strong>
+            </th>
+            <th style="border: 1px solid black; padding: 8px;">
+                <strong>For and on behalf of Company/Assignee</strong>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="height: 70px; border: 1px solid black;"></td>
+            <td style="height: 70px; border: 1px solid black;"></td>
+        </tr>
+        <tr>
+            <!-- Left Column: Assignor Details -->
+            <td style="border: 1px solid black; padding: 8px;">
+                <strong>Name:</strong> <span th:text="${agreement.companyRepresentativeName}"></span>
+                <strong>Designation:</strong> <span th:text="${agreement.companyRepresentativeDesignation}"></span>
+            </td>
+            <!-- Right Column: Assignee (Company Representative) Details -->
+            <td style="border: 1px solid black; padding: 8px;">
+                <strong>Name:</strong> <span th:text="${agreement.companyRepresentativeName}"></span>
+                <strong>Designation:</strong> <span th:text="${agreement.companyRepresentativeDesignation}"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+</div>
+</body>
+</html>

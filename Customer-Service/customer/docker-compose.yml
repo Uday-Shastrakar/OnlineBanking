@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  customer_service:
+    image: uday2626/customer:v1
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "9094:9094"
+    networks:
+      - bank_network
+
+networks:
+  bank_network:
+    driver: overlay

@@ -1,0 +1,76 @@
+/* Coursel.css */
+
+.coursel-page {
+  width: 100%;
+  height: calc(100vh - 64px); 
+  background-image: url('../../../assets/images/ud11.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0; 
+  position: relative; 
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(0px); /* Ensure a value is specified */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.hero h1 {
+  font-size: 4em;
+  margin-bottom: 20px;
+  animation: fadeIn 2s ease-in;
+}
+
+.hero p {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  animation: fadeIn 2s ease-in 0.5s; /* 0.5s delay for paragraph */
+}
+
+.hero {
+  height: 100vh; /* Full viewport height */
+  position: relative;
+  color: #073227;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 70px; /* Adjusted for fixed navbar */
+  overflow: hidden;
+  margin-bottom: 5%;
+}
+
+.fab-container {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: center; /* Center the button horizontally */
+  gap: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.fab-button {
+  background-color: rgba(26, 188, 156, 0.7) !important;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+}
+
+.fab-button:hover {
+  background-color: rgba(26, 188, 156, 0.9) !important;
+}

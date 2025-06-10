@@ -1,0 +1,174 @@
+/* Navigation Bar */
+.nav-bar {
+    background: rgba(26, 188, 156, 0.7); /* Transparent #399adb */
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    backdrop-filter: blur(10px); /* Blurs the background behind the navbar */
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
+    z-index: 1000;
+}
+
+.nums{
+    color: black;
+}
+
+.nav-bar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.nav-bar ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-bar li {
+    margin: 0 15px;
+    position: relative;
+}
+
+/* Updated to target Link components */
+.nav-bar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    padding: 10px;
+    transition: color 0.3s, background 0.3s;
+}
+
+/* Underline effect on hover */
+.nav-bar a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: #e5e3e2;
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: bottom right;
+}
+
+.nav-bar a:hover::before {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* Dropdown specific styles */
+.nav-bar .dropdown {
+    position: relative;
+}
+
+.nav-bar .dropdown-menu {
+    display: none; /* Hide by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: rgba(57, 154, 219, 0.8); /* Slightly transparent */
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    list-style: none;
+    padding: 10px;
+    min-width: 150px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Show the dropdown menu on hover */
+.nav-bar .dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* Dropdown menu links */
+.nav-bar .dropdown-menu li {
+    margin: 0;
+    padding: 5px 0;
+}
+
+.nav-bar .dropdown-menu li a {
+    color: #fff;
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.nav-bar .dropdown-menu li a:hover {
+    background-color: #ff6600;
+    color: #fff;
+    border-radius: 5px;
+}
+
+/* Icons in the navigation bar */
+.nav-bar .nav-icons {
+    display: flex;
+    align-items: center;
+}
+
+.nav-bar img {
+    height: 30px;
+    margin-left: 15px;
+}
+
+.nav-bar .search {
+    margin-left: auto;
+}
+
+.nav-bar .search input {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.nav-bar .search input::placeholder {
+    color: #888;
+}
+
+.nav-bar .search input:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .nav-bar ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-bar li {
+        margin: 10px 0;
+    }
+
+    .nav-bar .search {
+        margin: 10px 0;
+    }
+
+    .nav-bar .dropdown-menu {
+        position: static;
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}

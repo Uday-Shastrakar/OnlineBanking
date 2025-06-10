@@ -1,0 +1,95 @@
+spring:
+  application:
+    name: "authentication"
+  config:
+    import: "optional:configserver:http://192.168.1.100:9092/"
+
+  datasource:
+    url: jdbc:mysql://192.168.1.100:3306/authdb
+    username: bankuser
+    password: numsbank
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  app:
+    jwtSecret: "udayshastrakarnfdjnfjdnjvndjnvjnjnjndjvfcndkjnvjkndjncndnndjvnjkndjknvjknjfnvkjndfnvkjdnjkdnjknkjnvnjdfknvdnvfvfdv"
+    jwtExpirationMs: 3000000
+
+info:
+  app:
+    name: "authentication"
+    description: "Bank authentication Server Application"
+    version: "1.0"
+
+
+feign:
+  client:
+    config:
+      card-service:
+        url: ${my-client.url}
+      account-service:
+        url: ${account-service.url}
+      customer-service:
+        url: ${customer-service.url}
+      email-service:
+        url: ${email-service.url}
+      transaction-service:
+        url: ${transaction-service.url}
+
+#add url here for service feign clients
+
+card-service:
+  url: http://localhost:9098
+
+account-service:
+  url: http://localhost:9095
+
+customer-service:
+  url: http://localhost:9094
+
+email-service:
+  url: http://localhost:9097
+
+transaction-service:
+  url: http://localhost:9096
+
+server:
+  port: 9093
+
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://192.168.1.100:8761/eureka
+
+logging:
+  level:
+    com:
+      bank:
+        authentication: DEBUG
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true

@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: Config-Server
+  profiles:
+#    active: native
+     active: git
+  cloud:
+    config:
+      server:
+#        native:
+#          search-locations: "classpath:/config"
+       git:
+         uri: "https://github.com/Uday-Shastrakar/bank-config.git"
+         default-label: main
+         timeout: 5
+         clone-on-start: true
+         force-pull: true
+
+
+
+server:
+  port: 9092
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://192.168.1.100:8761/eureka

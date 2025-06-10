@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>OTP Email - NUMS BANK</title>
+</head>
+<body style="background-color: #f4f4f4; font-family: Arial, sans-serif; margin: 0; padding: 0;">
+<table align="center" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center" style="padding-top: 10%;"> <!-- Fixed to 10% padding -->
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 4px;">
+                <tr>
+                    <td align="center" style="font-size: 24px; font-weight: bold;">
+                        NUMS <span style="color: #1abc9c;">BANK</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style="padding: 20px; font-size: 18px;">
+                        <p>Hello,</p>
+                        <p>Your One-Time Password (OTP) is:</p>
+                        <p style="font-size: 24px; font-weight: bold; color: #000000; padding: 10px; border: 2px solid #1abc9c; display: inline-block;"
+                           th:text="${otp}">123456</p> <!-- Fixed Thymeleaf OTP binding -->
+                        <p>Please use this OTP to complete verification.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style="font-size: 14px; color: #666666; padding-top: 20px;">
+                        <p>Thank you for banking with NUMS Bank!</p>
+                        <p>If you did not request this, ignore this email.</p>
+                        <p>Need help? <a href="https://your-domain.com/support" style="color: #007bff;">Visit Support</a></p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

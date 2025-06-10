@@ -1,0 +1,32 @@
+/* Dashboard Styles */
+.dashboard-container {
+    display: flex;
+  }
+  
+  .dashboard-content {
+    flex-grow: 1;
+    background-color: #f4f4f4;
+    padding: 20px;
+  }
+  
+  .dashboard-grid-item {
+    padding: 10px;
+  }
+  
+  .dashboard-paper {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .dashboard-paper-shadow {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dashboard-typography-h4 {
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-typography-h6 {
+    color: #333;
+  }
+  

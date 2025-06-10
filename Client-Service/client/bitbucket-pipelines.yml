@@ -1,0 +1,12 @@
+image: node:18
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Build and Test on Develop
+          caches:
+            - node
+          script:
+            - yarn install
+            - yarn build

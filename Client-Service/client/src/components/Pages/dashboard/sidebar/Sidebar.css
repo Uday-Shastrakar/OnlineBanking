@@ -1,0 +1,48 @@
+.sidebar-container {
+  background: rgba(26, 188, 156, 0.9); /* Sidebar background */
+  height: calc(100vh - 64px); /* Full height minus navbar height */
+  position: fixed;
+  top: 72px; /* Start below the navbar */
+  left: 0;
+  width: 250px; /* Sidebar width */
+  transition: all 0.3s ease; /* Smooth transition for collapsing */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Sidebar shadow */
+  z-index: 1000; /* Ensure sidebar is above content */
+}
+
+.sidebar-container.collapsed {
+  width: 60px; /* Collapsed width */
+}
+
+.sidebar-container .MuiListItemText-root {
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-container.collapsed .MuiListItemText-root {
+  opacity: 0;
+}
+
+.sidebar-container .MuiListItem-root {
+  color: white;
+}
+
+.sidebar-container .MuiListItem-root:hover {
+  background-color: rgba(26, 188, 156, 0.7);
+}
+
+.sidebar-container .divider {
+  background-color: #1f6f64;
+  height: 1px;
+  margin: 5px 0;
+}
+
+/* Dashboard main content styles */
+.main-content {
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
+  padding: 20px;
+}
+
+.main-content.collapsed {
+  margin-left: 60px;
+}
