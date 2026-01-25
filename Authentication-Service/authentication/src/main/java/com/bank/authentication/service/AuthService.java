@@ -39,7 +39,9 @@ public class AuthService {
     private final UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    public AuthService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, UserService userService, PasswordResetTokenService passwordResetTokenService, SessionService sessionService, EmailService emailService, PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService) {
+    public AuthService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, UserService userService,
+            PasswordResetTokenService passwordResetTokenService, SessionService sessionService,
+            EmailService emailService, PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.userService = userService;
@@ -51,18 +53,39 @@ public class AuthService {
     }
 
     public LoginResponseDto authenticateUser(LoginRequestDto loginRequest) throws AuthenticationException {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        User user = (User) userDetailsService.loadUserByUsername(loginRequest.getUsername());
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwtToken = jwtUtils.generateToken(userDetails);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = (User) userDetailsService.loadUserByUsername(userDetails.getUsername());
-        createSession(user, jwtToken);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String jwtToken = jwtUtils.generateToken(userDetails);
 
-        List<String> authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+            // Authentication Suceeded: Reset attempts
+            user.setFailedLoginAttempts(0);
+            user.setLockedUntil(null);
+            userService.save(user);
 
-        return new LoginResponseDto(userDetails.getUsername(), authorities, jwtToken, user.getUserId(),user.getEmail(),user.getPhoneNumber(),user.getFirstName(),user.getLastName());
+            createSession(user, jwtToken);
+
+            List<String> authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+            return new LoginResponseDto(userDetails.getUsername(), authorities, jwtToken, user.getUserId(),
+                    user.getEmail(), user.getPhoneNumber(), user.getFirstName(), user.getLastName());
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            // Authentication Failed: Increment attempts
+            user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
+            if (user.getFailedLoginAttempts() >= 5) {
+                user.setLockedUntil(java.time.LocalDateTime.now().plusMinutes(15));
+            }
+            userService.save(user);
+            throw e;
+        } catch (org.springframework.security.authentication.LockedException e) {
+            throw e;
+        }
     }
 
     public ApiResponse<String> requestPasswordReset(String email) {
@@ -121,6 +144,6 @@ public class AuthService {
         Random random = new SecureRandom();
         int otp = 100000 + random.nextInt(900000); // Generates a 6-digit OTP
         return String.valueOf(otp);
-//        return "123456";
+        // return "123456";
     }
 }

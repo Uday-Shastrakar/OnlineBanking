@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { Avatar, Box, Button, Card, Container, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
+import { Avatar, Box, Button, Card, Container, Step, StepLabel, Stepper, TextField, Typography, Modal, Fade, Backdrop } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useNavigate } from "react-router-dom";
-import { register } from "../../../services/customerService";
+import { register, uploadDocument } from "../../../services/customerService";
 import { CustomerRegisterForm } from "../../../Types";
 import "./CustomerRegisterForm.css";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { RadioGroup, FormControlLabel, Radio, FormControl, FormLabel } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import dayjs, { Dayjs } from "dayjs";
 
-const steps = ["User Information", "Contact Information", "Document"];
+const steps = ["User Details", "Personal Info", "Documents"];
 
 const CustomerRegister: React.FC = () => {
   const [registerForm, setRegisterForm] = useState<CustomerRegisterForm>({
@@ -30,24 +32,19 @@ const CustomerRegister: React.FC = () => {
       lastName: "",
       phoneNumber: "",
       email: "",
-      gender: "",
+      gender: "Male",
       address: "",
       dateOfBirth: dayjs(),
       status: "Active",
-      accountType: "",
+      accountType: "SAVING",
     },
   });
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
   const [activeStep, setActiveStep] = useState(0);
-  const [skipped, setSkipped] = useState<Set<number>>(new Set());
+  const [showModal, setShowModal] = useState<boolean>(false);
   const navigate = useNavigate();
-  const [showCard, setShowCard] = useState<boolean>(false);
-  const [showButton, setShowButton] = useState<boolean>(false);
-
-  const isStepOptional = (step: number) => step === 1;
-
-  const isStepSkipped = (step: number) => skipped.has(step);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -74,18 +71,15 @@ const CustomerRegister: React.FC = () => {
       }
     }));
   };
-  
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
 
   const handleNext = () => {
-    console.log("handle next called");
-
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
-    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
   };
 
   const handleBack = () => {
@@ -94,21 +88,36 @@ const CustomerRegister: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("handle submit called");
+    setError("");
 
-    // if (registerForm.password !== confirmPassword) {
-    //   setError('Passwords do not match');
-    //   return;
-    // }
     try {
-      const response = await register(registerForm);
-      console.log(response);
-      setShowCard(true);
+      // Step 1: Register Customer
+      const response: any = await register(registerForm);
+      console.log("Registration Response:", response);
+
+      // Step 2: Extract User ID from response
+      // Assuming the response matches UserDetailDto structure or similar returning the created user/customer
+      // Based on controller, it returns UserDetailDto. We need the userId.
+      const userId = response.userId;
+
+      if (!userId) {
+        throw new Error("Registration successful but User ID not returned. Cannot upload document.");
+      }
+
+      // Step 3: Upload Document if selected
+      if (selectedFile) {
+        await uploadDocument(userId, selectedFile);
+        console.log("Document uploaded successfully");
+      }
+
+      setShowModal(true);
       setTimeout(() => {
-        setShowCard(false);
-        // navigate("/login"); // Redirect to the desired page
-      }, 5000);
+        setShowModal(false);
+        navigate("/login");
+      }, 3000);
+
     } catch (err: any) {
+      console.error(err);
       setError(err.message || "Registration failed. Please try again.");
     }
   };
@@ -118,268 +127,238 @@ const CustomerRegister: React.FC = () => {
       <Card className="card">
         <div className="tag">
           <Avatar className="avatar">
-            <PersonAddIcon />
+            <PersonAddIcon fontSize="large" />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Register
+          <Typography component="h1" variant="h5" fontWeight="bold">
+            Customer Registration
           </Typography>
-          {error && <Typography color="error">{error}</Typography>}
+          <Typography variant="body2" sx={{ opacity: 0.8, mt: 1 }}>
+            Join our premium banking experience
+          </Typography>
         </div>
-        <form className="form" onSubmit={handleSubmit} noValidate>
-          <Stepper activeStep={activeStep} orientation="horizontal">
-            {steps.map((label, index) => (
+
+        <div className="form">
+          {error && (
+            <Box mb={2} p={2} bgcolor="#ffebee" borderRadius={2}>
+              <Typography color="error" align="center">{error}</Typography>
+            </Box>
+          )}
+
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
               </Step>
             ))}
           </Stepper>
-          <div className="step-content">
-            {activeStep === 0 && (
-              <div>
-                <div style={{ display: "flex", gap: "16px" }}>
+
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="step-content">
+              {activeStep === 0 && (
+                <Box>
+                  <Typography variant="h6" gutterBottom color="textSecondary">
+                    Account Credentials
+                  </Typography>
+                  <Box display="flex" gap={2} mb={2}>
+                    <TextField
+                      variant="outlined"
+                      required
+                      fullWidth
+                      label="Username"
+                      name="username"
+                      value={registerForm.username}
+                      onChange={handleInputChange}
+                    />
+                    <TextField
+                      variant="outlined"
+                      required
+                      fullWidth
+                      type="password"
+                      label="Password"
+                      name="password"
+                      value={registerForm.password}
+                      onChange={handleInputChange}
+                    />
+                  </Box>
+                  <Typography variant="h6" gutterBottom color="textSecondary" mt={3}>
+                    Contact Information
+                  </Typography>
+                  <Box display="flex" gap={2}>
+                    <TextField
+                      variant="outlined"
+                      required
+                      fullWidth
+                      label="Email Address"
+                      name="email"
+                      value={registerForm.email}
+                      onChange={handleInputChange}
+                    />
+                    <TextField
+                      variant="outlined"
+                      required
+                      fullWidth
+                      label="Phone Number"
+                      name="phoneNumber"
+                      value={registerForm.phoneNumber}
+                      onChange={handleInputChange}
+                    />
+                  </Box>
+                </Box>
+              )}
+
+              {activeStep === 1 && (
+                <Box>
+                  <Typography variant="h6" gutterBottom color="textSecondary">
+                    Personal Details
+                  </Typography>
+                  <Box display="flex" gap={2} mb={2}>
+                    <TextField
+                      variant="outlined"
+                      required
+                      fullWidth
+                      label="First Name"
+                      name="firstName"
+                      value={registerForm.firstName}
+                      onChange={handleInputChange}
+                    />
+                    <TextField
+                      variant="outlined"
+                      required
+                      fullWidth
+                      label="Last Name"
+                      name="lastName"
+                      value={registerForm.lastName}
+                      onChange={handleInputChange}
+                    />
+                  </Box>
+
                   <TextField
                     variant="outlined"
-                    margin="normal"
                     required
-                    id="firstName"
-                    label="First Name"
-                    name="firstName"
-                    autoComplete="firstName"
-                    value={registerForm.firstName}
-                    onChange={handleInputChange}
                     fullWidth
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    id="lastName"
-                    label="Last Name"
-                    name="lastName"
-                    autoComplete="lastName"
-                    value={registerForm.lastName}
-                    onChange={handleInputChange}
-                    fullWidth
-                  />
-                </div>
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                    value={registerForm.email}
-                    onChange={handleInputChange}
-                    fullWidth
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    id="phoneNumber"
-                    label="Phone Number"
-                    name="phoneNumber"
-                    autoComplete="phoneNumber"
-                    value={registerForm.phoneNumber}
-                    onChange={handleInputChange}
-                    fullWidth
-                  />
-                </div>
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    id="username"
-                    label="Username"
-                    name="username"
-                    autoComplete="username"
-                    value={registerForm.username}
-                    onChange={handleInputChange}
-                    fullWidth
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    value={registerForm.password}
-                    onChange={handleInputChange}
-                    fullWidth
-                  />
-                </div>
-              </div>
-            )}
-            {activeStep === 1 && (
-              <div>
-                <div
-                  style={{ display: "flex", gap: "16px", marginTop: "10px" }}
-                >
-                  <FormControl component="fieldset" fullWidth>
-                    <FormLabel>Gender</FormLabel>
-                    <RadioGroup
-                      aria-label="gender"
-                      name="gender"
-                      value={registerForm.createCustomerDto.gender}
-                      onChange={handleDtoChange}
-                    >
-                      <div style={{ display: "flex" }}>
-                        <FormControlLabel
-                          value="Male"
-                          control={<Radio />}
-                          label="Male"
-                        />
-                        <FormControlLabel
-                          value="Female"
-                          control={<Radio />}
-                          label="Female"
-                        />
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormControl component="fieldset" fullWidth>
-                    <FormLabel>Account Type</FormLabel>
-                    <RadioGroup
-                      aria-label="accounttype"
-                      name="accountType"
-                      value={registerForm.createCustomerDto.accountType}
-                      onChange={handleDtoChange}
-                    >
-                      <div style={{ display: "flex" }}>
-                        <FormControlLabel
-                          value="SAVING"
-                          control={<Radio />}
-                          label="SAVING"
-                        />
-                        <FormControlLabel
-                          value="CURRENT"
-                          control={<Radio />}
-                          label="CURRENT"
-                        />
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                </div>
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    id="address"
                     label="Address"
                     name="address"
-                    autoComplete="address"
                     value={registerForm.createCustomerDto.address}
                     onChange={handleDtoChange}
-                    fullWidth
+                    sx={{ mb: 2 }}
                   />
 
- <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        label="Date of Birth"
-        value={registerForm.createCustomerDto.dateOfBirth}
-        onChange={handleDateChange}
-        slots={{
-          // Customize the input component used in the DatePicker
-          textField: TextField
-        }}
-        slotProps={{
-          textField: {
-            fullWidth: true,
-            variant: 'outlined',
-            margin: 'normal',
-            required: true
-          }
-        }}
-      />
-    </LocalizationProvider>
+                  <Box display="flex" gap={4} alignItems="center" mb={2}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Date of Birth"
+                        value={registerForm.createCustomerDto.dateOfBirth}
+                        onChange={handleDateChange}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    </LocalizationProvider>
 
-                </div>
-              </div>
-            )}
-            {activeStep === 2 && (
-              <div>
-                <div style={{ marginTop: "20px", marginBottom: "20px" }}>
-                  <Button
-                    component="label"
-                    role={undefined}
-                    variant="contained"
-                    style={{
-                      marginTop: "20px",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    Upload files
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">Gender</FormLabel>
+                      <RadioGroup row name="gender" value={registerForm.createCustomerDto.gender} onChange={handleDtoChange}>
+                        <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                        <FormControlLabel value="Female" control={<Radio />} label="Female" />
+                      </RadioGroup>
+                    </FormControl>
+                  </Box>
+
+                  <FormControl component="fieldset" fullWidth sx={{ mt: 1 }}>
+                    <FormLabel component="legend">Account Type</FormLabel>
+                    <RadioGroup row name="accountType" value={registerForm.createCustomerDto.accountType} onChange={handleDtoChange}>
+                      <FormControlLabel value="SAVING" control={<Radio />} label="Savings Account" />
+                      <FormControlLabel value="CURRENT" control={<Radio />} label="Current Account" />
+                    </RadioGroup>
+                  </FormControl>
+                </Box>
+              )}
+
+              {activeStep === 2 && (
+                <Box textAlign="center">
+                  <Typography variant="h6" gutterBottom color="textSecondary">
+                    KYC Verification
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" mb={3}>
+                    Please upload a valid proof of address (ID Card, Utility Bill, etc.)
+                  </Typography>
+
+                  <div className="file-upload-area" onClick={() => document.getElementById('file-upload')?.click()}>
+                    <CloudUploadIcon style={{ fontSize: 60, color: '#bdbdbd' }} />
+                    <Typography variant="body1" mt={2} color="textSecondary">
+                      Click to select a file
+                    </Typography>
                     <input
                       type="file"
-                      // onClick={uploadDoc}
+                      id="file-upload"
                       style={{ display: "none" }}
-                      multiple
+                      onChange={handleFileChange}
                     />
-                  </Button>
-                </div>
-              </div>
-            )}
-            {showCard && (
-              <Card
-                className="notification-card"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  zIndex: 10,
-                  width: "300px",
-                  padding: "16px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                }}
-              >
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="h6">Success</Typography>
-                  <Typography>Your registration was successful!</Typography>
+                  </div>
+
+                  {selectedFile && (
+                    <div className="selected-file">
+                      <InsertDriveFileIcon /> {selectedFile.name}
+                    </div>
+                  )}
                 </Box>
-              </Card>
-            )}
+              )}
+            </div>
+
             <div className="navigation-buttons">
               <Button
                 disabled={activeStep === 0}
                 onClick={handleBack}
-                style={{ float: "left" }}
                 variant="outlined"
+                size="large"
               >
                 Back
               </Button>
 
               {activeStep === steps.length - 1 ? (
-                <Button type="submit" variant="contained" className="next">
-                  Submit
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={!selectedFile} // Optional: force upload
+                >
+                  Create Account
                 </Button>
               ) : (
                 <Button
                   variant="contained"
-                  className="next"
                   onClick={handleNext}
-                  disabled={activeStep === steps.length - 1}
-                  style={{ float: "right" }}
-                  type="button"
+                  size="large"
                 >
-                  {activeStep === steps.length - 2 ? "Submit" : "Next"}
+                  Next Step
                 </Button>
               )}
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </Card>
+
+      {/* Success Modal */}
+      <Modal
+        open={showModal}
+        onClose={() => { }}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{ timeout: 500 }}
+      >
+        <Fade in={showModal}>
+          <Box className="success-modal">
+            <CheckCircleOutlineIcon style={{ fontSize: 80, color: '#4caf50', marginBottom: 16 }} />
+            <Typography variant="h5" fontWeight="bold" gutterBottom>
+              Registration Successful!
+            </Typography>
+            <Typography color="textSecondary">
+              Your account has been created and your documents uploaded.
+            </Typography>
+            <Typography variant="caption" display="block" sx={{ mt: 2 }}>
+              Redirecting to login...
+            </Typography>
+          </Box>
+        </Fade>
+      </Modal>
     </Container>
   );
 };

@@ -1,19 +1,30 @@
 spring:
   application:
     name: "authentication"
-  config:
-    import: "optional:configserver:http://192.168.1.100:9092/"
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
 
   datasource:
-    url: jdbc:mysql://192.168.1.100:3306/authdb
-    username: bankuser
-    password: numsbank
+    url: jdbc:mysql://localhost:3306/authdb
+    username: root
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 
   app:
     jwtSecret: "udayshastrakarnfdjnfjdnjvndjnvjnjnjndjvfcndkjnvjkndjncndnndjvnjkndjknvjknjfnvkjndfnvkjdnjkdnjknkjnvnjdfknvdnvfvfdv"
@@ -26,36 +37,8 @@ info:
     version: "1.0"
 
 
-feign:
-  client:
-    config:
-      card-service:
-        url: ${my-client.url}
-      account-service:
-        url: ${account-service.url}
-      customer-service:
-        url: ${customer-service.url}
-      email-service:
-        url: ${email-service.url}
-      transaction-service:
-        url: ${transaction-service.url}
+# Using Discovery for Feign
 
-#add url here for service feign clients
-
-card-service:
-  url: http://localhost:9098
-
-account-service:
-  url: http://localhost:9095
-
-customer-service:
-  url: http://localhost:9094
-
-email-service:
-  url: http://localhost:9097
-
-transaction-service:
-  url: http://localhost:9096
 
 server:
   port: 9093
@@ -69,7 +52,7 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://192.168.1.100:8761/eureka
+      defaultZone: http://localhost:8761/eureka
 
 logging:
   level:

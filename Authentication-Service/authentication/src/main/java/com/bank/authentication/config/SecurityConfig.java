@@ -1,6 +1,5 @@
 package com.bank.authentication.config;
 
-
 import com.bank.authentication.service.UserDetailsServiceImpl;
 import com.bank.authentication.session.SessionFilter;
 import com.bank.authentication.util.AuthEntryPointJwt;
@@ -19,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -30,7 +30,8 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler, JwtUtils jwtUtils) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler,
+            JwtUtils jwtUtils) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtUtils = jwtUtils;
@@ -51,7 +52,6 @@ public class SecurityConfig {
         return builder.getAuthenticationManager();
     }
 
-
     @Bean
     public SessionFilter sessionFilter() {
         return new SessionFilter(); // Instantiate your custom session filter
@@ -59,24 +59,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(authorizeRequest -> authorizeRequest
-                //authentication
+                // authentication
 
                 .requestMatchers("/api/users/get").authenticated()
 
-
-
-               //customer
+                // customer
                 .requestMatchers("/customer-service/{userId}/get").authenticated()
                 .requestMatchers("/customer-service/getall").authenticated()
                 .requestMatchers("/customer-service/{userId}/delete").authenticated()
                 .requestMatchers("/customer-service/{userId}/update").authenticated()
                 .requestMatchers("/customer-service/{userId}/upload").authenticated()
 
-                //transaction
+                // transaction
                 .requestMatchers("/transaction-service/session").authenticated()
-
-
 
                 .anyRequest().permitAll());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -6,8 +6,9 @@ import java.math.BigDecimal;
 
 public interface TransactionService {
 
-
-    String fundTransfer(BigDecimal receiverAmount, Long receiverAccountNumber);
+    String fundTransfer(BigDecimal receiverAmount, Long receiverAccountNumber, String idempotencyKey);
 
     UserSession getSession();
+
+    java.util.List<com.bank.transaction.model.Transaction> getAllTransactions(Long accountNumber);
 }

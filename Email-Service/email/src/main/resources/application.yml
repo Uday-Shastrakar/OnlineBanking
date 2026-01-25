@@ -2,7 +2,7 @@ spring:
   application:
     name: "email"
   config:
-    import: "optional:configserver:http://192.168.1.100:9092/"
+    import: "optional:configserver:http://localhost:9092/"
 
 #  mail:
 #    host: 192.168.1.100
@@ -46,4 +46,4 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://192.168.1.100:8761/eureka
+      defaultZone: http://localhost:8761/eureka

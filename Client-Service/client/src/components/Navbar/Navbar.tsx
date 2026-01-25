@@ -8,23 +8,30 @@ import useAuth from "../../components/hooks/UseAuth";
 
 const NavBar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const navigate = useNavigate();
 
   const isAuthenticated = useAuth();
 
   // Retrieve roles from localStorage
   const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+  const userName = localStorage.getItem("userName") || "User";
 
   // Role checks
   const isCustomer = roles.includes("CUSTOMER");
-  const isAdminOrUser: boolean = roles.some((role: string) => role === "ADMIN" || role === "USER");
+  const isAdmin = roles.some((role: string) => role === "ADMIN" || role === "USER");
 
-  const handleMouseEnter = () => {
-    setShowDropdown(true);
+  const handleMouseEnter = (dropdown: string) => {
+    if (dropdown === "users") setShowDropdown(true);
+    if (dropdown === "admin") setShowAdminDropdown(true);
+    if (dropdown === "customer") setShowCustomerDropdown(true);
   };
 
-  const handleMouseLeave = () => {
-    setShowDropdown(false);
+  const handleMouseLeave = (dropdown: string) => {
+    if (dropdown === "users") setShowDropdown(false);
+    if (dropdown === "admin") setShowAdminDropdown(false);
+    if (dropdown === "customer") setShowCustomerDropdown(false);
   };
 
   const handleLogout = () => {
@@ -33,7 +40,7 @@ const NavBar: React.FC = () => {
     localStorage.removeItem("roles");
     localStorage.removeItem("permissions");
     localStorage.removeItem("userDetails");
-    navigate("/"); // Redirect to the home page after logout
+    navigate("/");
     window.location.reload();
   };
 
@@ -50,30 +57,78 @@ const NavBar: React.FC = () => {
           </Link>
         </div>
         <ul>
-          {/* Hide Home if the user is a CUSTOMER or if the role is ADMIN/USER */}
-          {!isCustomer && !isAdminOrUser && (
+          {/* Home - Show for non-authenticated users */}
+          {!isAuthenticated && (
             <li>
               <Link to="/">Home</Link>
             </li>
           )}
 
-          {/* Hide Dashboard if the role is ADMIN/USER */}
-          {!isAdminOrUser && (
-            <li>
-              <Link to="/dashboard">Dashboard</Link>
+          {/* Customer Portal Dropdown */}
+          {isCustomer && (
+            <li
+              className="dropdown"
+              onMouseEnter={() => handleMouseEnter("customer")}
+              onMouseLeave={() => handleMouseLeave("customer")}
+            >
+              <Link to="#">Customer Portal</Link>
+              {showCustomerDropdown && (
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </li>
+                  <li>
+                    <Link to="/accounts">My Accounts</Link>
+                  </li>
+                  <li>
+                    <Link to="/transfer">Transfer Funds</Link>
+                  </li>
+                  <li>
+                    <Link to="/transactions">Transaction History</Link>
+                  </li>
+                  <li>
+                    <Link to="/profile">Profile</Link>
+                  </li>
+                </ul>
+              )}
             </li>
           )}
 
+          {/* Admin Portal Dropdown */}
+          {isAdmin && (
+            <li
+              className="dropdown"
+              onMouseEnter={() => handleMouseEnter("admin")}
+              onMouseLeave={() => handleMouseLeave("admin")}
+            >
+              <Link to="#">Admin Panel</Link>
+              {showAdminDropdown && (
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to="/admin/dashboard">Dashboard</Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/users">User Management</Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/audit">Audit Center</Link>
+                  </li>
+                </ul>
+              )}
+            </li>
+          )}
+
+          {/* Services - Always visible */}
           <li>
             <Link to="/services">Services</Link>
           </li>
 
-          {/* Hide Users if the user is a CUSTOMER */}
-          {!isCustomer && (
+          {/* Users Dropdown - Hide for customers */}
+          {!isCustomer && !isAdmin && (
             <li
               className="dropdown"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={() => handleMouseEnter("users")}
+              onMouseLeave={() => handleMouseLeave("users")}
             >
               <Link to="#">Users</Link>
               {showDropdown && (
@@ -86,13 +141,21 @@ const NavBar: React.FC = () => {
             </li>
           )}
 
+          {/* Welcome Message for authenticated users */}
+          {isAuthenticated && (
+            <li style={{ color: "#1a237e", fontWeight: "bold", padding: "0 10px" }}>
+              Welcome, {userName}
+            </li>
+          )}
+
+          {/* Login Button */}
           {!isAuthenticated && (
             <li>
               <button
                 onClick={() => {
-                  navigate("/login"); // Redirect to login page
+                  navigate("/login");
                 }}
-                style={{ border: "none", background: "none" }}
+                style={{ border: "none", background: "none", cursor: "pointer" }}
               >
                 <img
                   src={login}
@@ -103,6 +166,7 @@ const NavBar: React.FC = () => {
             </li>
           )}
 
+          {/* Logout Button */}
           {isAuthenticated && (
             <li>
               <img

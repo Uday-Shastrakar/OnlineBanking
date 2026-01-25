@@ -16,14 +16,22 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/session")
-    public UserSession getSession(){
+    public UserSession getSession() {
         return transactionService.getSession();
 
     }
 
     @PostMapping("/transfer")
-    public String fundTransfer(@RequestParam BigDecimal receiverAmount, @RequestParam Long receiverAccountNumber){
-        return transactionService.fundTransfer(receiverAmount, receiverAccountNumber);
+    public String fundTransfer(@RequestParam BigDecimal receiverAmount,
+            @RequestParam Long receiverAccountNumber,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+        return transactionService.fundTransfer(receiverAmount, receiverAccountNumber, idempotencyKey);
 
+    }
+
+    @GetMapping("/getall")
+    public java.util.List<com.bank.transaction.model.Transaction> getAllTransactions(
+            @RequestParam Long accountNumber) {
+        return transactionService.getAllTransactions(accountNumber);
     }
 }

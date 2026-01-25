@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.sql.Date;
 
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,13 +27,5 @@ public class Customers extends BaseEntity<Long> {
 
     @Lob
     private byte[] proofOfAddress;
-
-    @PrePersist
-    protected void prePersist() {super.prePersist();}
-
-    @PreUpdate
-    protected void preUpdate() {
-        super.preUpdate();
-    }
 
 }

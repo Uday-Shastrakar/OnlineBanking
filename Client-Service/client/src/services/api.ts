@@ -2,24 +2,30 @@ import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 
 // Create an Axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://192.168.1.100:9093/api'  ,// Base URL for your API
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api',// Base URL for your API Gateway
 
-  // baseURL: 'http://192.168.1.100:909yar3/api',
+  // baseURL: 'http://192.168.1.100:9093/api',
 
   // baseURL: process.env.REACT_APP_API_BASE_URL,
-  
+
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor to add token to headers
+// Request interceptor to add token and optional idempotency key
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken'); // Retrieve the token from local storage or a state management library
+  (config: any) => {
+    const token = localStorage.getItem('authToken');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Add the token to the Authorization header
+      config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add Idempotency-Key if provided in request config
+    if (config.idempotencyKey) {
+      config.headers['Idempotency-Key'] = config.idempotencyKey;
+    }
+
     return config;
   },
   (error: AxiosError) => {

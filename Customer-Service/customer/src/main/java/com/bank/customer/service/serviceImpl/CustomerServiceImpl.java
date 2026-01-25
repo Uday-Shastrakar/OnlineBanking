@@ -8,13 +8,12 @@ import com.bank.customer.repository.CustomerRepository;
 import com.bank.customer.service.CustomerService;
 import com.bank.customer.utils.ImageUtils;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,12 +27,31 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
+
     @Override
     @Transactional
     public CreateCustomerDTO createCustomer(CreateCustomerDTO createCustomerDTO) throws IOException {
         Customers customer = convertToEntity(createCustomerDTO);
         Customers savedCustomer = customerRepository.save(customer);
-        return convertToDto(savedCustomer);
+        CreateCustomerDTO result = convertToDto(savedCustomer);
+
+        // Publish Event to Kafka for Account Creation
+        try {
+            com.bank.customer.event.CustomerCreatedEvent event = new com.bank.customer.event.CustomerCreatedEvent(
+                    result.getUserId(),
+                    result.getId(),
+                    result.getEmail(),
+                    result.getFirstName(),
+                    result.getLastName());
+            kafkaTemplate.send("customer-created", event);
+        } catch (Exception e) {
+            // Log error but don't fail the transaction (Audit will catch this)
+            System.err.println("Failed to publish CustomerCreatedEvent: " + e.getMessage());
+        }
+
+        return result;
     }
 
     @Override
@@ -41,7 +59,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void createAccount(AccountDTO accountDTO) throws IOException {
         accountService.createAccount(accountDTO);
     }
-
 
     @Override
     @Transactional
@@ -119,26 +136,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private Customers convertToEntity(CreateCustomerDTO dto) {
-        Customers customer = new Customers();
-        updateCustomerFields(customer, dto);
-        return customer;
+        if (dto == null)
+            return null;
+        Customers entity = new Customers();
+        BeanUtils.copyProperties(dto, entity);
+        return entity;
     }
 
-    private CreateCustomerDTO convertToDto(Customers customer) {
-        return new CreateCustomerDTO(
-                customer.getId(),
-                customer.getUserId(),
-                customer.getFirstName(),
-                customer.getLastName(),
-                customer.getPhoneNumber(),
-                customer.getEmail(),
-                customer.getGender(),
-                customer.getAddress(),
-                customer.getDateOfBirth(),
-                customer.getStatus()
-        );
+    private CreateCustomerDTO convertToDto(Customers entity) {
+        if (entity == null)
+            return null;
+        CreateCustomerDTO dto = new CreateCustomerDTO();
+        BeanUtils.copyProperties(entity, dto);
+        return dto;
     }
 
 }
-
-

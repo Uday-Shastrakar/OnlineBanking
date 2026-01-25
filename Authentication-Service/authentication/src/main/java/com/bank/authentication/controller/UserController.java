@@ -5,6 +5,7 @@ import com.bank.authentication.dto.AccountManagerRequestDTO;
 import com.bank.authentication.dto.CustomerCredentialRequestDTO;
 import com.bank.authentication.dto.UserCreationRequestDto;
 import com.bank.authentication.dto.UserDetailDto;
+import com.bank.authentication.event.UserRegisteredEvent;
 import com.bank.authentication.model.User;
 import com.bank.authentication.service.UserService;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +25,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(AuditLogger auditLogger) {
@@ -30,7 +35,8 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserDetailDto> createUser(@RequestBody UserCreationRequestDto request, @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+    public ResponseEntity<UserDetailDto> createUser(@RequestBody UserCreationRequestDto request,
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -46,7 +52,8 @@ public class UserController {
     }
 
     @PostMapping("/customer")
-    public ResponseEntity<UserDetailDto> createCustomerUser(@RequestBody CustomerCredentialRequestDTO request, @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+    public ResponseEntity<UserDetailDto> createCustomerUser(@RequestBody CustomerCredentialRequestDTO request,
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -63,14 +70,26 @@ public class UserController {
         request.getCreateCustomerDto().setLastName(createdUser.getLastName());
         request.getCreateCustomerDto().setPhoneNumber(createdUser.getPhoneNumber());
 
-        userService.createCustomerUser(request.getCreateCustomerDto(),correlationId);
+        userService.createCustomerUser(request.getCreateCustomerDto(), correlationId);
         logger.debug("bank-correlation-id found: {} ", correlationId);
         auditLogger.logAction("CUSTOMER_REGISTERED", user.getUsername());
+
+        // Publish Event to Kafka
+        try {
+            UserRegisteredEvent event = new UserRegisteredEvent(createdUser.getUserId(), createdUser.getEmail(),
+                    createdUser.getFirstName(), createdUser.getLastName());
+            kafkaTemplate.send("user-registered", event);
+            logger.info("Published UserRegisteredEvent for user: {}", user.getUsername());
+        } catch (Exception e) {
+            logger.error("Failed to publish UserRegisteredEvent", e);
+        }
+
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/account-manager")
-    public ResponseEntity<UserDetailDto> createCustomerUser(@RequestBody AccountManagerRequestDTO request, @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+    public ResponseEntity<UserDetailDto> createCustomerUser(@RequestBody AccountManagerRequestDTO request,
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -79,7 +98,8 @@ public class UserController {
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());
 
-        UserDetailDto createdUserOfAccount = userService.createUser(user, request.getRoleNames(), request.getPermissionNames());
+        UserDetailDto createdUserOfAccount = userService.createUser(user, request.getRoleNames(),
+                request.getPermissionNames());
 
         request.setUserId(createdUserOfAccount.getUserId());
 
@@ -89,13 +109,12 @@ public class UserController {
         return new ResponseEntity<>(createdUserOfAccount, HttpStatus.CREATED);
     }
 
-
     @GetMapping("/get")
-    public ResponseEntity<List<UserDetailDto>> getAllUsers(@RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+    public ResponseEntity<List<UserDetailDto>> getAllUsers(
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
         List<UserDetailDto> userDetails = userService.getAllUsers();
         logger.debug("bank-correlation-id found: {} ", correlationId);
         return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
-
 
 }
