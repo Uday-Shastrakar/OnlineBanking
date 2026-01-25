@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+      routes:
+        - id: authentication-service
+          uri: lb://authentication
+          predicates:
+            - Path=/api/auth/**, /api/users/**
+        - id: accounts-service
+          uri: lb://accounts
+          predicates:
+            - Path=/api/account/**
+        - id: customer-service
+          uri: lb://customer
+          predicates:
+            - Path=/api/customer/**
+        - id: transaction-service
+          uri: lb://transaction
+          predicates:
+            - Path=/api/transaction/**
+        - id: audit-service
+          uri: lb://audit-service
+          predicates:
+            - Path=/api/audit/**
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
