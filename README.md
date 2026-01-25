@@ -1,42 +1,125 @@
-# Online Banking Microservices
+# 💳 Online Banking Application
 
-This is a comprehensive microservices-based banking application built with Spring Boot, React, and MySQL.
+An end-to-end web-based online banking system built with **Java Spring Boot** on the backend and **React** for the frontend. This application enables users to manage bank accounts, perform transactions, and access banking services securely and efficiently.
 
-## Architecture
+---
 
-The project follows a standard microservices architecture:
-- **Discovery Service**: Eureka Server for service registration and discovery.
-- **API Gateway**: Spring Cloud Gateway for centralized routing and security.
-- **Authentication Service**: Handles user login, registration, and JWT token management.
-- **Accounts Service**: Manages bank account information and operations.
-- **Customer Service**: Handles customer profiles and data.
-- **Transaction Service**: Processes financial transactions.
-- **Email Service**: Handles email notifications and OTPs.
-- **Config Service**: Centralized configuration management.
-- **Client Service**: React-based frontend application.
+## 🚀 Features
 
-## Getting Started
+### 👤 User Module
+- Register, login, logout with JWT-based authentication
+- Profile management and account settings
 
-### Prerequisites
-- Java 17
-- Node.js & Yarn
-- MySQL
-- Docker & Docker Compose
+### 🏦 Banking Operations
+- View account balance and transaction history
+- Money transfer between accounts
+- Deposit and withdrawal functions
+- Scheduled payments (optional)
 
-### Local Development
+### 📊 Admin Dashboard
+- Manage users and bank accounts
+- View and approve transactions
+- Role-based access (Admin/User)
 
-1. **Start Infrastructure**: Run MySQL and the Config Service.
-2. **Start Discovery Service**: Start the Eureka Server in `Discovery-Service`.
-3. **Start Services**: Start each microservice using `mvn spring-boot:run`.
-4. **Start Frontend**: Run `yarn start` in the `Client-Service` directory.
+### 🛡️ Security
+- Spring Security with JWT
+- Password encryption (BCrypt)
+- Role-based authorization
+- CSRF protection
 
-### Running with Docker
+---
 
-Use the root `docker-compose.yml` to start the entire system:
+## 🛠️ Tech Stack
+
+| Layer        | Technology                          |
+|--------------|--------------------------------------|
+| **Frontend** | React, Axios, Tailwind CSS / Bootstrap |
+| **Backend**  | Java 17, Spring Boot, Spring Security, Spring Data JPA |
+| **Database** | MySQL / PostgreSQL                   |
+| **Auth**     | JWT (JSON Web Tokens), BCrypt        |
+| **Tools**    | Maven, Postman, Git, Docker (optional) |
+
+---
+
+## 📁 Project Structure
+
+### Backend (`/backend`)
+src/
+├── main/java/com/bankapp
+│ ├── controller
+│ ├── service
+│ ├── model
+│ ├── repository
+│ └── config (Spring Security)
+└── main/resources
+└── application.properties
+
+shell
+Copy
+Edit
+
+### Frontend (`/frontend`)
+src/
+├── components
+├── pages
+├── services (API calls)
+└── App.jsx / App.tsx
+
+yaml
+Copy
+Edit
+
+---
+
+## ⚙️ Getting Started
+
+### Backend Setup (Spring Boot)
 ```bash
-docker-compose up --build
-```
+cd backend
+mvn clean install
+# Run the app
+mvn spring-boot:run
+Frontend Setup (React)
+bash
+Copy
+Edit
+cd frontend
+npm install
+npm start
+Database Setup
+Create a schema (e.g., banking_app)
 
-## API Documentation
+Update DB credentials in application.properties
 
-Each service provides Swagger UI documentation. Once running, access the API Gateway docs at `http://localhost:8080/swagger-ui.html`.
+properties
+Copy
+Edit
+spring.datasource.url=jdbc:mysql://localhost:3306/banking_app
+spring.datasource.username=root
+spring.datasource.password=your_password
+✅ API Overview (Sample)
+Endpoint	Method	Description
+/api/auth/register	POST	Register a new user
+/api/auth/login	POST	User login, returns JWT
+/api/account/balance	GET	Get current balance
+/api/transaction/send	POST	Transfer money to another user
+
+🧪 Testing
+Unit Tests: JUnit + Mockito
+
+API Testing: Postman collections included
+
+📸 Screenshots
+(Add screenshots of dashboard, transfer page, etc.)
+
+📌 Future Enhancements
+Add OTP-based transaction confirmation
+
+Integrate email notifications
+
+Add mobile responsiveness (React Native / PWA)
+
+👨‍💻 Author
+Uday Shastrakar
+📧 uday.shastrakar@gmail.com
+GitHub | LinkedIn
