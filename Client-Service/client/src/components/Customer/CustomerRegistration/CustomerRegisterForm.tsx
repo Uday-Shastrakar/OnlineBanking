@@ -5,7 +5,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useNavigate } from "react-router-dom";
-import { register, uploadDocument } from "../../../services/customerService";
+import { customerService } from "../../../services/customerService";
 import { CustomerRegisterForm } from "../../../Types";
 import "./CustomerRegisterForm.css";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -92,7 +92,7 @@ const CustomerRegister: React.FC = () => {
 
     try {
       // Step 1: Register Customer
-      const response: any = await register(registerForm);
+      const response: any = await customerService.register(registerForm);
       console.log("Registration Response:", response);
 
       // Step 2: Extract User ID from response
@@ -106,7 +106,7 @@ const CustomerRegister: React.FC = () => {
 
       // Step 3: Upload Document if selected
       if (selectedFile) {
-        await uploadDocument(userId, selectedFile);
+        await customerService.uploadDocument(userId, selectedFile);
         console.log("Document uploaded successfully");
       }
 

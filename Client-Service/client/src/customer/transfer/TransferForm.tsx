@@ -4,8 +4,9 @@ import {
     CircularProgress, Alert, Card, CardContent, Divider
 } from '@mui/material';
 import { Send, Cached, CheckCircle, Error } from '@mui/icons-material';
-import api from '../../services/api';
+import { transactionService } from '../../services/api/transactionService';
 import { useIdempotency } from '../../hooks/useIdempotency';
+import api from '../../services/api';
 import { BankAccount } from '../../types/banking';
 
 type TransferState = 'IDLE' | 'SUBMITTING' | 'PENDING' | 'COMPLETED' | 'FAILED' | 'DUPLICATE';
@@ -13,7 +14,7 @@ type TransferState = 'IDLE' | 'SUBMITTING' | 'PENDING' | 'COMPLETED' | 'FAILED' 
 /**
  * TransferForm Component
  * A production-grade fund transfer interface that enforces idempotency.
- * Integrated with Saga-orchestrated backend states.
+ * Uses the new transaction API with gateway headers and proper security.
  */
 const TransferForm: React.FC = () => {
     const { idempotencyKey, rotateKey } = useIdempotency();
@@ -36,6 +37,9 @@ const TransferForm: React.FC = () => {
                 const activeAccounts = (Array.isArray(response.data) ? response.data : [response.data])
                     .filter((a: BankAccount) => a.status === 'ACTIVE');
                 setAccounts(activeAccounts);
+                if (activeAccounts.length > 0) {
+                    setSenderId(activeAccounts[0].id.toString());
+                }
             } catch (err) {
                 setMessage("Failed to load your accounts.");
             }
@@ -51,21 +55,19 @@ const TransferForm: React.FC = () => {
         setMessage(null);
 
         try {
-            /**
-             * CRITICAL: Idempotency is handled at the network layer via interceptors.
-             * We pass 'idempotencyKey' in the custom request config.
-             */
-            const response = await api.post('/transaction/transfer', null, {
-                params: {
-                    receiverAmount: amount,
-                    receiverAccountNumber: receiverAccount
-                },
-                // Custom config handled by interceptor
-                idempotencyKey: idempotencyKey
-            } as any);
+            // Use the new transaction API with proper gateway headers
+            const transferRequest = {
+                sourceAccountId: parseInt(senderId),
+                destinationAccountId: parseInt(receiverAccount),
+                amount: parseFloat(amount),
+                currency: 'USD',
+                description: description || 'Fund Transfer'
+            };
 
+            const response = await transactionService.initiateTransfer(transferRequest);
+            
             setStatus('COMPLETED');
-            setMessage("Transaction successfully initiated! Funds are being moved.");
+            setMessage(`Transaction successful! Transaction ID: ${response.transactionId}`);
             // Rotate key after success to allow a fresh transaction
             rotateKey();
         } catch (err: any) {
@@ -73,9 +75,12 @@ const TransferForm: React.FC = () => {
                 setStatus('DUPLICATE');
                 setMessage("This transaction was already processed. Here is the previous result.");
                 setCachedResult(err.response.data);
+            } else if (err.response?.status === 403) {
+                setStatus('FAILED');
+                setMessage("You don't have permission to perform this transfer.");
             } else {
                 setStatus('FAILED');
-                setMessage(err.response?.data?.message || "Transfer failed. You can safely retry this specific transaction.");
+                setMessage(err.response?.data?.message || "Transfer failed. You can safely retry this transaction.");
             }
         }
     };

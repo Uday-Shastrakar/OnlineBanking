@@ -79,7 +79,7 @@ const Login: React.FC = () => {
           Log In
         </Button>
         {error && (
-            <Typography color="error" align="center" variant="body2">
+            <Typography className="error-message" variant="body2">
               {error}
             </Typography>
           )}

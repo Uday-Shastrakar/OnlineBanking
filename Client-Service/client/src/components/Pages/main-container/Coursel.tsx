@@ -1,9 +1,11 @@
 import React from "react";
 import { Box, Fab } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Coursel.css";
 
 const Coursel: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
     <Box mt="30px">
       <div className="coursel-page">
@@ -16,8 +18,16 @@ const Coursel: React.FC = () => {
             variant="extended"
             className="fab-button"
             aria-label="open-account"
-            onClick={() => {
-              window.location.href = "/CustomerRegistration";
+            onClick={() => navigate('/CustomerRegistration')}
+            sx={{
+              bgcolor: 'rgba(26, 188, 156, 0.7) !important',
+              color: '#ffffff !important',
+              fontWeight: 'bold',
+              '&:hover': { 
+                bgcolor: 'rgba(26, 188, 156, 0.9) !important',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(26, 188, 156, 0.3)'
+              }
             }}
           >
             Open Account

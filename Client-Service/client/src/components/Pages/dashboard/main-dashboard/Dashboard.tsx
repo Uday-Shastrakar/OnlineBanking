@@ -1,11 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Container, Paper, Divider } from '@mui/material';
+import { Box, Typography, Container, Paper, Divider, CircularProgress, Alert } from '@mui/material';
+import { useSidebar } from '../../../../contexts/SidebarContext';
+import { customerService } from '../../../../services/customerService';
+import { accountService, AccountQueryDto } from '../../../../services/api/accountService';
+import { userCustomerMappingService } from '../../../../services/api/userCustomerMappingService';
 import Sidebar from '../sidebar/Sidebar';
 import './Dashboard.css';
 
+interface Customer {
+  customerId: number;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  kycStatus: string;
+  status: string;
+}
+
+interface Account {
+  accountId: string;
+  accountNumber: string;
+  accountType: string;
+  balance: number;
+  status: string;
+  customerId?: number;
+}
+
 const Dashboard: React.FC = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { collapsed } = useSidebar();
   const [userData, setUserData] = useState<any | null>(null);
+  const [customerData, setCustomerData] = useState<Customer | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch user details from localStorage
   useEffect(() => {
@@ -13,10 +39,45 @@ const Dashboard: React.FC = () => {
     if (storedData) {
       const parsedData = JSON.parse(storedData);
       if (Array.isArray(parsedData) && parsedData.length > 0) {
-        setUserData(parsedData[0]); // Assuming only the first user is needed
+        setUserData(parsedData[0]);
       }
     }
   }, []);
+
+  // Fetch customer data and accounts
+  useEffect(() => {
+    const fetchCustomerDataAndAccounts = async () => {
+      if (!userData) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Get customer data using user-customer mapping
+        const mapping = await userCustomerMappingService.getMappingByUserId(userData.userId);
+        if (!mapping) {
+          setError('No customer account found for this user');
+          return;
+        }
+
+        // Fetch customer details
+        const customer = await customerService.getCustomer(mapping.customerId);
+        setCustomerData(customer as Customer | null);
+
+        // Fetch customer accounts
+        const customerAccounts = await accountService.getAccountsByCustomerId(mapping.customerId);
+        setAccounts(customerAccounts as Account[]);
+
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomerDataAndAccounts();
+  }, [userData]);
 
   return (
     <Box>
@@ -30,14 +91,14 @@ const Dashboard: React.FC = () => {
       {/* Content */}
       <Box display="flex">
         {/* Sidebar */}
-        <Sidebar onCollapse={setSidebarCollapsed} />
+        <Sidebar />
 
         {/* Main content */}
         <Box
-          className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}
+          className={`main-content ${collapsed ? 'collapsed' : ''}`}
           sx={{
             flexGrow: 1,
-            marginLeft: sidebarCollapsed ? '60px' : '250px',
+            marginLeft: collapsed ? '60px' : '250px',
             marginTop: '64px', // Adjust for navbar height
             padding: '20px',
             transition: 'margin-left 0.3s ease',

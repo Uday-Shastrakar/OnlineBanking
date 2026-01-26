@@ -3,55 +3,121 @@ import {
     Box, Typography, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper,
     Chip, TextField, Grid, Button, CircularProgress,
-    Alert, Tooltip, IconButton
+    Alert, Tooltip, IconButton, Pagination
 } from '@mui/material';
 import {
     FilterList, History, InfoOutlined,
     Search, Terminal, AssignmentTurnedIn
 } from '@mui/icons-material';
-import api from '../../services/api';
-import { AuditLog } from '../../types/banking';
+import { auditService } from '../../services/api/auditService';
+import { AuditEvent } from '../../services/api/auditService';
+import { BankAccount } from '../../types/banking';
 
 /**
  * AuditCenter Component
  * Forensic log viewer for security administrators.
  * Provides immutable visibility into all system-wide activities.
+ * Uses the new audit API with proper gateway security.
  */
 const AuditCenter: React.FC = () => {
-    const [logs, setLogs] = useState<AuditLog[]>([]);
+    const [logs, setLogs] = useState<AuditEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [metrics, setMetrics] = useState<any>(null);
 
     // Filter states
     const [userId, setUserId] = useState('');
-    const [action, setAction] = useState('');
+    const [domain, setDomain] = useState('');
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
         const fetchLogs = async () => {
             setLoading(true);
             try {
-                const response = await api.get('/audit/all');
-                setLogs(response.data);
+                const response = await auditService.getAllAuditEvents({
+                    page,
+                    size: 50,
+                    userId: userId || undefined,
+                    domain: domain || undefined
+                });
+                setLogs(response.content);
+                setTotalPages(response.totalPages);
             } catch (err: any) {
-                setError("Audit logs could not be retrieved. Ensure Audit-Service is reachable.");
+                if (err.response?.status === 403) {
+                    setError("Access denied. You don't have permission to view audit logs.");
+                } else {
+                    setError("Audit logs could not be retrieved. Ensure Audit-Service is reachable.");
+                }
                 // Mock data for UI demonstration
                 setLogs([
-                    { id: 1, timestamp: new Date().toISOString(), userId: "admin", action: "LOGIN", status: "SUCCESS", correlationId: "tx-9988-aa" },
-                    { id: 2, timestamp: new Date().toISOString(), userId: "uday", action: "TRANSFER", status: "COMPLETED", correlationId: "tx-1122-bb", details: "Transfer to 123456" },
-                    { id: 3, timestamp: new Date().toISOString(), userId: "sys", action: "BLOCK", status: "TRIGGERED", correlationId: "tx-4433-cc", details: "Account 9988 blocked due to risk" },
+                    { 
+                        id: 1, 
+                        eventId: "audit-001",
+                        domain: "TRANSACTION", 
+                        action: "TRANSFER_INITIATED", 
+                        entityId: "tx-001",
+                        userId: "admin", 
+                        eventTimestamp: new Date().toISOString(),
+                        details: { amount: 1000, currency: "USD" },
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
+                    { 
+                        id: 2, 
+                        eventId: "audit-002",
+                        domain: "TRANSACTION", 
+                        action: "TRANSFER_COMPLETED", 
+                        entityId: "tx-001",
+                        userId: "uday", 
+                        eventTimestamp: new Date().toISOString(),
+                        details: { amount: 1000, currency: "USD", status: "COMPLETED" },
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
+                    { 
+                        id: 3, 
+                        eventId: "audit-003",
+                        domain: "SECURITY", 
+                        action: "ACCOUNT_BLOCKED", 
+                        entityId: "acc-001",
+                        userId: "sys", 
+                        eventTimestamp: new Date().toISOString(),
+                        details: { reason: "Suspicious activity detected" },
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
                 ]);
+                setTotalPages(1);
             } finally {
                 setLoading(false);
             }
         };
         fetchLogs();
+    }, [page, userId, domain]);
+
+    useEffect(() => {
+        const fetchMetrics = async () => {
+            try {
+                const response = await auditService.getSystemMetrics();
+                setMetrics(response);
+            } catch (err: any) {
+                console.error('Failed to fetch metrics:', err);
+            }
+        };
+        fetchMetrics();
     }, []);
 
     const getActionColor = (act: string) => {
         switch (act) {
+            case 'TRANSFER_INITIATED':
+            case 'TRANSFER_COMPLETED': 
             case 'TRANSFER': return 'primary';
+            case 'ACCOUNT_BLOCKED':
             case 'BLOCK': return 'error';
+            case 'LOGIN_SUCCESS':
             case 'LOGIN': return 'success';
+            case 'TRANSFER_FAILED': return 'warning';
             default: return 'default';
         }
     };
@@ -77,8 +143,8 @@ const AuditCenter: React.FC = () => {
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <TextField
-                            fullWidth size="small" label="Action Type (e.g. TRANSFER)"
-                            value={action} onChange={(e) => setAction(e.target.value)}
+                            fullWidth size="small" label="Domain (e.g. TRANSACTION)"
+                            value={domain} onChange={(e) => setDomain(e.target.value)}
                         />
                     </Grid>
                     <Grid item xs={12} md={4}>
@@ -97,22 +163,22 @@ const AuditCenter: React.FC = () => {
                             <TableCell sx={{ color: 'white' }}><strong>User</strong></TableCell>
                             <TableCell sx={{ color: 'white' }}><strong>Action</strong></TableCell>
                             <TableCell sx={{ color: 'white' }}><strong>Status</strong></TableCell>
-                            <TableCell sx={{ color: 'white' }}><strong>Correlation ID</strong></TableCell>
+                            <TableCell sx={{ color: 'white' }}><strong>Event ID</strong></TableCell>
                             <TableCell sx={{ color: 'white' }} align="center"><strong>Details</strong></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {logs.map((log) => (
                             <TableRow key={log.id} hover>
-                                <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
+                                <TableCell>{new Date(log.eventTimestamp || log.timestamp || new Date()).toLocaleString()}</TableCell>
                                 <TableCell><Typography variant="body2" fontWeight="bold">{log.userId}</Typography></TableCell>
                                 <TableCell>
                                     <Chip label={log.action} size="small" color={getActionColor(log.action) as any} />
                                 </TableCell>
-                                <TableCell>{log.status}</TableCell>
-                                <TableCell><Typography variant="caption" fontFamily="monospace">{log.correlationId}</Typography></TableCell>
+                                <TableCell>{log.status || 'N/A'}</TableCell>
+                                <TableCell><Typography variant="caption" fontFamily="monospace">{log.eventId}</Typography></TableCell>
                                 <TableCell align="center">
-                                    <Tooltip title={log.details || "No extra data"}>
+                                    <Tooltip title={log.details ? JSON.stringify(log.details) : "No extra data"}>
                                         <IconButton size="small"><InfoOutlined fontSize="small" /></IconButton>
                                     </Tooltip>
                                 </TableCell>

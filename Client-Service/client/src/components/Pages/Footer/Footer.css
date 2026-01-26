@@ -1,29 +1,25 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,500,300,700');
-
-* {
-  font-family: 'Open Sans', sans-serif;
-  box-sizing: border-box;
-}
-
-section {
-  width: 100%;
-  background: #333;
-  height: 50vh;
-  text-align: center;
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-  text-decoration: underline;
-  padding: 20px;
-}
-
+/* Footer.css - Professional Banking Theme */
 .footer-distributed {
-  background:white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
   width: 100%;
-  padding: 40px 50px;
-  color: #fff;
+  text-align: left;
   font: 16px 'Open Sans', sans-serif;
+  padding: 60px 50px;
+  margin-top: 0;
+  color: #ffffff;
+  position: relative;
+}
+
+.footer-distributed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6b6b 0%, #1a237e 50%, #ff6b6b 100%);
 }
 
 .footer-distributed .footer-left,
@@ -31,131 +27,224 @@ section {
 .footer-distributed .footer-right {
   display: inline-block;
   vertical-align: top;
+  width: 30%;
+  margin-right: 3%;
 }
 
-/* Footer left */
-
-.footer-distributed .footer-left {
-  width: 35%;
-}
-
+/* The company logo */
 .footer-distributed h3 {
-  color:black;
-  font-size: 36px;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: 1px;
+  color: #ffffff;
+  font: normal 32px 'Open Sans', cursive;
+  margin: 0 0 15px 0;
+  position: relative;
+}
+
+.footer-distributed h3::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: #ff6b6b;
 }
 
 .footer-distributed h3 span {
-  color: #1abc9c;
+  color: #ff6b6b;
 }
 
 /* Footer links */
-
 .footer-distributed .footer-links {
-  color: #ddd;
-  margin: 20px 0;
+  color: #ffffff;
+  margin: 25px 0 15px;
   padding: 0;
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .footer-distributed .footer-links a {
   display: inline-block;
   line-height: 1.8;
   text-decoration: none;
-  color: white;
-  margin: 0 10px;
-  font-weight: 500;
+  color: #ffffff;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  position: relative;
+  padding-left: 15px;
+}
+
+.footer-distributed .footer-links a::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  color: #ff6b6b;
+  font-size: 10px;
+  transition: transform 0.3s ease;
 }
 
 .footer-distributed .footer-links a:hover {
-  color: #1abc9c;
+  color: #ff6b6b;
+  padding-left: 20px;
+}
+
+.footer-distributed .footer-links a:hover::before {
+  transform: translateX(5px);
+}
+
+.footer-distributed .footer-company-name {
+  color: #b3b3b3;
+  font-size: 12px;
+  font-weight: normal;
+  margin: 25px 0 0 0;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Footer Center */
-
 .footer-distributed .footer-center {
   width: 30%;
 }
 
-.footer-distributed .footer-center i {
-  background-color: #1abc9c;
-  color:black;
+.footer-distributed .footer-center .MuiBox-root {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.footer-distributed .footer-center .MuiBox-root:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.footer-distributed .footer-center .MuiSvgIcon-root {
+  background-color: rgba(255, 107, 107, 0.2);
+  color: #ffffff;
   font-size: 20px;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   text-align: center;
   line-height: 40px;
-  margin: 10px 15px;
+  margin-right: 15px;
+  padding: 8px;
+  transition: all 0.3s ease;
+}
+
+.footer-distributed .footer-center .MuiBox-root:hover .MuiSvgIcon-root {
+  background-color: #ff6b6b;
+  transform: scale(1.1);
 }
 
 .footer-distributed .footer-center p {
   display: inline-block;
-  color:black;
+  color: #ffffff;
+  vertical-align: middle;
   margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .footer-distributed .footer-center p span {
   display: block;
+  font-weight: normal;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.4;
+  color: #ffffff;
 }
 
 .footer-distributed .footer-center p a {
-  color: #1abc9c;
+  color: #ffffff;
   text-decoration: none;
+  transition: color 0.3s ease;
+  font-weight: 500;
+}
+
+.footer-distributed .footer-center p a:hover {
+  color: #ff6b6b;
 }
 
 /* Footer Right */
-
 .footer-distributed .footer-right {
   width: 30%;
+  margin-right: 0;
 }
 
 .footer-distributed .footer-company-about {
-  color:black;
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.footer-distributed .footer-company-about span {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  line-height: 1.7;
+  color: #e0e0e0;
+  font-size: 13px;
+  font-weight: normal;
+  margin: 0 0 25px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #ff6b6b;
 }
 
 .footer-distributed .footer-icons {
-  margin-top: 25px;
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
 }
 
-.footer-distributed .footer-icons a {
+.footer-distributed .footer-icons .social-link {
   display: inline-block;
-  width: 35px;
-  height: 35px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
-  background-color: white;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  font-size: 18px;
   text-align: center;
-  line-height: 35px;
-  margin-right: 10px;
-  margin-bottom: 5px;
-  transition: background-color 0.3s ease;
+  line-height: 45px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.footer-distributed .footer-icons a:hover {
-  background-color: #1abc9c;
+.footer-distributed .footer-icons .social-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ff6b6b;
+  transform: scale(0);
+  transition: transform 0.3s ease;
+  border-radius: 50%;
 }
 
-/* Responsive */
+.footer-distributed .footer-icons .social-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+}
 
+.footer-distributed .footer-icons .social-link:hover::before {
+  transform: scale(1);
+}
+
+.social-icon-mui {
+  width: 24px !important;
+  height: 24px !important;
+  color: #ffffff !important;
+  transition: color 0.3s ease;
+  vertical-align: middle;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-distributed .footer-icons .social-link:hover .social-icon-mui {
+  color: #000000 !important;
+}
+
+/* Responsive Design */
 @media (max-width: 880px) {
   .footer-distributed {
-    font-size: 14px;
-    padding: 30px 20px;
+    font: bold 14px sans-serif;
+    padding: 40px 30px;
   }
 
   .footer-distributed .footer-left,
@@ -163,31 +252,44 @@ section {
   .footer-distributed .footer-right {
     display: block;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     text-align: center;
   }
-  
-  .footer-distributed .footer-center i {
-    margin-left: 0;
+
+  .footer-distributed .footer-center .MuiBox-root {
+    justify-content: center;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .footer-icons a {
-    display: inline-block;
-    margin-right: 10px;
-    margin-bottom: 5px;
+  .footer-distributed .footer-links {
+    align-items: center;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
   }
-  
-  .footer-icons .social-icon {
-    width: 35px; /* Set the desired width */
-    height: 35px; /* Set the desired height */
-    object-fit: cover; /* Ensures the image covers the area */
-    border-radius: 50%; /* Makes the logo round */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  .footer-distributed .footer-icons {
+    justify-content: center;
   }
-  
-  .footer-icons .social-icon:hover {
-    transform: scale(1.1); /* Slightly enlarges the icon on hover */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+
+  .footer-distributed h3::after {
+    left: 50%;
+    transform: translateX(-50%);
   }
-  
+}
+
+@media (max-width: 600px) {
+  .footer-distributed {
+    padding: 30px 20px;
+  }
+
+  .footer-distributed h3 {
+    font-size: 28px;
+  }
+
+  .footer-distributed .footer-company-about {
+    padding: 15px;
+  }
 }

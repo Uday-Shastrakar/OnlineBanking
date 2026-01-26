@@ -1,8 +1,11 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Box, CircularProgress } from '@mui/material';
 import Navbar from './components/Navbar/Navbar';
+import { SidebarProvider } from './contexts/SidebarContext';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import { useAuth } from './hooks/useAuth';
 import './App.css';
 import ProtectedRoute from './routes/ProtectedRoute';
 
@@ -43,21 +46,25 @@ const theme = createTheme({
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <Box width="100%" sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-          <Suspense
-            fallback={
-              <div className="loader-container">
-                <CircularProgress color="primary" />
-              </div>
-            }
-          >
-            <PageLayout />
-          </Suspense>
-        </Box>
-      </Router>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <SidebarProvider>
+          <Router>
+            <Box width="100%" sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+              <Suspense
+                fallback={
+                  <div className="loader-container">
+                    <CircularProgress color="primary" />
+                  </div>
+                }
+              >
+                <PageLayout />
+              </Suspense>
+            </Box>
+          </Router>
+        </SidebarProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 
@@ -82,9 +89,9 @@ const PageLayout: React.FC = () => {
           {/* Protected Customer Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><AccountList /></ProtectedRoute>} />
-          <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><TransferForm /></ProtectedRoute>} />
-          <Route path="/transactions" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><TransactionHistory /></ProtectedRoute>} />
+          <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER_USER', 'CUSTOMER']}><AccountList /></ProtectedRoute>} />
+          <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER_USER', 'CUSTOMER']}><TransferForm /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute allowedRoles={['CUSTOMER_USER', 'CUSTOMER']}><TransactionHistory /></ProtectedRoute>} />
 
           {/* Protected Admin Routes with Layout */}
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>

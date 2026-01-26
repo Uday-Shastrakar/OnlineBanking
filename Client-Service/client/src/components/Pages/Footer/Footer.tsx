@@ -1,53 +1,121 @@
 // src/components/Footer.tsx
 import React from 'react';
+import { Box, Typography, Link, Divider } from '@mui/material';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import './Footer.css';
 
-// Import your logo images
-import facebookLogo from '../assets/images/facebook-logo.png';
-import twitterLogo from '../assets/images/twitter-logo.png';
-import linkedinLogo from '../assets/images/linkedin-logo.png';
-import githubLogo from '../assets/images/github-logo.png';
-
 const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="footer-distributed">
       <div className="footer-left">
-        <h3>NUMS<span>Bank</span></h3>
-        <p className="footer-links">
-          <a href="#" className="link-1">Home</a>
-          <a href="#">About</a>
-          <a href="#">Faq</a>
-          <a href="#">Contact</a>
-        </p>
-        <p className="footer-company-name">NUMS BANK © 2024</p>
+        <Typography variant="h3" component="h3">
+          NUMS<span>Bank</span>
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2, color: '#e0e0e0', lineHeight: 1.6 }}>
+          Your trusted partner in digital banking solutions. We provide secure, innovative, and customer-centric financial services.
+        </Typography>
+        <Box className="footer-links">
+          <Link href="/" className="link-1" color="inherit" underline="hover">Home</Link>
+          <Link href="/about" color="inherit" underline="hover">About</Link>
+          <Link href="/faq" color="inherit" underline="hover">FAQ</Link>
+          <Link href="/contact" color="inherit" underline="hover">Contact</Link>
+        </Box>
+        <Typography variant="body2" className="footer-company-name">
+          © {currentYear} NUMS Bank. All rights reserved.
+        </Typography>
       </div>
 
       <div className="footer-center">
-        <div>
-          <i className="fa fa-map-marker"></i>
-          <p><span>Near Katraj Chowk</span> Pune, Maharashtra, INDIA</p>
-        </div>
-        <div>
-          <i className="fa fa-phone"></i>
-          <p>+91-5479622224</p>
-        </div>
-        <div>
-          <i className="fa fa-envelope"></i>
-          <p><a href="mailto:numsbank@gmail.com">numsbank@gmail.com</a></p>
-        </div>
+        <Typography variant="h6" sx={{ mb: 3, color: '#ffffff', fontWeight: 600 }}>
+          Contact Information
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+          <LocationOnIcon />
+          <Typography variant="body2">
+            Near Katraj Chowk, Pune<br />
+            Maharashtra, India - 411043
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+          <PhoneIcon />
+          <Typography variant="body2">
+            +91-5479622224<br />
+            Mon-Fri: 9:00 AM - 6:00 PM
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <EmailIcon />
+          <Typography variant="body2">
+            <Link href="mailto:support@numsbank.com" color="inherit" underline="hover">
+              support@numsbank.com
+            </Link>
+          </Typography>
+        </Box>
       </div>
 
       <div className="footer-right">
-        <p className="footer-company-about">
-          <span>About NUMS Bank</span>
-          NUMS Bank delivers modern, secure banking solutions with a focus on customer satisfaction. We offer innovative personal and business banking services through easy-to-use digital platforms.
-        </p>
-        <div className="footer-icons">
-          <a href="#"><img src={facebookLogo} alt="Facebook" className="social-icon" /></a>
-          <a href="#"><img src={twitterLogo} alt="Twitter" className="social-icon" /></a>
-          <a href="#"><img src={linkedinLogo} alt="LinkedIn" className="social-icon" /></a>
-          <a href="#"><img src={githubLogo} alt="GitHub" className="social-icon" /></a>
-        </div>
+        <Typography variant="h6" sx={{ mb: 3, color: '#ffffff', fontWeight: 600 }}>
+          About NUMS Bank
+        </Typography>
+        <Typography variant="body2" className="footer-company-about" sx={{ lineHeight: 1.7 }}>
+          NUMS Bank is a leading digital banking institution dedicated to providing innovative financial solutions. We combine cutting-edge technology with exceptional customer service to deliver secure and convenient banking experiences for our valued customers.
+        </Typography>
+        
+        <Typography variant="h6" sx={{ mt: 3, mb: 2, color: '#ffffff', fontWeight: 600 }}>
+          Follow Us
+        </Typography>
+        <Box className="footer-icons" sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Link 
+            href="https://linkedin.com/company/numsbank" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '50%',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: '#ff6b6b',
+                transform: 'translateY(-2px)'
+              }
+            }}
+          >
+            <LinkedInIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+          </Link>
+          <Link 
+            href="https://github.com/numsbank" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '50%',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: '#ff6b6b',
+                transform: 'translateY(-2px)'
+              }
+            }}
+          >
+            <GitHubIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+          </Link>
+        </Box>
       </div>
     </footer>
   );

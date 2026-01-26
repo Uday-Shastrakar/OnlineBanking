@@ -2,23 +2,15 @@ import React, { useState } from 'react';
 import { Box, List, ListItem, ListItemText, ListItemIcon, Divider, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Dashboard, Person, AccountBalance, Payment, ExitToApp, Assessment, People, Assignment, History as HistoryIcon } from '@mui/icons-material';
+import { useSidebar } from '../../../../contexts/SidebarContext';
 import './Sidebar.css';
 
-interface SidebarProps {
-  onCollapse: (isCollapsed: boolean) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
-  const [collapsed, setCollapsed] = useState(false);
+const Sidebar: React.FC = () => {
+  const { collapsed, toggleSidebar } = useSidebar();
   const rolesRaw = localStorage.getItem('roles');
   const roles: string[] = rolesRaw ? JSON.parse(rolesRaw) : [];
   const isAdmin = roles.includes('ADMIN');
-  const isCustomer = roles.includes('CUSTOMER');
-
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-    onCollapse(!collapsed); // Notify parent component about collapse state
-  };
+  const isCustomer = roles.includes('CUSTOMER_USER') || roles.includes('CUSTOMER'); // Support both old and new role names
 
   return (
     <Box

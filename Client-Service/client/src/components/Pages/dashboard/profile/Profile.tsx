@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Divider } from "@mui/material";
-import { getCustomer } from "../../../../services/customerService";
+import { customerService } from "../../../../services/customerService";
 import { GetCustomer } from "../../../../Types";
 
 const Profile: React.FC = () => {
@@ -30,7 +30,7 @@ const Profile: React.FC = () => {
     // Fetch user data using the userId
     const fetchCustomerData = async () => {
       try {
-        const data = await getCustomer(userId); // Fetch customer data
+        const data = await customerService.getCustomer(userId); // Fetch customer data
         setProfileData(data);
       } catch (err) {
         setError("Error fetching customer data");

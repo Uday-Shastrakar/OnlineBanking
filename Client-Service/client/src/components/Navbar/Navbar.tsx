@@ -1,26 +1,41 @@
 import React, { useState } from "react";
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
-import { Stack } from "@mui/material";
-import login from "../../assets/icons/login.png";
-import logout from "../../assets/icons/logout.png";
-import useAuth from "../../components/hooks/UseAuth";
+import { Stack, Button, Avatar, Typography, Menu, MenuItem } from "@mui/material";
+import { AccountCircle, Logout, Settings, Dashboard } from "@mui/icons-material";
+import { useAuth } from "../../hooks/useAuth";
 
 const NavBar: React.FC = () => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const navigate = useNavigate();
 
-  const isAuthenticated = useAuth();
+  const { logout: handleLogout, isAuthenticated, remainingTime } = useAuth();
 
   // Retrieve roles from localStorage
   const roles = JSON.parse(localStorage.getItem("roles") || "[]");
   const userName = localStorage.getItem("userName") || "User";
 
   // Role checks
-  const isCustomer = roles.includes("CUSTOMER");
+  const isCustomer = roles.includes("CUSTOMER") || roles.includes("CUSTOMER_USER");
   const isAdmin = roles.some((role: string) => role === "ADMIN" || role === "USER");
+  const isBankStaff = roles.includes("BANK_STAFF");
+  const isAuditor = roles.includes("AUDITOR");
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogoutClick = () => {
+    handleLogout();
+    handleMenuClose();
+  };
 
   const handleMouseEnter = (dropdown: string) => {
     if (dropdown === "users") setShowDropdown(true);
@@ -34,14 +49,11 @@ const NavBar: React.FC = () => {
     if (dropdown === "customer") setShowCustomerDropdown(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("roles");
-    localStorage.removeItem("permissions");
-    localStorage.removeItem("userDetails");
-    navigate("/");
-    window.location.reload();
+  // Format remaining time for display
+  const formatTime = (ms: number): string => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -148,33 +160,66 @@ const NavBar: React.FC = () => {
             </li>
           )}
 
-          {/* Login Button */}
-          {!isAuthenticated && (
-            <li>
-              <button
-                onClick={() => {
-                  navigate("/login");
-                }}
-                style={{ border: "none", background: "none", cursor: "pointer" }}
-              >
-                <img
-                  src={login}
-                  alt="Login"
-                  style={{ width: "40px", height: "40px" }}
-                />
-              </button>
+          {/* Session Timer for authenticated users */}
+          {isAuthenticated && remainingTime > 0 && (
+            <li style={{ 
+              color: remainingTime < 300000 ? "#c62828" : "#1a237e", 
+              fontWeight: "bold", 
+              padding: "0 10px",
+              fontSize: "12px"
+            }}>
+              Session: {formatTime(remainingTime)}
             </li>
           )}
 
-          {/* Logout Button */}
+          {/* Login Button */}
+          {!isAuthenticated && (
+            <li>
+              <Button
+                variant="outlined"
+                startIcon={<AccountCircle />}
+                onClick={() => navigate("/login")}
+                sx={{ color: "#1a237e", borderColor: "#1a237e" }}
+              >
+                Login
+              </Button>
+            </li>
+          )}
+
+          {/* User Menu for authenticated users */}
           {isAuthenticated && (
             <li>
-              <img
-                src={logout}
-                alt="Logout"
-                style={{ width: "40px", height: "40px", cursor: "pointer" }}
-                onClick={handleLogout}
-              />
+              <Button
+                onClick={handleMenuOpen}
+                startIcon={<Avatar sx={{ width: 32, height: 32, bgcolor: "#1a237e" }}>
+                  {userName.charAt(0).toUpperCase()}
+                </Avatar>}
+                sx={{ color: "#1a237e" }}
+              >
+                {userName}
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                PaperProps={{
+                  elevation: 3,
+                  sx: { mt: 1 }
+                }}
+              >
+                <MenuItem onClick={() => { navigate("/dashboard"); handleMenuClose(); }}>
+                  <Dashboard sx={{ mr: 2 }} />
+                  Dashboard
+                </MenuItem>
+                <MenuItem onClick={() => { navigate("/profile"); handleMenuClose(); }}>
+                  <Settings sx={{ mr: 2 }} />
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={handleLogoutClick}>
+                  <Logout sx={{ mr: 2 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
             </li>
           )}
         </ul>

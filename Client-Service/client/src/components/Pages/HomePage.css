@@ -1,0 +1,23 @@
+/* HomePage.css - Clean and Simple */
+.home-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* Reset CSS when returning from register */
+body:has(.home-page) {
+  background-color: #f5f5f5 !important;
+}
+
+.home-page .cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 30px !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+.services-section {
+  padding: 40px 20px;
+  background-color: white;
+}

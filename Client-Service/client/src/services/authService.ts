@@ -14,8 +14,10 @@ export const login = async (credentials: Credentials): Promise<void> => {
     localStorage.setItem('authToken', jwtToken);
     // Store userName in localStorage
     localStorage.setItem("userName", userName);
-    // Store roles and permissions
-    localStorage.setItem("roles", JSON.stringify(authorities.filter((item: string) => ["ADMIN", "USER", "CUSTOMER"].includes(item))));
+    // Store roles and permissions - support banking-grade roles
+    localStorage.setItem("roles", JSON.stringify(authorities.filter((item: string) => 
+        ["ADMIN", "CUSTOMER_USER", "BANK_STAFF", "AUDITOR", "CUSTOMER", "USER"].includes(item)
+    )));
     localStorage.setItem("permissions", JSON.stringify(authorities.filter((item: string) => ["PERMISSION_READ", "PERMISSION_WRITE"].includes(item))));
 
     // Store user details in an array format
@@ -71,3 +73,61 @@ export const uploadDoc = async (userId: number, file: File): Promise<ApiResponse
     const response = await api.post<ApiResponse<any>>(`{userId}/upload`);
     return response.data;
 }
+
+// Logout functionality - centralized logout handler
+export const logout = (): void => {
+    // Clear all authentication-related data from localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('roles');
+    localStorage.removeItem('permissions');
+    localStorage.removeItem('userDetails');
+    localStorage.removeItem('sidebarCollapsed');
+    
+    // Clear any session-related data
+    sessionStorage.clear();
+};
+
+// Get token expiry time from JWT
+export const getTokenExpiry = (): number | null => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return null;
+    
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp ? payload.exp * 1000 : null; // Convert to milliseconds
+    } catch (error) {
+        console.error('Error parsing JWT token:', error);
+        return null;
+    }
+};
+
+// Check if token is expired
+export const isTokenExpired = (): boolean => {
+    const expiry = getTokenExpiry();
+    if (!expiry) return false;
+    
+    return Date.now() >= expiry;
+};
+
+// Get remaining time until token expiry (in milliseconds)
+export const getTokenRemainingTime = (): number => {
+    const expiry = getTokenExpiry();
+    if (!expiry) return 0;
+    
+    return Math.max(0, expiry - Date.now());
+};
+
+// Secure token validation
+export const validateToken = (): boolean => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return false;
+    
+    // Check if token is expired
+    if (isTokenExpired()) {
+        logout();
+        return false;
+    }
+    
+    return true;
+};

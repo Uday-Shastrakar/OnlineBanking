@@ -1,16 +1,39 @@
+/* Login Page - Modern Banking Theme */
 .card {
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(26, 188, 156, 0.5); 
-  border-radius: 8px; 
-  max-width: 400px; 
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(26, 188, 156, 0.3); 
+  border-radius: 16px; 
+  max-width: 450px; 
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  border-color: rgba(26, 188, 156, 0.5);
 }
 
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  max-width: 100vw; 
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.1) 0%, rgba(26, 188, 156, 0.2) 100%);
+  padding: 20px;
+  position: relative;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.02)"/><circle cx="10" cy="50" r="0.5" fill="rgba(255,255,255,0.02)"/><circle cx="90" cy="50" r="0.5" fill="rgba(255,255,255,0.02)"/><circle cx="50" cy="90" r="0.5" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  pointer-events: none;
 }
 
 .tag {
@@ -18,14 +41,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #fff;
-  border-radius: 8px;
-  width: 100%; 
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .form {
-  margin-top: 8px; 
-  padding: 20px 24px;
+  margin-top: 16px; 
+  padding: 32px 40px;
+  width: 100%;
 }
 
 .submit-btn {
@@ -36,21 +62,120 @@
 }
 
 .submit {
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 600;
   width: 100%;
-  max-width: 300px;
-  background-color: rgba(26, 188, 156, 0.7);
-  color: #fff; 
+  max-width: 320px;
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.8) 0%, rgba(26, 188, 156, 0.6) 100%);
+  color: #ffffff !important; 
   border: none; 
-  border-radius: 4px; 
+  border-radius: 50px; 
+  padding: 14px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .submit:hover {
-  background-color: rgba(26, 188, 156, 0.9); 
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.9) 0%, rgba(26, 188, 156, 0.7) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(26, 188, 156, 0.4);
+}
+
+.submit:hover::before {
+  left: 100%;
+}
+
+.submit:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 15px rgba(26, 188, 156, 0.3);
 }
 
 .avatar {
-  margin: 8px 0;
-  background-color: rgba(26, 188, 156, 0.7);
-  color: #fff; 
+  margin: 16px 0;
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.8) 0%, rgba(26, 188, 156, 0.6) 100%);
+  color: #fff !important;
+  width: 64px !important;
+  height: 64px !important;
+  box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
+  transition: all 0.3s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(26, 188, 156, 0.4);
+}
+
+/* Enhanced form fields */
+.MuiTextField-root {
+  margin-bottom: 20px;
+}
+
+.MuiTextField-root .MuiOutlinedInput-root {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(26, 188, 156, 0.5);
+}
+
+.MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(26, 188, 156, 0.8);
+  border-width: 2px;
+}
+
+/* Error message styling */
+.error-message {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Link styling */
+.MuiLink-root {
+  color: rgba(26, 188, 156, 0.8) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.MuiLink-root:hover {
+  color: rgba(26, 188, 156, 1) !important;
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .card {
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .form {
+    padding: 24px 20px;
+  }
+  
+  .submit {
+    font-size: 14px;
+    padding: 12px 0;
+  }
 }

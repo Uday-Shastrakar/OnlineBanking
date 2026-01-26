@@ -1,24 +1,30 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import AuthStorage from '../services/authStorage';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
-    allowedRoles?: ('ADMIN' | 'CUSTOMER' | 'USER')[];
+    allowedRoles?: ('ADMIN' | 'CUSTOMER_USER' | 'BANK_STAFF' | 'AUDITOR' | 'CUSTOMER' | 'USER')[];
 }
 
 /**
  * Higher-Order Component to protect routes based on JWT existence and User Roles.
- * Ensures that Customers cannot access Admin pages and vice-versa.
+ * Ensures banking-grade role-based access control:
+ * - CUSTOMER_USER: Can access customer portal features
+ * - BANK_STAFF: Can access banking operations
+ * - ADMIN: Can access admin dashboard and system management
+ * - AUDITOR: Can access audit and compliance features
+ * - CUSTOMER/USER: Legacy support for backward compatibility
  */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
     const location = useLocation();
 
-    const token = localStorage.getItem('authToken');
-    const userRolesRaw = localStorage.getItem('roles');
-    const userRoles: string[] = userRolesRaw ? JSON.parse(userRolesRaw) : [];
+    // Use centralized authentication storage
+    const isAuthenticated = AuthStorage.isAuthenticated();
+    const userRoles = AuthStorage.getRoles();
 
     // 1. Check for Authentication
-    if (!token) {
+    if (!isAuthenticated) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
