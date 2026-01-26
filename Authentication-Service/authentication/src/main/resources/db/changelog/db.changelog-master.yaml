@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: banking-system
+      changes:
+        - sqlFile:
+            path: db/changelog/001-create-users-table.sql
+        - sqlFile:
+            path: db/changelog/002-create-roles-table.sql
+        - sqlFile:
+            path: db/changelog/003-create-user-roles-table.sql
+        - sqlFile:
+            path: db/changelog/004-create-user-permissions-table.sql
+        - sqlFile:
+            path: db/changelog/005-create-permissions-table.sql
+        - sqlFile:
+            path: db/changelog/006-create-user-customer-mappings-table.sql
+        - sqlFile:
+            path: db/changelog/007-create-audit-logs-table.sql
+        - sqlFile:
+            path: db/changelog/008-insert-banking-roles.sql
+        - sqlFile:
+            path: db/changelog/009-insert-banking-permissions.sql

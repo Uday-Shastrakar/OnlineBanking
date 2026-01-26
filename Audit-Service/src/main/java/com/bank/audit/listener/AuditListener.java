@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.kafka.support.KafkaHeaders;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Service
 public class AuditListener {
@@ -29,18 +29,28 @@ public class AuditListener {
             AuditEvent event = new AuditEvent();
             event.setEventType(topic);
             event.setPayload(payload);
-            event.setTimestamp(Instant.now());
+            event.setTimestamp(LocalDateTime.now());
             event.setServiceName("Multiple");
 
             if (topic.contains("transaction")) {
                 event.setAction("TRANSFER");
                 event.setStatus(node.path("status").asText("UNKNOWN"));
-                event.setUserId(node.path("createdBy").asText("anonymous"));
+                String userIdStr = node.path("createdBy").asText("anonymous");
+                try {
+                    event.setUserId(Long.parseLong(userIdStr));
+                } catch (NumberFormatException e) {
+                    event.setUserId(null);
+                }
                 event.setCorrelationId(node.path("correlationId").asText(null));
             } else if (topic.contains("user") || topic.contains("customer")) {
                 event.setAction("ONBOARDING");
                 event.setStatus("SUCCESS");
-                event.setUserId(node.path("email").asText("anonymous"));
+                String userIdStr = node.path("email").asText("anonymous");
+                try {
+                    event.setUserId(Long.parseLong(userIdStr));
+                } catch (NumberFormatException e) {
+                    event.setUserId(null);
+                }
             }
 
             auditRepository.save(event);

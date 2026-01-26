@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.bank.audit.api.AuditControllerTest
+-------------------------------------------------------------------------------
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.512 s -- in com.bank.audit.api.AuditControllerTest

@@ -162,4 +162,8 @@ public class UserService {
     public void createAccountManagerUser(AccountManagerRequestDTO accountManagerRequestDTO) {
         accountService.createAccountUser(accountManagerRequestDTO);
     }
+
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
 }

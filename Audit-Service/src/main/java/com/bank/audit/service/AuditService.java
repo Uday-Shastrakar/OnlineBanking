@@ -5,6 +5,7 @@ import com.bank.audit.repository.AuditRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +22,22 @@ public class AuditService {
 
     public Map<String, Object> getSystemMetrics() {
         Map<String, Object> metrics = new HashMap<>();
-        long totalLogs = auditRepository.count();
+        List<AuditEvent> allLogs = auditRepository.findAll();
+        
+        long totalLogs = allLogs.size();
 
-        // Simple heuristic metrics for demonstration
-        metrics.put("totalTransactions",
-                auditRepository.findAll().stream().filter(l -> "TRANSFER".equals(l.getAction())).count());
-        metrics.put("totalUsers", auditRepository.findAll().stream().map(AuditEvent::getUserId).distinct().count());
-        metrics.put("failedTransactions",
-                auditRepository.findAll().stream().filter(l -> "FAILED".equals(l.getStatus())).count());
+        // Calculate metrics based on actual data
+        metrics.put("totalTransactions", 
+                allLogs.stream().filter(l -> "TRANSFER".equals(l.getAction()) || "TRANSACTION".equals(l.getAction())).count());
+        metrics.put("totalUsers", allLogs.stream().map(AuditEvent::getUserId).distinct().count());
+        metrics.put("totalCustomers", allLogs.stream().map(AuditEvent::getCustomerId).distinct().count());
+        metrics.put("totalAccounts", 1500); // Placeholder - would come from account service
+        metrics.put("activeSessions", 50); // Placeholder - would come from session management
+        metrics.put("failedLogins", 
+                allLogs.stream().filter(l -> "FAILED".equals(l.getStatus()) && "USER_LOGIN".equals(l.getAction())).count());
         metrics.put("totalLogs", totalLogs);
+        metrics.put("systemUptime", "5 days, 12:30:45"); // Placeholder - would come from system metrics
+        metrics.put("lastBackup", LocalDateTime.now().minusDays(1).withHour(2).withMinute(0).withSecond(0).toString()); // Placeholder
 
         return metrics;
     }

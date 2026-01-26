@@ -1,0 +1,5 @@
+# Created at 2026-01-26T19:37:08.181
+Boot Manifest-JAR contains absolute paths in classpath 'D:\Online-banking\git store\OnlineBanking\Audit-Service\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

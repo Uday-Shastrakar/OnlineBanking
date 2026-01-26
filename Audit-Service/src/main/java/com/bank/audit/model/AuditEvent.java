@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -17,15 +17,19 @@ public class AuditEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String auditId;
+    private Long userId;
+    private Long customerId;
+    private String action;
+    private String ipAddress;
+    private String userAgent;
+    private LocalDateTime timestamp;
+    private String status;
     private String eventType;
     private String serviceName;
 
     @Column(columnDefinition = "TEXT")
     private String payload;
-
-    private Instant timestamp;
-    private String userId;
-    private String action;
-    private String status;
+    
     private String correlationId;
 }
