@@ -4,6 +4,7 @@ import com.bank.authentication.session.UserSession;
 import com.bank.authentication.session.UserThreadLocalContext;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import feign.Retryer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,5 +25,16 @@ public class FeignConfig {
                 }
             }
         };
+    }
+
+    @Bean
+    public feign.Request.Options requestOptions() {
+        return new feign.Request.Options(30 * 1000, 60 * 1000); // connect timeout, read timeout in milliseconds
+    }
+
+    @Bean
+    public Retryer retryer() {
+        // Retry up to 3 times with 1 second delay between retries
+        return new Retryer.Default(1000, 1000, 3);
     }
 }

@@ -53,19 +53,34 @@ api.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    // Check if this is a login request - don't show session expiry for login failures
+    const isLoginRequest = error.config?.url?.includes('auth/login');
+    
     // Use centralized error handler
     if (error.response?.status === 401) {
-      // Handle unauthorized - token expired
-      handleApiError(error, {
-        showNotification: true,
-        redirectToLogin: true,
-        customMessage: 'Your session has expired. Please log in again.'
-      });
+      if (isLoginRequest) {
+        // For login requests, let the login component handle the error
+        // Don't show session expiry message for wrong credentials
+        console.log('Login failed - letting login component handle error');
+      } else {
+        // Handle unauthorized - token expired for other requests
+        handleApiError(error, {
+          showNotification: true,
+          redirectToLogin: true,
+          customMessage: 'Your session has expired. Please log in again.'
+        });
+      }
     } else if (error.response?.status === 403) {
       // Handle forbidden - insufficient permissions
       handleApiError(error, {
         showNotification: true,
         customMessage: 'You do not have permission to perform this action.'
+      });
+    } else if (error.response?.status === 409) {
+      // Handle conflict - username already exists
+      handleApiError(error, {
+        showNotification: true,
+        customMessage: 'Username already exists. Please choose a different username.'
       });
     } else if (error.response?.status === 410) {
       // Handle gone - deprecated endpoint

@@ -9,44 +9,96 @@ import {
     TrendingUp, Security, Notifications, Refresh,
     CheckCircle, Warning, Speed, CloudDone, Storage
 } from '@mui/icons-material';
-import api from '../../services/api';
-import { AdminMetrics } from '../../types/banking';
+import { 
+    getSystemMetrics, 
+    getCustomerStatistics, 
+    getTransactionStatistics, 
+    getFailedTransactions 
+} from '../../services/adminService';
+import { SystemMetrics, CustomerStatistics, TransactionStatistics, FailedTransactions } from '../../services/adminService';
 
 /**
  * Enhanced Admin Dashboard
  * Premium control center with real-time monitoring and system oversight
  */
 const EnhancedAdminDashboard: React.FC = () => {
-    const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+    const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
+    const [customerStats, setCustomerStats] = useState<CustomerStatistics | null>(null);
+    const [transactionStats, setTransactionStats] = useState<TransactionStatistics | null>(null);
+    const [failedTransactions, setFailedTransactions] = useState<FailedTransactions | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-    const [systemHealth, setSystemHealth] = useState<'healthy' | 'warning' | 'critical'>('healthy');
 
     const fetchMetrics = async () => {
         try {
-            const response = await api.get('/audit/metrics');
-            setMetrics(response.data);
-
-            // Calculate system health based on metrics
-            const failureRate = response.data.failedTransactions / (response.data.totalTransactions || 1);
-            if (failureRate > 0.1) setSystemHealth('critical');
-            else if (failureRate > 0.05) setSystemHealth('warning');
-            else setSystemHealth('healthy');
-
+            setLoading(true);
             setError(null);
+
+            // Fetch all admin metrics using the new admin service
+            const [systemData, customerData, transactionData, failedData] = await Promise.all([
+                getSystemMetrics(),
+                getCustomerStatistics(),
+                getTransactionStatistics(),
+                getFailedTransactions()
+            ]);
+
+            setSystemMetrics(systemData);
+            setCustomerStats(customerData);
+            setTransactionStats(transactionData);
+            setFailedTransactions(failedData);
+
+            setLastUpdate(new Date());
         } catch (err: any) {
+            console.error('Error fetching admin metrics:', err);
             setError("Live metrics temporarily unavailable");
+            
             // Fallback demo data
-            setMetrics({
-                totalUsers: 247,
-                totalAccounts: 312,
-                totalTransactions: 1847,
-                failedTransactions: 23
+            setSystemMetrics({
+                total_users: 247,
+                admin_users: 5,
+                customer_users: 200,
+                staff_users: 15,
+                auditor_users: 3,
+                active_users: 230,
+                locked_users: 17,
+                system_health: {
+                    status: 'HEALTHY',
+                    lock_rate: 6.8,
+                    total_users: 247,
+                    locked_users: 17
+                },
+                last_updated: new Date().toISOString()
+            });
+            
+            setCustomerStats({
+                total_customers: 200,
+                new_this_month: 12,
+                new_this_week: 3,
+                active_customers: 185
+            });
+            
+            setTransactionStats({
+                total_transactions: 1847,
+                successful_transactions: 1824,
+                failed_transactions: 23,
+                pending_transactions: 0,
+                total_volume: 0,
+                average_transaction_amount: 0,
+                peak_hour: '14:00',
+                last_updated: new Date().toISOString()
+            });
+            
+            setFailedTransactions({
+                failed_last_24h: 23,
+                failure_rate: 1.2,
+                common_failure_reasons: ['Insufficient funds', 'Invalid recipient', 'Technical error'],
+                affected_users: 12,
+                period_start: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+                period_end: new Date().toISOString()
             });
         } finally {
             setLoading(false);
-            setLastUpdate(new Date());
         }
     };
 
@@ -69,18 +121,22 @@ const EnhancedAdminDashboard: React.FC = () => {
     }
 
     const getHealthColor = () => {
-        switch (systemHealth) {
-            case 'healthy': return '#2e7d32';
-            case 'warning': return '#ed6c02';
-            case 'critical': return '#d32f2f';
+        if (!systemMetrics?.system_health) return '#666666';
+        switch (systemMetrics.system_health.status) {
+            case 'HEALTHY': return '#2e7d32';
+            case 'WARNING': return '#ed6c02';
+            case 'CRITICAL': return '#d32f2f';
+            default: return '#666666';
         }
     };
 
     const getHealthLabel = () => {
-        switch (systemHealth) {
-            case 'healthy': return 'All Systems Operational';
-            case 'warning': return 'Performance Degraded';
-            case 'critical': return 'Critical Issues Detected';
+        if (!systemMetrics?.system_health) return 'Status Unknown';
+        switch (systemMetrics.system_health.status) {
+            case 'HEALTHY': return 'All Systems Operational';
+            case 'WARNING': return 'Performance Degraded';
+            case 'CRITICAL': return 'Critical Issues Detected';
+            default: return 'Status Unknown';
         }
     };
 
@@ -112,7 +168,7 @@ const EnhancedAdminDashboard: React.FC = () => {
                 </Box>
                 <Box display="flex" gap={2} alignItems="center">
                     <Chip
-                        icon={systemHealth === 'healthy' ? <CheckCircle /> : <Warning />}
+                        icon={systemMetrics?.system_health?.status === 'HEALTHY' ? <CheckCircle /> : <Warning />}
                         label={getHealthLabel()}
                         sx={{
                             bgcolor: getHealthColor(),
@@ -126,7 +182,7 @@ const EnhancedAdminDashboard: React.FC = () => {
                             <Refresh />
                         </IconButton>
                     </Tooltip>
-                    <Badge badgeContent={metrics?.failedTransactions || 0} color="error">
+                    <Badge badgeContent={failedTransactions?.failed_last_24h || 0} color="error">
                         <Notifications color="action" />
                     </Badge>
                 </Box>
@@ -142,35 +198,35 @@ const EnhancedAdminDashboard: React.FC = () => {
             <Grid container spacing={3} mb={4}>
                 <MetricCard
                     title="Total Users"
-                    value={metrics?.totalUsers}
+                    value={systemMetrics?.total_users}
                     icon={<PeopleAlt />}
                     gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                     change="+12%"
                     changePositive={true}
                 />
                 <MetricCard
-                    title="Active Accounts"
-                    value={metrics?.totalAccounts}
+                    title="Active Users"
+                    value={systemMetrics?.active_users}
                     icon={<AccountBalance />}
                     gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
                     change="+8%"
                     changePositive={true}
                 />
                 <MetricCard
-                    title="Transactions"
-                    value={metrics?.totalTransactions}
+                    title="Total Customers"
+                    value={customerStats?.total_customers}
                     icon={<ReceiptLong />}
                     gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
                     change="+24%"
                     changePositive={true}
                 />
                 <MetricCard
-                    title="System Alerts"
-                    value={metrics?.failedTransactions}
+                    title="Failed Transactions (24h)"
+                    value={failedTransactions?.failed_last_24h}
                     icon={<ErrorOutline />}
                     gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
                     change="-5%"
-                    changePositive={true}
+                    changePositive={false}
                 />
             </Grid>
 

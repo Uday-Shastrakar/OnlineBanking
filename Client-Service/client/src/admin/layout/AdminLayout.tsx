@@ -7,8 +7,11 @@ import {
     Assessment as AssessmentIcon,
     Menu as MenuIcon,
     ChevronLeft as ChevronLeftIcon,
+    ExitToApp as ExitToAppIcon,
     Security
 } from '@mui/icons-material';
+
+import AuthStorage from '../../services/authStorage';
 
 const drawerWidth = 260;
 
@@ -21,14 +24,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const handleLogout = () => {
+        AuthStorage.clearAuthData();
+        navigate('/login');
+    };
+
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
 
-    const menuItems = [
+    const menuItems: Array<{ text: string; icon: React.ReactNode; path?: string; action?: () => void }> = [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
         { text: 'User Management', icon: <PeopleIcon />, path: '/admin/users' },
         { text: 'Audit Center', icon: <AssessmentIcon />, path: '/admin/audit' },
+        { text: 'Logout', icon: <ExitToAppIcon />, action: handleLogout },
     ];
 
     const isActive = (path: string) => location.pathname === path;
@@ -76,10 +85,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     {menuItems.map((item) => (
                         <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
                             <ListItemButton
-                                onClick={() => navigate(item.path)}
+                                onClick={() => (item.action ? item.action() : item.path ? navigate(item.path) : undefined)}
                                 sx={{
                                     borderRadius: 2,
-                                    bgcolor: isActive(item.path) ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                    bgcolor: item.path && isActive(item.path) ? 'rgba(255,255,255,0.2)' : 'transparent',
                                     '&:hover': {
                                         bgcolor: 'rgba(255,255,255,0.15)',
                                     },
@@ -94,7 +103,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                     <ListItemText
                                         primary={item.text}
                                         primaryTypographyProps={{
-                                            fontWeight: isActive(item.path) ? 'bold' : 'normal',
+                                            fontWeight: item.path && isActive(item.path) ? 'bold' : 'normal',
                                         }}
                                     />
                                 )}

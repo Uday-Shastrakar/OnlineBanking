@@ -48,6 +48,15 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private java.time.LocalDateTime lockedUntil;
 
+    @Column(nullable = true)
+    private java.time.LocalDateTime lastLogin;
+
+    @Column(nullable = true)
+    private java.time.LocalDateTime createdAt;
+
+    @Column(nullable = true)
+    private java.time.LocalDateTime passwordChangedAt;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();

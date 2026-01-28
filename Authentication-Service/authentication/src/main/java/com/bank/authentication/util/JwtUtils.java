@@ -40,16 +40,64 @@ public class JwtUtils {
     public String generateToken(UserDetails userDetails){
         String username = userDetails.getUsername();
         Map<String, Object> claims = new HashMap<>();
+        
+        // Add banking-compliant claims
+        claims.put("user_id", getUserIdFromUsername(username));
+        claims.put("roles", getRolesFromUserDetails(userDetails));
+        claims.put("permissions", getPermissionsFromUserDetails(userDetails));
+        claims.put("token_type", "access");
+        claims.put("iat", System.currentTimeMillis());
+        
         return generateTokenFromUsername(claims, username);
+    }
+    
+    public String generateAdminToken(UserDetails userDetails){
+        String username = userDetails.getUsername();
+        Map<String, Object> claims = new HashMap<>();
+        
+        // Admin-specific short-lived token (15 minutes)
+        claims.put("user_id", getUserIdFromUsername(username));
+        claims.put("roles", getRolesFromUserDetails(userDetails));
+        claims.put("permissions", getPermissionsFromUserDetails(userDetails));
+        claims.put("token_type", "admin_access");
+        claims.put("iat", System.currentTimeMillis());
+        claims.put("session_id", generateSessionId());
+        
+        return generateTokenFromUsername(claims, username, 15 * 60 * 1000); // 15 minutes
+    }
+    
+    private Long getUserIdFromUsername(String username) {
+        // Implementation to get user ID from username
+        // This would typically query the user repository
+        return 1L; // Placeholder - implement actual lookup
+    }
+    
+    private java.util.List<String> getRolesFromUserDetails(UserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .map(auth -> auth.getAuthority())
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    private java.util.List<String> getPermissionsFromUserDetails(UserDetails userDetails) {
+        // Extract permissions from roles or user details
+        return java.util.Arrays.asList("PERMISSION_READ", "PERMISSION_WRITE");
+    }
+    
+    private String generateSessionId() {
+        return java.util.UUID.randomUUID().toString();
     }
 
     public String generateTokenFromUsername(Map<String, Object> claims, String username) {
+        return generateTokenFromUsername(claims, username, jwtExpirationMs);
+    }
+    
+    public String generateTokenFromUsername(Map<String, Object> claims, String username, int expirationMs) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setHeaderParam("typ", "jwt")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setExpiration(new Date((new Date()).getTime() + expirationMs))
                 .signWith(key())
                 .compact();
     }

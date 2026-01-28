@@ -1,39 +1,94 @@
 import api from "./api"
 import { ApiResponse } from "./api"
 import { Credentials, LoginResponse, RegisterForm, User } from "../Types";
-
+import AuthStorage from './authStorage';
 
 export const login = async (credentials: Credentials): Promise<void> => {
-    const response = await api.post<LoginResponse>('auth/login', credentials);
+    try {
+        const response = await api.post<ApiResponse<LoginResponse>>('auth/login', credentials);
 
+        // Debug the response structure
+        console.log('Login response structure:', response);
+        console.log('Response data:', response.data);
+        
+        // The backend returns { success: true, data: LoginResponseDto, message: "Login Successfully" }
+        // So we need to access response.data.data directly
+        const loginData = response.data.data;
+        
+        if (!loginData) {
+            console.error('Login data is missing. Response structure:', response);
+            throw new Error('Invalid login response from server');
+        }
 
-    // Destructure data from the response
-    const { jwtToken, userName, authorities, userId, email, firstName, lastName, phoneNumber } = response.data.data;
+        // Destructure the actual login data
+        const { jwtToken, userName, authorities, userId, email, firstName, lastName, phoneNumber } = loginData;
 
-    // Store JWT token in localStorage
-    localStorage.setItem('authToken', jwtToken);
-    // Store userName in localStorage
-    localStorage.setItem("userName", userName);
-    // Store roles and permissions - support banking-grade roles
-    localStorage.setItem("roles", JSON.stringify(authorities.filter((item: string) => 
-        ["ADMIN", "CUSTOMER_USER", "BANK_STAFF", "AUDITOR", "CUSTOMER", "USER"].includes(item)
-    )));
-    localStorage.setItem("permissions", JSON.stringify(authorities.filter((item: string) => ["PERMISSION_READ", "PERMISSION_WRITE"].includes(item))));
+        console.log('Login data extracted:', { jwtToken: jwtToken ? 'exists' : 'missing', userName, authorities, userId, email, firstName, lastName });
 
-    // Store user details in an array format
-    const userDetails = [
-        {
+        // Use AuthStorage to store authentication data properly
+        AuthStorage.setAuthData(jwtToken, {
             userId,
-            email,
             userName,
+            email,
             firstName,
             lastName,
-            phoneNumber // If phoneNumber exists in the response
-        }
-    ];
+            phoneNumber
+        }, authorities);
 
-    // Store the array in localStorage
-    localStorage.setItem("userDetails", JSON.stringify(userDetails));
+        // Also maintain backward compatibility with existing localStorage keys
+        localStorage.setItem('authToken', jwtToken);
+        localStorage.setItem("userName", userName);
+        
+        // Store roles and permissions - support banking-grade roles
+        const validRoles = authorities.filter((item: string) => 
+            ["ADMIN", "CUSTOMER_USER", "BANK_STAFF", "AUDITOR", "CUSTOMER", "USER"].includes(item)
+        );
+        localStorage.setItem("roles", JSON.stringify(validRoles));
+        
+        const permissions = authorities.filter((item: string) => ["PERMISSION_READ", "PERMISSION_WRITE"].includes(item));
+        localStorage.setItem("permissions", JSON.stringify(permissions));
+
+        // Store user details in the expected format
+        const userDetails = [
+            {
+                userId,
+                email,
+                userName,
+                firstName,
+                lastName,
+                phoneNumber
+            }
+        ];
+
+        localStorage.setItem("userDetails", JSON.stringify(userDetails));
+        console.log('Authentication data stored successfully');
+    } catch (error: any) {
+        console.error('Login error:', error);
+        
+        // Handle different types of errors
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const status = error.response.status;
+            const message = error.response.data?.message || error.response.data?.error || 'Login failed';
+            
+            if (status === 401) {
+                throw new Error('Invalid username or password');
+            } else if (status === 403) {
+                throw new Error('Access forbidden. Please contact administrator.');
+            } else if (status === 404) {
+                throw new Error('User not found');
+            } else {
+                throw new Error(message || `Login failed with status ${status}`);
+            }
+        } else if (error.request) {
+            // The request was made but no response was received
+            throw new Error('Network error. Please check your connection.');
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            throw new Error(error.message || 'Login failed. Please try again.');
+        }
+    }
 };
 
 

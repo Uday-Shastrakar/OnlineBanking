@@ -48,6 +48,7 @@ server:
 eureka:
   instance:
     prefer-ip-address: true
+    appname: AUTHENTICATION
   client:
     fetch-registry: true
     register-with-eureka: true

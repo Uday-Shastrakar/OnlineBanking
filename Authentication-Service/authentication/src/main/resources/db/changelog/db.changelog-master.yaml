@@ -16,8 +16,12 @@ databaseChangeLog:
         - sqlFile:
             path: db/changelog/006-create-user-customer-mappings-table.sql
         - sqlFile:
+            path: db/changelog/005-create-sessions-table.sql
+        - sqlFile:
             path: db/changelog/007-create-audit-logs-table.sql
         - sqlFile:
             path: db/changelog/008-insert-banking-roles.sql
         - sqlFile:
             path: db/changelog/009-insert-banking-permissions.sql
+        - sqlFile:
+            path: db/changelog/010-alter-sessions-token-column.sql

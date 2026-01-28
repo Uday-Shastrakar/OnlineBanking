@@ -181,7 +181,15 @@ class AuthStorage {
         const token = this.getToken();
         const user = this.getUser();
         
+        console.log('AuthStorage.isAuthenticated() debug:', {
+            token: token ? 'exists' : 'missing',
+            user: user ? 'exists' : 'missing',
+            tokenLength: token?.length,
+            userId: user?.userId
+        });
+        
         if (!token || !user) {
+            console.log('Authentication failed: missing token or user');
             return false;
         }
 
@@ -189,6 +197,7 @@ class AuthStorage {
         try {
             const parts = token.split('.');
             if (parts.length !== 3) {
+                console.log('Authentication failed: invalid token format');
                 return false;
             }
 
@@ -197,9 +206,11 @@ class AuthStorage {
             const now = Date.now() / 1000;
             
             if (payload.exp && payload.exp < now) {
+                console.log('Authentication failed: token expired');
                 return false;
             }
 
+            console.log('Authentication successful');
             return true;
         } catch (error) {
             console.error('Error validating token:', error);

@@ -51,7 +51,7 @@ public class UserService {
         // Validate user input
         validateUser(user);
         // Check if the username already exists
-        if(!checkExistingUser(user)) throw new RuntimeException();
+        if(!checkExistingUser(user)) throw new RuntimeException("Username '" + user.getUsername() + "' already exists");
         // Encode password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // Assign roles to user
@@ -156,7 +156,10 @@ public class UserService {
 
 
     public void createCustomerUser(CreateCustomerDto createCustomerDto,String correlationId) {
-        customerService.createCustomerUser(createCustomerDto,correlationId);
+        ResponseEntity<CreateCustomerDto> response = customerService.createCustomerUser(createCustomerDto,correlationId);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to create customer: " + response.getStatusCode());
+        }
     }
 
     public void createAccountManagerUser(AccountManagerRequestDTO accountManagerRequestDTO) {
@@ -165,5 +168,20 @@ public class UserService {
 
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public void deleteUserById(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+        userRepository.deleteById(userId);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
+
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 }

@@ -17,8 +17,18 @@ export const customerService = {
       const response = await api.get<GetCustomer>(`customer/${userId}`);
       console.log(response);  // Can be removed in production
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching customer data:", error);
+      
+      // Check if this is an admin user trying to access customer data
+      const userRoles = JSON.parse(localStorage.getItem('roles') || '[]');
+      const isAdmin = userRoles.includes('ADMIN');
+      
+      if (isAdmin) {
+        console.log('Admin user accessing customer data - returning null instead of error');
+        return null; // Return null for admin users instead of throwing error
+      }
+      
       throw new Error("Error fetching customer data. Please try again.");
     }
   },

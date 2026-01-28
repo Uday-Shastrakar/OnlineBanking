@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
+
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +53,7 @@ class CustomerControllerTest {
 		input.setPhoneNumber("+1234567890");
 		input.setGender("MALE");
 		input.setAddress("123 Main St");
-		input.setDateOfBirth(Date.valueOf("1990-01-01"));
+		input.setDateOfBirth(LocalDate.of(1990, 1, 1));
 		input.setStatus("ACTIVE");
 
 		CreateCustomerDTO created = new CreateCustomerDTO();

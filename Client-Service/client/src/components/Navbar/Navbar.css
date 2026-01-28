@@ -1,174 +1,362 @@
-/* Navigation Bar */
-.nav-bar {
-    background: rgba(26, 188, 156, 0.7); /* Transparent #399adb */
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 10px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    backdrop-filter: blur(10px); /* Blurs the background behind the navbar */
-    -webkit-backdrop-filter: blur(10px); /* Safari support */
-    z-index: 1000;
+/* Modern Banking Navbar Styles with Original Colors */
+
+.navbar {
+  background: rgba(26, 188, 156, 0.7) !important; /* Original transparent #399adb */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border-bottom: none !important;
 }
 
-.nums{
-    color: black;
+.navbar.scrolled {
+  background: rgba(26, 188, 156, 0.9) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.nav-bar .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
+.navbar-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px; /* Reduced padding for better edge alignment */
+  min-height: 64px;
+  width: 100%;
+  max-width: 100%;
 }
 
-.nav-bar ul {
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
+/* Brand Section - Absolute Left Position */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-left: 0;
+  padding-left: 0;
+  position: absolute;
+  left: 16px;
 }
 
-.nav-bar li {
-    margin: 0 15px;
-    position: relative;
+.brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  transition: transform 0.3s ease;
+  margin-left: 0;
+  padding-left: 0;
 }
 
-/* Updated to target Link components */
-.nav-bar a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
-    position: relative;
-    padding: 10px;
-    transition: color 0.3s, background 0.3s;
+.brand-link:hover {
+  transform: scale(1.05);
 }
 
-/* Underline effect on hover */
-.nav-bar a::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 2px;
-    background: #e5e3e2;
-    transform: scaleX(0);
-    transition: transform 0.3s;
-    transform-origin: bottom right;
+.brand-logo {
+  font-size: 32px !important;
+  margin-right: 12px;
+  color: white;
 }
 
-.nav-bar a:hover::before {
-    transform: scaleX(1);
-    transform-origin: bottom left;
+.brand-text {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  color: white;
+  line-height: 1.2;
+  margin-left: 0;
 }
 
-/* Dropdown specific styles */
-.nav-bar .dropdown {
-    position: relative;
+.nums {
+  color: black !important; /* Black color for NUMS */
+  font-weight: 800 !important; /* Extra bold for NUMS */
+  font-size: 1.5rem !important; /* Slightly larger for NUMS */
+  margin-left: 0;
 }
 
-.nav-bar .dropdown-menu {
-    display: none; /* Hide by default */
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: rgba(57, 154, 219, 0.8); /* Slightly transparent */
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
-    list-style: none;
-    padding: 10px;
-    min-width: 150px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+/* Right Side Actions - Absolute Right Position */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  margin-right: 0;
+  padding-right: 0;
+  position: absolute;
+  right: 16px;
 }
 
-/* Show the dropdown menu on hover */
-.nav-bar .dropdown:hover .dropdown-menu {
-    display: block;
+.action-button {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 50% !important;
+  padding: 6px !important; /* Smaller padding */
+  transition: all 0.3s ease !important;
 }
 
-/* Dropdown menu links */
-.nav-bar .dropdown-menu li {
-    margin: 0;
-    padding: 5px 0;
+.action-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.1);
 }
 
-.nav-bar .dropdown-menu li a {
-    color: #fff;
-    padding: 5px 10px;
-    text-decoration: none;
-    display: block;
-    font-size: 14px;
-    transition: background 0.3s, color 0.3s;
+/* User Menu Button */
+.user-menu-button {
+  color: white !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 4px 10px !important; /* Smaller padding */
+  transition: all 0.3s ease !important;
+  min-height: 40px; /* Consistent height */
 }
 
-.nav-bar .dropdown-menu li a:hover {
-    background-color: #ff6600;
-    color: #fff;
-    border-radius: 5px;
+.user-menu-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px);
 }
 
-/* Icons in the navigation bar */
-.nav-bar .nav-icons {
-    display: flex;
-    align-items: center;
+.user-avatar {
+  width: 28px !important; /* Smaller avatar */
+  height: 28px !important;
+  background: #1a237e !important; /* Original dark blue */
+  font-weight: 600 !important;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-size: 0.8rem !important;
 }
 
-.nav-bar img {
-    height: 30px;
-    margin-left: 15px;
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 6px; /* Reduced margin */
 }
 
-.nav-bar .search {
-    margin-left: auto;
+.user-name {
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important; /* Smaller font */
+  line-height: 1.1 !important;
 }
 
-.nav-bar .search input {
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    background: #fff;
-    color: #333;
-    font-size: 14px;
-    transition: all 0.3s ease;
+.role-chip {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  font-size: 0.65rem !important; /* Smaller font */
+  height: 18px !important; /* Smaller height */
+  margin-top: 1px;
 }
 
-.nav-bar .search input::placeholder {
-    color: #888;
+/* Home Button */
+.home-button {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  border-radius: 6px !important;
+  padding: 6px 16px !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
 }
 
-.nav-bar .search input:focus {
-    border-color: #ff6600;
-    box-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+.home-button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: white !important;
+  transform: translateY(-1px);
 }
 
-/* Responsive design */
+/* Auth Buttons */
+.auth-buttons {
+  display: flex;
+  gap: 8px; /* Reduced gap */
+  align-items: center;
+}
+
+.login-button {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  border-radius: 6px !important; /* Smaller radius */
+  padding: 6px 16px !important; /* Smaller padding */
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
+}
+
+.login-button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: white !important;
+  transform: translateY(-1px);
+}
+
+.register-button {
+  background: #ff6600 !important; /* Original orange */
+  color: white !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  border-radius: 6px !important; /* Smaller radius */
+  padding: 6px 16px !important; /* Smaller padding */
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3) !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
+}
+
+.register-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.4) !important;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-button {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important; /* Smaller radius */
+  padding: 6px !important; /* Smaller padding */
+}
+
+.mobile-menu-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Menu Styles */
+.user-menu .MuiPaper-root,
+.mobile-menu .MuiPaper-root {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.user-menu .MuiMenuItem-root,
+.mobile-menu .MuiMenuItem-root {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+  padding: 10px 14px !important; /* Smaller padding */
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
+}
+
+.user-menu .MuiMenuItem-root:hover,
+.mobile-menu .MuiMenuItem-root:hover {
+  background: #ff6600 !important; /* Original orange hover */
+  color: white !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .navbar-toolbar {
+    padding: 8px 16px; /* Reduced padding on medium screens */
+  }
+  
+  .navbar-nav {
+    gap: 4px;
+  }
+  
+  .nav-link {
+    padding: 5px 10px !important;
+    font-size: 0.85rem !important;
+  }
+  
+  .brand-text {
+    font-size: 1.3rem !important;
+  }
+  
+  .brand-icon {
+    font-size: 26px !important;
+    margin-right: 8px;
+  }
+}
+
 @media (max-width: 768px) {
-    .nav-bar ul {
-        flex-direction: column;
-        align-items: center;
-    }
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-only {
+    display: flex !important;
+  }
+  
+  .navbar-toolbar {
+    padding: 8px 12px;
+  }
+  
+  .brand-text {
+    font-size: 1.2rem !important;
+  }
+  
+  .brand-icon {
+    font-size: 24px !important;
+    margin-right: 6px;
+  }
+  
+  .user-info {
+    display: none;
+  }
+  
+  .auth-buttons {
+    gap: 6px;
+  }
+  
+  .login-button,
+  .register-button {
+    padding: 5px 12px !important;
+    font-size: 0.85rem !important;
+  }
+  
+  .navbar-actions {
+    gap: 8px;
+  }
+}
 
-    .nav-bar li {
-        margin: 10px 0;
-    }
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
 
-    .nav-bar .search {
-        margin: 10px 0;
-    }
+/* Animations */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-    .nav-bar .dropdown-menu {
-        position: static;
-        width: 100%;
-        border-radius: 0;
-        box-shadow: none;
-    }
+.navbar {
+  animation: slideDown 0.5s ease-out;
+}
+
+/* Active Route Indicator */
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px; /* Slightly smaller */
+  height: 2px; /* Slightly smaller */
+  background: #e5e3e2 !important; /* Original underline color */
+  border-radius: 2px;
+}
+
+/* Badge Styling */
+.MuiBadge-badge {
+  background: #ff6600 !important; /* Original orange */
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.65rem !important; /* Smaller font */
+  min-width: 16px !important; /* Smaller size */
+  height: 16px !important; /* Smaller size */
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }

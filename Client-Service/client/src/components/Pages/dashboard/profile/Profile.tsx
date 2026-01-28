@@ -1,7 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Divider } from "@mui/material";
+import { 
+  Box, 
+  Typography, 
+  Divider, 
+  Card, 
+  CardContent, 
+  Avatar, 
+  Grid,
+  Paper,
+  CircularProgress,
+  Alert
+} from "@mui/material";
+import { 
+  Person, 
+  Email, 
+  Phone, 
+  Cake, 
+  Home, 
+  Transgender 
+} from "@mui/icons-material";
 import { customerService } from "../../../../services/customerService";
 import { GetCustomer } from "../../../../Types";
+import "./Profile.css";
 
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<GetCustomer | null>(null);
@@ -43,44 +63,117 @@ const Profile: React.FC = () => {
     fetchCustomerData();
   }, []);
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+  
+  if (error) {
+    return (
+      <Box p={3}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box p={3} className="profile-container">
       {profileData ? (
-        <Box>
-          <Typography variant="h5" gutterBottom>
-            User Profile
-          </Typography>
-          <Divider sx={{ marginBottom: 2 }} />
-          <Typography>
-            <strong>First Name:</strong> {profileData.firstName}
-          </Typography>
-          <Typography>
-            <strong>Last Name:</strong> {profileData.lastName}
-          </Typography>
-          <Typography>
-            <strong>Email:</strong> {profileData.email}
-          </Typography>
-          <Typography>
-            <strong>Username:</strong> {profileData.userName}
-          </Typography>
-          <Typography>
-            <strong>Phone Number:</strong> {profileData.phoneNumber}
-          </Typography>
-          <Typography>
-            <strong>Gender:</strong> {profileData.gender || "N/A"}
-          </Typography>
-          <Typography>
-            <strong>Address:</strong> {profileData.address || "N/A"}
-          </Typography>
-          <Typography>
-            <strong>Date of Birth:</strong> {profileData.dateOfBirth || "N/A"}
-          </Typography>
-        </Box>
+        <Card elevation={3}>
+          <CardContent>
+            {/* Profile Header */}
+            <Box display="flex" alignItems="center" mb={3}>
+              <Avatar 
+                sx={{ 
+                  width: 80, 
+                  height: 80, 
+                  bgcolor: 'primary.main',
+                  fontSize: '2rem',
+                  mr: 3
+                }}
+              >
+                {profileData.firstName?.charAt(0)}{profileData.lastName?.charAt(0)}
+              </Avatar>
+              <Box>
+                <Typography variant="h4" fontWeight="bold" color="primary">
+                  {profileData.firstName} {profileData.lastName}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  @{profileData.userName}
+                </Typography>
+                <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+                  Status: {profileData.status || 'ACTIVE'}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Divider sx={{ mb: 3 }} />
+
+            {/* Profile Information Grid */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Paper elevation={1} sx={{ p: 2, height: '100%' }}>
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Email color="primary" sx={{ mr: 2 }} />
+                    <Typography variant="h6" fontWeight="medium">
+                      Contact Information
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    <strong>Email:</strong> {profileData.email}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    <strong>Phone:</strong> {profileData.phoneNumber || "Not provided"}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Username:</strong> {profileData.userName}
+                  </Typography>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Paper elevation={1} sx={{ p: 2, height: '100%' }}>
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Person color="primary" sx={{ mr: 2 }} />
+                    <Typography variant="h6" fontWeight="medium">
+                      Personal Details
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    <strong>Gender:</strong> {profileData.gender || "Not specified"}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    <strong>Date of Birth:</strong> {profileData.dateOfBirth || "Not provided"}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Customer ID:</strong> {profileData.id}
+                  </Typography>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Paper elevation={1} sx={{ p: 2 }}>
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Home color="primary" sx={{ mr: 2 }} />
+                    <Typography variant="h6" fontWeight="medium">
+                      Address Information
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="textSecondary">
+                    {profileData.address || "No address provided"}
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       ) : (
-        <Typography>No customer data found</Typography>
+        <Alert severity="info">
+          No customer data found. Please complete your profile.
+        </Alert>
       )}
     </Box>
   );

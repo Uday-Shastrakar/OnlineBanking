@@ -1,28 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
-import { Stack, Button, Avatar, Typography, Menu, MenuItem } from "@mui/material";
-import { AccountCircle, Logout, Settings, Dashboard } from "@mui/icons-material";
-import { useAuth } from "../../hooks/useAuth";
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  Avatar, 
+  Menu, 
+  MenuItem, 
+  Box, 
+  IconButton,
+  Tooltip,
+  Badge,
+  Chip,
+  Divider
+} from "@mui/material";
+import { 
+  AccountCircle, 
+  Logout, 
+  Settings, 
+  Notifications,
+  Home,
+  Person,
+  Menu as MenuIcon,
+  AccountBalance
+} from "@mui/icons-material";
+import AuthStorage from "../../services/authStorage";
 
 const NavBar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
-  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
-  const { logout: handleLogout, isAuthenticated, remainingTime } = useAuth();
-
-  // Retrieve roles from localStorage
-  const roles = JSON.parse(localStorage.getItem("roles") || "[]");
-  const userName = localStorage.getItem("userName") || "User";
+  // Check authentication status
+  const isAuthenticated = AuthStorage.isAuthenticated();
+  const userRoles = AuthStorage.getRoles();
+  const userName = AuthStorage.getUser()?.userName || "User";
 
   // Role checks
-  const isCustomer = roles.includes("CUSTOMER") || roles.includes("CUSTOMER_USER");
-  const isAdmin = roles.some((role: string) => role === "ADMIN" || role === "USER");
-  const isBankStaff = roles.includes("BANK_STAFF");
-  const isAuditor = roles.includes("AUDITOR");
+  const isCustomer = userRoles.includes("CUSTOMER") || userRoles.includes("CUSTOMER_USER");
+  const isAdmin = userRoles.includes("ADMIN");
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -32,199 +60,176 @@ const NavBar: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleLogoutClick = () => {
-    handleLogout();
+  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMobileMenuAnchor(event.currentTarget);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuAnchor(null);
+  };
+
+  const handleLogout = () => {
+    AuthStorage.clearAuthData();
     handleMenuClose();
+    navigate("/login");
   };
 
-  const handleMouseEnter = (dropdown: string) => {
-    if (dropdown === "users") setShowDropdown(true);
-    if (dropdown === "admin") setShowAdminDropdown(true);
-    if (dropdown === "customer") setShowCustomerDropdown(true);
-  };
-
-  const handleMouseLeave = (dropdown: string) => {
-    if (dropdown === "users") setShowDropdown(false);
-    if (dropdown === "admin") setShowAdminDropdown(false);
-    if (dropdown === "customer") setShowCustomerDropdown(false);
-  };
-
-  // Format remaining time for display
-  const formatTime = (ms: number): string => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    handleMenuClose();
+    handleMobileMenuClose();
   };
 
   return (
-    <Stack
-      direction="row"
-      justifyContent="space-around"
-      sx={{ gap: { lg: "122px", xs: "40px" }, mt: { sm: "32px", xs: "20px" } }}
+    <AppBar 
+      position="fixed" 
+      className={`navbar ${isScrolled ? 'scrolled' : ''}`}
+      elevation={isScrolled ? 4 : 0}
     >
-      <div className="nav-bar">
-        <div className="logo">
-          <Link to="/">
-            <span className="nums">NUMS</span> Bank
+      <Toolbar className="navbar-toolbar">
+        {/* Logo and Brand - Leftmost Position */}
+        <Box className="navbar-brand">
+          <Link to="/" className="brand-link">
+            <AccountBalance className="brand-logo" />
+            <Typography variant="h6" className="brand-text">
+              <span className="nums">NUMS</span> Bank
+            </Typography>
           </Link>
-        </div>
-        <ul>
-          {/* Home - Show for non-authenticated users */}
-          {!isAuthenticated && (
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-          )}
+        </Box>
 
-          {/* Customer Portal Dropdown */}
-          {isCustomer && (
-            <li
-              className="dropdown"
-              onMouseEnter={() => handleMouseEnter("customer")}
-              onMouseLeave={() => handleMouseLeave("customer")}
-            >
-              <Link to="#">Customer Portal</Link>
-              {showCustomerDropdown && (
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link to="/dashboard">Dashboard</Link>
-                  </li>
-                  <li>
-                    <Link to="/accounts">My Accounts</Link>
-                  </li>
-                  <li>
-                    <Link to="/transfer">Transfer Funds</Link>
-                  </li>
-                  <li>
-                    <Link to="/transactions">Transaction History</Link>
-                  </li>
-                  <li>
-                    <Link to="/profile">Profile</Link>
-                  </li>
-                </ul>
-              )}
-            </li>
-          )}
+        {/* Right Side Actions - Only Home and Login */}
+        <Box className="navbar-actions">
+          {isAuthenticated ? (
+            <>
+              {/* Notifications */}
+              <Tooltip title="Notifications">
+                <IconButton className="action-button">
+                  <Badge badgeContent={3} color="error">
+                    <Notifications />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
 
-          {/* Admin Portal Dropdown */}
-          {isAdmin && (
-            <li
-              className="dropdown"
-              onMouseEnter={() => handleMouseEnter("admin")}
-              onMouseLeave={() => handleMouseLeave("admin")}
-            >
-              <Link to="#">Admin Panel</Link>
-              {showAdminDropdown && (
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link to="/admin/dashboard">Dashboard</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/users">User Management</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/audit">Audit Center</Link>
-                  </li>
-                </ul>
-              )}
-            </li>
-          )}
-
-          {/* Services - Always visible */}
-          <li>
-            <Link to="/services">Services</Link>
-          </li>
-
-          {/* Users Dropdown - Hide for customers */}
-          {!isCustomer && !isAdmin && (
-            <li
-              className="dropdown"
-              onMouseEnter={() => handleMouseEnter("users")}
-              onMouseLeave={() => handleMouseLeave("users")}
-            >
-              <Link to="#">Users</Link>
-              {showDropdown && (
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link to="/user">User Details</Link>
-                  </li>
-                </ul>
-              )}
-            </li>
-          )}
-
-          {/* Welcome Message for authenticated users */}
-          {isAuthenticated && (
-            <li style={{ color: "#1a237e", fontWeight: "bold", padding: "0 10px" }}>
-              Welcome, {userName}
-            </li>
-          )}
-
-          {/* Session Timer for authenticated users */}
-          {isAuthenticated && remainingTime > 0 && (
-            <li style={{ 
-              color: remainingTime < 300000 ? "#c62828" : "#1a237e", 
-              fontWeight: "bold", 
-              padding: "0 10px",
-              fontSize: "12px"
-            }}>
-              Session: {formatTime(remainingTime)}
-            </li>
-          )}
-
-          {/* Login Button */}
-          {!isAuthenticated && (
-            <li>
-              <Button
-                variant="outlined"
-                startIcon={<AccountCircle />}
-                onClick={() => navigate("/login")}
-                sx={{ color: "#1a237e", borderColor: "#1a237e" }}
-              >
-                Login
-              </Button>
-            </li>
-          )}
-
-          {/* User Menu for authenticated users */}
-          {isAuthenticated && (
-            <li>
+              {/* User Menu */}
               <Button
                 onClick={handleMenuOpen}
-                startIcon={<Avatar sx={{ width: 32, height: 32, bgcolor: "#1a237e" }}>
-                  {userName.charAt(0).toUpperCase()}
-                </Avatar>}
-                sx={{ color: "#1a237e" }}
+                className="user-menu-button"
+                startIcon={
+                  <Avatar className="user-avatar">
+                    {userName.charAt(0).toUpperCase()}
+                  </Avatar>
+                }
               >
-                {userName}
+                <Box className="user-info">
+                  <Typography variant="body2" className="user-name">
+                    {userName}
+                  </Typography>
+                  <Chip 
+                    label={isCustomer ? "Customer" : isAdmin ? "Admin" : "Staff"}
+                    size="small"
+                    className="role-chip"
+                  />
+                </Box>
               </Button>
+
+              {/* User Dropdown Menu */}
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
+                className="user-menu"
                 PaperProps={{
-                  elevation: 3,
-                  sx: { mt: 1 }
+                  elevation: 8,
+                  sx: { mt: 1, minWidth: 200 }
                 }}
               >
-                <MenuItem onClick={() => { navigate("/dashboard"); handleMenuClose(); }}>
-                  <Dashboard sx={{ mr: 2 }} />
-                  Dashboard
-                </MenuItem>
-                <MenuItem onClick={() => { navigate("/profile"); handleMenuClose(); }}>
-                  <Settings sx={{ mr: 2 }} />
+                <MenuItem onClick={() => handleNavigation("/profile")}>
+                  <Person sx={{ mr: 2 }} />
                   Profile
                 </MenuItem>
-                <MenuItem onClick={handleLogoutClick}>
+                <MenuItem onClick={() => handleNavigation("/settings")}>
+                  <Settings sx={{ mr: 2 }} />
+                  Settings
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout}>
                   <Logout sx={{ mr: 2 }} />
                   Logout
                 </MenuItem>
               </Menu>
-            </li>
+            </>
+          ) : (
+            /* Only Home and Login Buttons */
+            <>
+              {/* Home Button */}
+              <Button
+                variant="outlined"
+                onClick={() => navigate("/")}
+                className="home-button"
+                startIcon={<Home />}
+              >
+                Home
+              </Button>
+              
+              {/* Login Button */}
+              <Button
+                variant="outlined"
+                onClick={() => navigate("/login")}
+                className="login-button"
+                startIcon={<AccountCircle />}
+              >
+                Login
+              </Button>
+            </>
           )}
-        </ul>
-      </div>
-    </Stack>
+
+          {/* Mobile Menu */}
+          <IconButton
+            className="mobile-menu-button mobile-only"
+            onClick={handleMobileMenuOpen}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Box>
+
+        {/* Mobile Menu */}
+        <Menu
+          anchorEl={mobileMenuAnchor}
+          open={Boolean(mobileMenuAnchor)}
+          onClose={handleMobileMenuClose}
+          className="mobile-menu"
+          PaperProps={{
+            elevation: 8,
+            sx: { mt: 1, minWidth: 250 }
+          }}
+        >
+          {!isAuthenticated ? [
+            <MenuItem key="home" onClick={() => handleNavigation("/")}>
+              <Home sx={{ mr: 2 }} />
+              Home
+            </MenuItem>,
+            <MenuItem key="login" onClick={() => handleNavigation("/login")}>
+              <AccountCircle sx={{ mr: 2 }} />
+              Login
+            </MenuItem>
+          ] : [
+            <MenuItem key="profile" onClick={() => handleNavigation("/profile")}>
+              <Person sx={{ mr: 2 }} />
+              Profile
+            </MenuItem>,
+            <MenuItem key="settings" onClick={() => handleNavigation("/settings")}>
+              <Settings sx={{ mr: 2 }} />
+              Settings
+            </MenuItem>,
+            <Divider key="divider" />,
+            <MenuItem key="logout" onClick={handleLogout}>
+              <Logout sx={{ mr: 2 }} />
+              Logout
+            </MenuItem>
+          ]}
+        </Menu>
+      </Toolbar>
+    </AppBar>
   );
 };
 

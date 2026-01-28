@@ -90,6 +90,10 @@ export class ErrorHandler {
                     this.handleNotFoundError(customMessage);
                     break;
 
+                case 409:
+                    this.handleConflictError(customMessage);
+                    break;
+
                 case 422:
                     this.handleValidationError(data, customMessage);
                     break;
@@ -133,6 +137,11 @@ export class ErrorHandler {
 
     private handleUnauthorizedError(customMessage?: string): void {
         const message = customMessage || 'Your session has expired. Please log in again.';
+        this.showErrorNotification(message, 'warning');
+    }
+
+    private handleConflictError(customMessage?: string): void {
+        const message = customMessage || 'Username already exists. Please choose a different username.';
         this.showErrorNotification(message, 'warning');
     }
 

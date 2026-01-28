@@ -3,7 +3,7 @@ package com.bank.customer.models;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class Customers extends BaseEntity<Long> {
     private String phoneNumber;
     private String gender;
     private String address;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
     private String status;
     private Long userId;
 

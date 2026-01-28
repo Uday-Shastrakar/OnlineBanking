@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -21,11 +21,11 @@ public class CreateCustomerDTO {
     private String email;
     private String gender;
     private String address;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
     private String status;
     private String accountType;
 
-    public CreateCustomerDTO(Long id, Long userId, String firstName, String lastName, String phoneNumber, String email, String gender, String address, Date dateOfBirth, String status ) {
+    public CreateCustomerDTO(Long id, Long userId, String firstName, String lastName, String phoneNumber, String email, String gender, String address, LocalDate dateOfBirth, String status ) {
         this.id = id;
         this.userId = userId;
         this.firstName = firstName;

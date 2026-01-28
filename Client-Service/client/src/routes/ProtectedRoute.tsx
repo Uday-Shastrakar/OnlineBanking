@@ -23,8 +23,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     const isAuthenticated = AuthStorage.isAuthenticated();
     const userRoles = AuthStorage.getRoles();
 
+    console.log('ProtectedRoute Debug:', {
+        isAuthenticated,
+        userRoles,
+        allowedRoles,
+        currentPath: location.pathname
+    });
+
     // 1. Check for Authentication
     if (!isAuthenticated) {
+        console.log('Not authenticated, redirecting to login');
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
@@ -35,7 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
         if (!hasRequiredRole) {
             // Redirect to unauthorized or dashboard if access is denied
             console.warn(`Access denied for roles: ${userRoles}. Required: ${allowedRoles}`);
-            return <Navigate to="/dashboard" replace />;
+            return <Navigate to="/unauthorized" replace />;
         }
     }
 

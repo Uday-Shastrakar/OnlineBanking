@@ -12,6 +12,11 @@ const Sidebar: React.FC = () => {
   const isAdmin = roles.includes('ADMIN');
   const isCustomer = roles.includes('CUSTOMER_USER') || roles.includes('CUSTOMER'); // Support both old and new role names
 
+  // Hide normal sidebar for admin users
+  if (isAdmin) {
+    return null;
+  }
+
   return (
     <Box
       className={`sidebar-container ${collapsed ? 'collapsed' : ''}`}

@@ -1,32 +1,265 @@
-/* Dashboard Styles */
-.dashboard-container {
-    display: flex;
+/* Professional Banking Dashboard Styles */
+
+.banking-dashboard {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* Top Navigation */
+.top-nav {
+  background: white !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Welcome Section */
+.welcome-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section h3 {
+  margin-bottom: 8px;
+}
+
+/* Stat Cards */
+.stat-card {
+  height: 100%;
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card.total-balance {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-card.total-balance .MuiTypography-root {
+  color: white !important;
+}
+
+.stat-card.total-balance .MuiChip-root {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* Account Cards */
+.account-card {
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.account-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.account-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Action Cards */
+.action-card {
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: white !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.action-card:hover {
+  border-color: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.action-card .MuiIconButton-root {
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .MuiIconButton-root {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+/* Floating Action Button */
+.fab {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+/* Typography Enhancements */
+.MuiTypography-h4 {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.MuiTypography-h5 {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.MuiTypography-h6 {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Card Content */
+.MuiCardContent-root {
+  padding: 24px !important;
+}
+
+/* Avatar Styles */
+.MuiAvatar-root {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Button Styles */
+.MuiButton-root {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+}
+
+.MuiButton-contained {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.MuiButton-contained:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Chip Styles */
+.MuiChip-root {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-weight: 500 !important;
+  border-radius: 16px !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .welcome-section {
+    padding: 30px;
   }
   
-  .dashboard-content {
-    flex-grow: 1;
-    background-color: #f4f4f4;
+  .welcome-section h3 {
+    font-size: 2rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .banking-dashboard {
+    padding: 0 10px;
+  }
+  
+  .welcome-section {
     padding: 20px;
-  }
-  
-  .dashboard-grid-item {
-    padding: 10px;
-  }
-  
-  .dashboard-paper {
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .dashboard-paper-shadow {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dashboard-typography-h4 {
     margin-bottom: 20px;
   }
   
-  .dashboard-typography-h6 {
-    color: #333;
+  .welcome-section h3 {
+    font-size: 1.5rem !important;
   }
   
+  .welcome-section h6 {
+    font-size: 1rem !important;
+  }
+  
+  .stat-card,
+  .account-card {
+    margin-bottom: 16px;
+  }
+  
+  .action-card {
+    padding: 16px !important;
+  }
+  
+  .top-nav {
+    padding: 8px 16px !important;
+  }
+  
+  .top-nav h5 {
+    font-size: 1.2rem !important;
+  }
+  
+  .fab {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-section {
+    padding: 16px;
+  }
+  
+  .welcome-section h3 {
+    font-size: 1.3rem !important;
+  }
+  
+  .MuiGrid-container {
+    gap: 12px !important;
+  }
+  
+  .stat-card .MuiTypography-h4 {
+    font-size: 1.5rem !important;
+  }
+  
+  .account-card .MuiTypography-h5 {
+    font-size: 1.3rem !important;
+  }
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.MuiCircularProgress-root {
+  animation: pulse 2s infinite;
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}

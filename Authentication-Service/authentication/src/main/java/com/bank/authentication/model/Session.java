@@ -23,6 +23,7 @@ public class Session {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(length = 2048)
     private String token;
 
     private LocalDateTime expiration;

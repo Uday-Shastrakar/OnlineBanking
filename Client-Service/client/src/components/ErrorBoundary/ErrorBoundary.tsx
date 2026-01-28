@@ -96,7 +96,13 @@ class ErrorBoundary extends Component<Props, State> {
     };
 
     private handleGoHome = () => {
-        window.location.href = '/dashboard';
+        // Check if this might be an authentication error
+        const errorMessage = this.state.error?.message || '';
+        if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('token')) {
+            window.location.href = '/login';
+        } else {
+            window.location.href = '/dashboard';
+        }
     };
 
     private handleRefresh = () => {
@@ -175,7 +181,7 @@ Timestamp: ${new Date().toISOString()}
                                 onClick={this.handleGoHome}
                                 sx={{ borderColor: '#1a237e', color: '#1a237e' }}
                             >
-                                Go to Dashboard
+                                Go to Login
                             </Button>
 
                             <Button

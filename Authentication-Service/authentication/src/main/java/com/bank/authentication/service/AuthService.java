@@ -1,9 +1,11 @@
 package com.bank.authentication.service;
 
+import com.bank.authentication.audit.AuditLogger;
 import com.bank.authentication.dto.ApiResponse;
 import com.bank.authentication.dto.LoginRequestDto;
 import com.bank.authentication.dto.LoginResponseDto;
 import com.bank.authentication.extenalservice.EmailService;
+import com.bank.authentication.kafka.AdminAuditProducer;
 import com.bank.authentication.model.PasswordResetToken;
 import com.bank.authentication.model.Session;
 import com.bank.authentication.model.User;
@@ -37,11 +39,14 @@ public class AuthService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsServiceImpl userDetailsService;
+    private final AdminAuditProducer adminAuditProducer;
+    private final AuditLogger auditLogger;
 
     @Autowired
     public AuthService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, UserService userService,
             PasswordResetTokenService passwordResetTokenService, SessionService sessionService,
-            EmailService emailService, PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService) {
+            EmailService emailService, PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService,
+            AdminAuditProducer adminAuditProducer, AuditLogger auditLogger) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.userService = userService;
@@ -50,10 +55,17 @@ public class AuthService {
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
+        this.adminAuditProducer = adminAuditProducer;
+        this.auditLogger = auditLogger;
     }
 
     public LoginResponseDto authenticateUser(LoginRequestDto loginRequest) throws AuthenticationException {
         User user = (User) userDetailsService.loadUserByUsername(loginRequest.getUsername());
+
+        // Validate user status
+        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(java.time.LocalDateTime.now())) {
+            throw new org.springframework.security.authentication.LockedException("Account is locked. Please try again later.");
+        }
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -61,9 +73,32 @@ public class AuthService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwtToken = jwtUtils.generateToken(userDetails);
+            
+            // Check if user has ADMIN role for admin-specific token
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+            
+            String jwtToken;
+            String sessionId;
+            
+            if (isAdmin) {
+                // Generate short-lived admin token (15 minutes)
+                jwtToken = jwtUtils.generateAdminToken(userDetails);
+                sessionId = extractSessionIdFromToken(jwtToken);
+                
+                // Emit admin login success event to Kafka
+                adminAuditProducer.emitAdminLoginSuccess(user.getUserId(), user.getUsername(), sessionId);
+                
+                auditLogger.logAction("ADMIN_LOGIN_SUCCESS", user.getUsername());
+            } else {
+                // Generate regular user token
+                jwtToken = jwtUtils.generateToken(userDetails);
+                sessionId = null;
+                
+                auditLogger.logAction("USER_LOGIN_SUCCESS", user.getUsername());
+            }
 
-            // Authentication Suceeded: Reset attempts
+            // Authentication Succeeded: Reset attempts
             user.setFailedLoginAttempts(0);
             user.setLockedUntil(null);
             userService.save(user);
@@ -75,16 +110,31 @@ public class AuthService {
 
             return new LoginResponseDto(userDetails.getUsername(), authorities, jwtToken, user.getUserId(),
                     user.getEmail(), user.getPhoneNumber(), user.getFirstName(), user.getLastName());
+                    
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
             // Authentication Failed: Increment attempts
             user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
             if (user.getFailedLoginAttempts() >= 5) {
                 user.setLockedUntil(java.time.LocalDateTime.now().plusMinutes(15));
+                
+                // Log account lockout event
+                auditLogger.logAction("ACCOUNT_LOCKED", user.getUsername());
             }
             userService.save(user);
+            
+            auditLogger.logAction("LOGIN_FAILED", user.getUsername());
             throw e;
         } catch (org.springframework.security.authentication.LockedException e) {
+            auditLogger.logAction("LOGIN_ATTEMPT_LOCKED_ACCOUNT", user.getUsername());
             throw e;
+        }
+    }
+    
+    private String extractSessionIdFromToken(String token) {
+        try {
+            return jwtUtils.extractAllClaims(token).get("session_id", String.class);
+        } catch (Exception e) {
+            return java.util.UUID.randomUUID().toString();
         }
     }
 

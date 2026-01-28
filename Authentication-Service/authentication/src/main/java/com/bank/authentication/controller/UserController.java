@@ -8,6 +8,7 @@ import com.bank.authentication.dto.UserDetailDto;
 import com.bank.authentication.event.UserRegisteredEvent;
 import com.bank.authentication.model.User;
 import com.bank.authentication.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController {
     private final AuditLogger auditLogger;
     @Autowired
@@ -54,6 +56,8 @@ public class UserController {
     @PostMapping("/customer")
     public ResponseEntity<UserDetailDto> createCustomerUser(@RequestBody CustomerCredentialRequestDTO request,
             @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+        
+        logger.debug("bank-correlation-id found: {} ", correlationId);
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -62,29 +66,66 @@ public class UserController {
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());
 
-        UserDetailDto createdUser = userService.createUser(user, request.getRoleNames(), request.getPermissionNames());
-
-        request.getCreateCustomerDto().setUserId(createdUser.getUserId());
-        request.getCreateCustomerDto().setEmail(createdUser.getEmail());
-        request.getCreateCustomerDto().setFirstName(createdUser.getFirstName());
-        request.getCreateCustomerDto().setLastName(createdUser.getLastName());
-        request.getCreateCustomerDto().setPhoneNumber(createdUser.getPhoneNumber());
-
-        userService.createCustomerUser(request.getCreateCustomerDto(), correlationId);
-        logger.debug("bank-correlation-id found: {} ", correlationId);
-        auditLogger.logAction("CUSTOMER_REGISTERED", user.getUsername());
-
-        // Publish Event to Kafka
+        UserDetailDto createdUser = null;
+        
         try {
-            UserRegisteredEvent event = new UserRegisteredEvent(createdUser.getUserId(), createdUser.getEmail(),
-                    createdUser.getFirstName(), createdUser.getLastName());
-            kafkaTemplate.send("user-registered", event);
-            logger.info("Published UserRegisteredEvent for user: {}", user.getUsername());
-        } catch (Exception e) {
-            logger.error("Failed to publish UserRegisteredEvent", e);
-        }
+            // Step 1: Create user in Authentication Service
+            createdUser = userService.createUser(user, request.getRoleNames(), request.getPermissionNames());
+            logger.info("Successfully created user with ID: {} for username: {}", createdUser.getUserId(), user.getUsername());
 
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+            // Step 2: Prepare customer DTO with only customer-specific data and the user ID
+            request.getCreateCustomerDto().setUserId(createdUser.getUserId());
+            // Note: firstName, lastName, email, phoneNumber are already in createCustomerDto from frontend
+            // No need to duplicate them here
+
+            // Step 3: Create customer via Feign client
+            try {
+                userService.createCustomerUser(request.getCreateCustomerDto(), correlationId);
+                logger.info("Successfully created customer for user ID: {}", createdUser.getUserId());
+                
+                auditLogger.logAction("CUSTOMER_REGISTERED", user.getUsername());
+
+                // Step 4: Publish Event to Kafka only after successful customer creation
+                try {
+                    UserRegisteredEvent event = new UserRegisteredEvent(createdUser.getUserId(), createdUser.getEmail(),
+                            createdUser.getFirstName(), createdUser.getLastName());
+                    
+                    // Add type information to Kafka headers for proper deserialization
+                    kafkaTemplate.send("user-registered", event);
+                    logger.info("Published UserRegisteredEvent for user: {}", user.getUsername());
+                } catch (Exception e) {
+                    logger.error("Failed to publish UserRegisteredEvent", e);
+                    // Don't fail the request, just log the error
+                }
+
+                return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+                
+            } catch (Exception customerCreationException) {
+                logger.error("Failed to create customer for user ID: {}. Rolling back user creation.", createdUser.getUserId(), customerCreationException);
+                
+                // Step 5: Rollback - Delete the user if customer creation fails
+                try {
+                    userService.deleteUserById(createdUser.getUserId());
+                    logger.info("Successfully rolled back user creation for username: {}", user.getUsername());
+                } catch (Exception userDeletionException) {
+                    logger.error("Failed to rollback user creation for username: {}. Manual cleanup required.", user.getUsername(), userDeletionException);
+                }
+                
+                auditLogger.logAction("CUSTOMER_REGISTRATION_FAILED", user.getUsername());
+                throw new RuntimeException("Customer creation failed. User registration has been rolled back: " + customerCreationException.getMessage(), customerCreationException);
+            }
+            
+        } catch (Exception e) {
+            logger.error("Failed to create customer user: {}", user.getUsername(), e);
+            auditLogger.logAction("CUSTOMER_REGISTRATION_FAILED", user.getUsername());
+            
+            // Check if it's a username already exists error
+            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
+                return new ResponseEntity<>(HttpStatus.CONFLICT); // 409 Conflict
+            }
+            
+            throw new RuntimeException("Customer registration failed: " + e.getMessage(), e);
+        }
     }
 
     @PostMapping("/account-manager")
@@ -115,6 +156,54 @@ public class UserController {
         List<UserDetailDto> userDetails = userService.getAllUsers();
         logger.debug("bank-correlation-id found: {} ", correlationId);
         return new ResponseEntity<>(userDetails, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/exists")
+    public ResponseEntity<java.util.Map<String, Object>> checkUserExists(@PathVariable Long userId,
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+        logger.debug("bank-correlation-id found: {} ", correlationId);
+        
+        boolean exists = userService.findById(userId).isPresent();
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("exists", exists);
+        response.put("userId", userId);
+        
+        if (exists) {
+            response.put("message", "User exists");
+            logger.debug("User {} exists", userId);
+        } else {
+            response.put("message", "User does not exist");
+            logger.debug("User {} does not exist", userId);
+        }
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<java.util.Map<String, Object>> getUserById(@PathVariable Long userId,
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+        logger.debug("bank-correlation-id found: {} ", correlationId);
+        
+        java.util.Optional<User> userOpt = userService.findById(userId);
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            response.put("userId", user.getUserId());
+            response.put("username", user.getUsername());
+            response.put("email", user.getEmail());
+            response.put("firstName", user.getFirstName());
+            response.put("lastName", user.getLastName());
+            response.put("phoneNumber", user.getPhoneNumber());
+            response.put("exists", true);
+            logger.debug("Retrieved user details for userId: {}", userId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("exists", false);
+            response.put("message", "User not found");
+            logger.debug("User not found for userId: {}", userId);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 
 }

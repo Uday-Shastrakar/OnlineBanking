@@ -7,18 +7,14 @@ export interface ApiResponse<T>{
 }
 
 export interface LoginResponse {
-    success: boolean;
-    data: {
-        jwtToken: string;
-        userName: string;
-        authorities: string[];
-        userId: number;
-        email: string;
-        firstName: string;
-        lastName: string;
-        phoneNumber?: string;  // Marking phoneNumber as optional since it may not be in every response
-    };
-    message: string;
+    jwtToken: string;
+    userName: string;
+    authorities: string[];
+    userId: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber?: string;  // Marking phoneNumber as optional since it may not be in every response
 }
 
 export interface Credentials{
@@ -87,6 +83,7 @@ export interface CreateCustomerDto {
 
 
   export interface GetCustomer {
+    id: number;
     userId: number;
     email: String ;
     firstName: String ;
@@ -96,5 +93,6 @@ export interface CreateCustomerDto {
     gender: String,
     address: String,
     dateOfBirth: String,
+    status: String;
 
   }

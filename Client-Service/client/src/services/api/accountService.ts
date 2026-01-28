@@ -97,5 +97,13 @@ export const accountService = {
       params: { customerId }
     });
     return response.data;
+  },
+
+  // Get all accounts for a user by userId (corrected to match backend API)
+  getAccountsByUserId: async (userId: number): Promise<AccountQueryDto[]> => {
+    const response = await api.get<AccountQueryDto[]>('account/getall', {
+      params: { userId }
+    });
+    return response.data;
   }
 };

@@ -19,6 +19,7 @@ const UserDetails = lazy(() => import('./components/Pages/UserDetails/UserDetail
 const Dashboard = lazy(() => import('./components/Pages/dashboard/main-dashboard/Dashboard'));
 const CustomerRegistration = lazy(() => import('./components/Customer/CustomerRegistration/CustomerRegisterForm'));
 const Profile = lazy(() => import('./components/Pages/dashboard/profile/Profile'));
+const Unauthorized = lazy(() => import('./components/Pages/Unauthorized/Unauthorized'));
 
 // Phase 1: Customer Portal
 const AccountList = lazy(() => import('./customer/accounts/AccountList'));
@@ -85,6 +86,7 @@ const PageLayout: React.FC = () => {
           <Route path="/register" element={<UserRegister />} />
           <Route path="/forgotpassword" element={<Forgotpassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* Protected Customer Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

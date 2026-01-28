@@ -12,7 +12,7 @@ import java.util.List;
 public interface CustomerService {
 
         @PostMapping("/api/customer/create-customer")
-        void createCustomerUser(@RequestBody CreateCustomerDto createCustomerDto,
+        ResponseEntity<CreateCustomerDto> createCustomerUser(@RequestBody CreateCustomerDto createCustomerDto,
                         @RequestHeader(value = "bank-correlation-id", required = false) String correlationId);
 
         @GetMapping("/api/customer/{userId}")
