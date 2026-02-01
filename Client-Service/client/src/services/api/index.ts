@@ -18,12 +18,16 @@ export type {
 } from './accountService';
 
 export type {
-  Transaction,
   TransactionRequest,
   TransactionResponse,
   UserSession,
   TransferRequest
 } from './transactionService';
+
+export type {
+  Transaction,
+  TransactionStatus
+} from '../../types/banking';
 
 export type {
   AuditEvent,

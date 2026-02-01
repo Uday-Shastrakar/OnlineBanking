@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.springframework.http.ResponseEntity;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionControllerTest {
@@ -45,8 +46,10 @@ class TransactionControllerTest {
         when(transactionService.fundTransfer(new BigDecimal("500.00"), 987654321L, "transfer-123"))
                 .thenReturn("Transaction Completed");
 
-        String response = transactionController.fundTransfer(new BigDecimal("500.00"), 987654321L, "transfer-123");
-        assertEquals("Transaction Completed", response);
+        ResponseEntity<?> response = transactionController.fundTransfer(null, new BigDecimal("500.00"), 987654321L,
+                "transfer-123");
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Transaction Completed", response.getBody());
 
         verify(transactionService).fundTransfer(new BigDecimal("500.00"), 987654321L, "transfer-123");
     }

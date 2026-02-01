@@ -26,8 +26,9 @@ public class AuditController {
         this.auditService = auditService;
     }
 
-    private static final List<String> ADMIN_PERMISSIONS = Arrays.asList("ADMIN_ALL");
-    private static final List<String> AUDITOR_PERMISSIONS = Arrays.asList("AUDIT_READ", "ADMIN_ALL");
+    private static final List<String> ADMIN_PERMISSIONS = Arrays.asList("ADMIN_ALL", "ADMIN", "ROLE_ADMIN");
+    private static final List<String> AUDITOR_PERMISSIONS = Arrays.asList("AUDIT_READ", "ADMIN_ALL", "ADMIN",
+            "ROLE_ADMIN");
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllLogs(
@@ -38,7 +39,7 @@ public class AuditController {
             @RequestParam(required = false) String endDate,
             @RequestParam(required = false) String action,
             @RequestParam(required = false) String userIdFilter) {
-        
+
         // Validate required headers
         if (userId == null || requestId == null) {
             return ResponseEntity.badRequest().body("Missing required headers: X-User-Id, X-Request-Id");
@@ -48,7 +49,8 @@ public class AuditController {
         }
 
         // Check permissions
-        if (!hasRequiredPermission(permissions, ADMIN_PERMISSIONS) && !hasRequiredPermission(permissions, AUDITOR_PERMISSIONS)) {
+        if (!hasRequiredPermission(permissions, ADMIN_PERMISSIONS)
+                && !hasRequiredPermission(permissions, AUDITOR_PERMISSIONS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Insufficient permissions");
         }
 
@@ -65,7 +67,7 @@ public class AuditController {
             @RequestHeader(value = "X-User-Id", required = false) String userId,
             @RequestHeader(value = "X-Permissions", required = false) String permissions,
             @RequestHeader(value = "X-Request-Id", required = false) String requestId) {
-        
+
         // Validate required headers
         if (userId == null || requestId == null) {
             return ResponseEntity.badRequest().body("Missing required headers: X-User-Id, X-Request-Id");
@@ -75,7 +77,8 @@ public class AuditController {
         }
 
         // Check permissions
-        if (!hasRequiredPermission(permissions, ADMIN_PERMISSIONS) && !hasRequiredPermission(permissions, AUDITOR_PERMISSIONS)) {
+        if (!hasRequiredPermission(permissions, ADMIN_PERMISSIONS)
+                && !hasRequiredPermission(permissions, AUDITOR_PERMISSIONS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Insufficient permissions");
         }
 

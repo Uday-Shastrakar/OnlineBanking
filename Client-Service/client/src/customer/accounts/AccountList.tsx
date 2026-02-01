@@ -17,8 +17,8 @@ const AccountList: React.FC = () => {
     useEffect(() => {
         const fetchAccounts = async () => {
             try {
-                const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-                const userId = userDetails[0]?.userId;
+                const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+                const userId = userDetails?.userId;
 
                 if (!userId) throw new Error("Session expired. Please log in.");
 
@@ -35,9 +35,10 @@ const AccountList: React.FC = () => {
         fetchAccounts();
     }, []);
 
-    const maskAccountNumber = (num: string) => {
+    const maskAccountNumber = (num: string | number) => {
         if (!num) return 'XXXX-XXXX';
-        return `XXXX-XXXX-${num.slice(-4)}`;
+        const strNum = num.toString();
+        return `XXXX-XXXX-${strNum.slice(-4)}`;
     };
 
     if (loading) return <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>;

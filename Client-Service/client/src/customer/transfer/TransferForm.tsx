@@ -31,8 +31,8 @@ const TransferForm: React.FC = () => {
     useEffect(() => {
         const loadAccounts = async () => {
             try {
-                const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-                const userId = userDetails[0]?.userId;
+                const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+                const userId = userDetails?.userId;
                 const response = await api.get(`/account/getall?userId=${userId}`);
                 const activeAccounts = (Array.isArray(response.data) ? response.data : [response.data])
                     .filter((a: BankAccount) => a.status === 'ACTIVE');
@@ -64,8 +64,8 @@ const TransferForm: React.FC = () => {
                 description: description || 'Fund Transfer'
             };
 
-            const response = await transactionService.initiateTransfer(transferRequest);
-            
+            const response = await transactionService.initiateTransfer(transferRequest, idempotencyKey);
+
             setStatus('COMPLETED');
             setMessage(`Transaction successful! Transaction ID: ${response.transactionId}`);
             // Rotate key after success to allow a fresh transaction
@@ -118,7 +118,7 @@ const TransferForm: React.FC = () => {
                         >
                             {accounts.map((acc) => (
                                 <MenuItem key={acc.id} value={acc.id}>
-                                    {acc.accountType} - XXXX-{acc.accountNumber.slice(-4)} (₹{acc.balance})
+                                    {acc.accountType} - XXXX-{acc.accountNumber.toString().slice(-4)} (₹{acc.balance})
                                 </MenuItem>
                             ))}
                         </TextField>

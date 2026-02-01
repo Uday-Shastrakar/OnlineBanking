@@ -5,7 +5,7 @@ import {
     Chip, CircularProgress, Alert, Pagination, IconButton, Tooltip
 } from '@mui/material';
 import { InfoOutlined, CheckCircle, Warning, Error as ErrorIcon, Loop } from '@mui/icons-material';
-import api from '../../services/api';
+import { transactionService } from '../../services/api/transactionService';
 import { Transaction, TransactionStatus } from '../../types/banking';
 
 /**
@@ -24,12 +24,26 @@ const TransactionHistory: React.FC = () => {
         const fetchHistory = async () => {
             setLoading(true);
             try {
-                // Fetching from existing transaction service endpoint
-                const response = await api.get('/transaction/session'); // Note: Placeholder if no get-all yet, but following user intent
-                // Mocking structure if needed or using live if available
-                setTransactions(Array.isArray(response.data) ? response.data : []);
+                const userDetailsStr = localStorage.getItem('userDetails');
+                if (!userDetailsStr) {
+                    setError("User not authenticated.");
+                    setLoading(false);
+                    return;
+                }
+
+                const userDetails = JSON.parse(userDetailsStr);
+                const userId = userDetails?.userId || userDetails?.id;
+
+                if (!userId) {
+                    setError("User identifier not found.");
+                    setLoading(false);
+                    return;
+                }
+
+                const data = await transactionService.getTransactionHistoryByUserId(userId);
+                setTransactions(Array.isArray(data) ? data : []);
             } catch (err: any) {
-                setError("Failed to load transaction history. The service might be booting up.");
+                setError("Failed to load transaction history. Please try again later.");
             } finally {
                 setLoading(false);
             }

@@ -25,6 +25,42 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_DATABASE: authdb
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "33061:3306"
+
+  mysql-customer:
+    image: mysql:8.0
+    container_name: mysql-customer
+    environment:
+      MYSQL_DATABASE: customer
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "33062:3306"
+
+  mysql-accounts:
+    image: mysql:8.0
+    container_name: mysql-accounts
+    environment:
+      MYSQL_DATABASE: accounts
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "33063:3306"
+
+  mysql-transaction:
+    image: mysql:8.0
+    container_name: mysql-transaction
+    environment:
+      MYSQL_DATABASE: transaction
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "33064:3306"
+
   audit-db:
     image: mysql:8.0
     container_name: audit-db

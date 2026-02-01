@@ -64,9 +64,9 @@ const CardManagement: React.FC = () => {
 
   const fetchCards = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         const userCards = await cardService.getUserCards(userId);
         setCards(userCards);
@@ -80,9 +80,9 @@ const CardManagement: React.FC = () => {
 
   const handleRequestCard = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         await cardService.requestNewCard(cardRequest);
         setShowRequestDialog(false);
@@ -141,8 +141,9 @@ const CardManagement: React.FC = () => {
     }
   };
 
-  const maskCardNumber = (cardNumber: string) => {
-    return `**** **** **** ${cardNumber.slice(-4)}`;
+  const maskCardNumber = (cardNumber: string | number) => {
+    const strNum = cardNumber.toString();
+    return `**** **** **** ${strNum.slice(-4)}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -205,12 +206,12 @@ const CardManagement: React.FC = () => {
       <Grid container spacing={3}>
         {cards.map((card) => (
           <Grid item xs={12} md={6} lg={4} key={card.cardId}>
-            <Card sx={{ 
+            <Card sx={{
               borderRadius: 3,
               boxShadow: 3,
               position: 'relative',
               overflow: 'hidden',
-              background: card.status === 'ACTIVE' 
+              background: card.status === 'ACTIVE'
                 ? 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
                 : 'linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)',
               color: 'white'
@@ -225,7 +226,7 @@ const CardManagement: React.FC = () => {
                     label={card.status}
                     color={getStatusColor(card.status)}
                     size="small"
-                    sx={{ 
+                    sx={{
                       backgroundColor: 'rgba(255,255,255,0.2)',
                       color: 'white',
                       fontWeight: 600

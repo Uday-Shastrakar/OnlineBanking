@@ -65,14 +65,13 @@ export interface CardSettings {
 // Request New Card
 export const requestNewCard = async (cardRequest: CardRequest): Promise<BankCard> => {
   try {
-    // Get userId from localStorage
-    const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-    const userId = userDetails[0]?.userId;
-    
+    const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+    const userId = userDetails?.userId;
+
     if (!userId) {
       throw new Error('User not logged in');
     }
-    
+
     const response = await api.post<BankCard>('/cards/request', { ...cardRequest, userId });
     return response.data;
   } catch (error: any) {

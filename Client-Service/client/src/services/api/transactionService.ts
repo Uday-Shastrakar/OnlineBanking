@@ -1,19 +1,10 @@
 import api from "../api";
 import { ApiResponse } from "../api";
 
+import { Transaction, TransactionStatus } from "../../types/banking";
+
 // Transaction DTOs
-export interface Transaction {
-  transactionId: string;
-  sourceAccountId: number;
-  destinationAccountId: number;
-  amount: number;
-  currency: string;
-  status: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  requestId: string;
-}
+// Removing local Transaction interface to use the one from types/banking
 
 export interface TransactionRequest {
   sourceAccountId: number;
@@ -65,9 +56,10 @@ export const transactionService = {
   },
 
   // New transfer API with gateway headers
-  initiateTransfer: async (transferData: TransactionRequest): Promise<TransactionResponse> => {
+  initiateTransfer: async (transferData: TransactionRequest, idempotencyKey?: string): Promise<TransactionResponse> => {
     const response = await api.post<TransactionResponse>('transaction/transfer', transferData, {
       headers: {
+        'Idempotency-Key': idempotencyKey,
         'X-Request-ID': generateRequestId(),
         'Content-Type': 'application/json'
       }
@@ -103,7 +95,7 @@ export const transactionService = {
 
   // Get transaction history for customer (by customer ID)
   getTransactionHistoryByCustomerId: async (customerId: number): Promise<Transaction[]> => {
-    const response = await api.get<Transaction[]>('transaction/getall', {
+    const response = await api.get<Transaction[]>('transaction/history', {
       params: { customerId },
       headers: {
         'X-Request-ID': generateRequestId()
@@ -112,9 +104,9 @@ export const transactionService = {
     return response.data;
   },
 
-  // Get transaction history for user (legacy support)
+  // Get transaction history for user
   getTransactionHistoryByUserId: async (userId: number): Promise<Transaction[]> => {
-    const response = await api.get<Transaction[]>('transaction/getall', {
+    const response = await api.get<Transaction[]>('transaction/history', {
       params: { userId },
       headers: {
         'X-Request-ID': generateRequestId()

@@ -16,9 +16,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, subt
     <Box className="dashboard-layout">
       {/* Sidebar */}
       <Sidebar />
-      
+
       {/* Main Content */}
-      <Box className={`dashboard-content ${collapsed ? 'collapsed' : ''}`}>
+      <Box className={`main-content ${collapsed ? 'collapsed' : ''}`}>
         <Box sx={{ py: 3 }}>
           {children}
         </Box>

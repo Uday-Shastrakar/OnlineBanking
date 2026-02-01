@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Paper, 
-  Divider, 
-  CircularProgress, 
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Divider,
+  CircularProgress,
   Alert,
   Grid,
   Card,
@@ -18,7 +18,7 @@ import {
   LinearProgress,
   Fab
 } from '@mui/material';
-import { 
+import {
   AccountBalance,
   AccountBalanceWallet,
   TrendingUp,
@@ -74,9 +74,12 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const storedData = localStorage.getItem('userDetails');
     if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      if (Array.isArray(parsedData) && parsedData.length > 0) {
-        setUserData(parsedData[0]);
+      try {
+        const parsedData = JSON.parse(storedData);
+        // userDetails is an object, not an array
+        setUserData(parsedData);
+      } catch (err) {
+        console.error('Error parsing user details:', err);
       }
     }
   }, []);
@@ -84,7 +87,10 @@ const Dashboard: React.FC = () => {
   // Fetch customer data and accounts
   useEffect(() => {
     const fetchCustomerDataAndAccounts = async () => {
-      if (!userData) return;
+      if (!userData || !userData.userId) {
+        if (loading) setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
@@ -96,7 +102,7 @@ const Dashboard: React.FC = () => {
           setError('No customer account found for this user');
           return;
         }
-        
+
         setCustomerData(customer);
 
         // Fetch customer accounts using userId (not customerId)
@@ -142,40 +148,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box className="banking-dashboard">
-      {/* Top Navigation Bar */}
-      <Paper className="top-nav" elevation={3}>
-        <Container maxWidth="xl">
-          <Box display="flex" justifyContent="space-between" alignItems="center" py={2}>
-            <Box display="flex" alignItems="center">
-              <AccountBalance sx={{ fontSize: 32, color: 'primary.main', mr: 2 }} />
-              <Typography variant="h5" fontWeight="bold" color="primary">
-                NUMS Digital Banking
-              </Typography>
-            </Box>
-            
-            <Box display="flex" alignItems="center" gap={2}>
-              <Tooltip title="Notifications">
-                <IconButton>
-                  <Notifications />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Refresh">
-                <IconButton onClick={() => window.location.reload()}>
-                  <Refresh />
-                </IconButton>
-              </Tooltip>
-              <Chip 
-                avatar={<Avatar sx={{ bgcolor: 'primary.main' }}>{customerData?.firstName?.charAt(0)}</Avatar>}
-                label={`${customerData?.firstName} ${customerData?.lastName}`}
-                variant="outlined"
-              />
-            </Box>
-          </Box>
-        </Container>
-      </Paper>
-
       {/* Welcome Section */}
-      <Container maxWidth="xl" sx={{ mt: 3 }}>
+      <Container maxWidth="xl">
         <Box className="welcome-section" mb={4}>
           <Typography variant="h3" fontWeight="bold" gutterBottom>
             Welcome back, {customerData?.firstName}! 👋
@@ -198,11 +172,11 @@ const Dashboard: React.FC = () => {
                     <Typography variant="h4" fontWeight="bold" color="primary.main">
                       ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </Typography>
-                    <Chip 
-                      icon={<TrendingUp />} 
-                      label="+12.5% this month" 
-                      color="success" 
-                      size="small" 
+                    <Chip
+                      icon={<TrendingUp />}
+                      label="+12.5% this month"
+                      color="success"
+                      size="small"
                       sx={{ mt: 1 }}
                     />
                   </Box>
@@ -248,10 +222,10 @@ const Dashboard: React.FC = () => {
                     <Typography variant="h4" fontWeight="bold" color="success.main">
                       Active
                     </Typography>
-                    <Chip 
-                      label="Verified" 
-                      color="primary" 
-                      size="small" 
+                    <Chip
+                      label="Verified"
+                      color="primary"
+                      size="small"
                       sx={{ mt: 1 }}
                     />
                   </Box>
@@ -293,17 +267,17 @@ const Dashboard: React.FC = () => {
                         <CreditCard />
                       </Avatar>
                     </Box>
-                    
+
                     <Divider sx={{ my: 2 }} />
-                    
+
                     <Typography variant="h5" fontWeight="bold" color="primary.main" gutterBottom>
                       ${(account.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </Typography>
-                    
+
                     <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Chip 
-                        label={account.status || 'Active'} 
-                        color="success" 
+                      <Chip
+                        label={account.status || 'Active'}
+                        color="success"
                         size="small"
                       />
                       <Box>
@@ -377,9 +351,9 @@ const Dashboard: React.FC = () => {
       </Container>
 
       {/* Floating Action Button */}
-      <Fab 
-        color="primary" 
-        aria-label="add" 
+      <Fab
+        color="primary"
+        aria-label="add"
         className="fab"
         sx={{ position: 'fixed', bottom: 24, right: 24 }}
       >

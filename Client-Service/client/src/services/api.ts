@@ -23,11 +23,20 @@ api.interceptors.request.use(
     }
 
     // Add gateway headers for secure endpoints
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem('userDetails');
     if (user) {
       const userData = JSON.parse(user);
-      config.headers['X-User-Id'] = userData.userId || userData.id;
-      config.headers['X-Permissions'] = userData.permissions || userData.roles?.join(',') || 'USER';
+      const userId = userData.userId || userData.id;
+      const userEmail = userData.email || userData.userName || '';
+
+      config.headers['X-User-Id'] = userId;
+      config.headers['userId'] = userId;
+      config.headers['email'] = userEmail;
+
+      const permissions = JSON.parse(localStorage.getItem('permissions') || '[]');
+      const roles = JSON.parse(localStorage.getItem('roles') || '[]');
+      const allAuth = [...permissions, ...roles];
+      config.headers['X-Permissions'] = allAuth.length > 0 ? JSON.stringify(allAuth) : 'USER';
     }
 
     // Add X-Request-ID for tracking
@@ -55,7 +64,7 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     // Check if this is a login request - don't show session expiry for login failures
     const isLoginRequest = error.config?.url?.includes('auth/login');
-    
+
     // Use centralized error handler
     if (error.response?.status === 401) {
       if (isLoginRequest) {
@@ -95,7 +104,7 @@ api.interceptors.response.use(
         logToConsole: true
       });
     }
-    
+
     return Promise.reject(error);
   }
 );

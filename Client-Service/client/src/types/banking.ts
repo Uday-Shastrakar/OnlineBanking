@@ -21,8 +21,8 @@ export interface Transaction {
     id: number;
     debitAmount: number;
     creditAmount: number;
-    senderAccountNumber: string;
-    receiverAccountNumber: string;
+    senderAccountNumber: number;
+    receiverAccountNumber: number;
     transactionDateTime: string;
     description: string;
     status: TransactionStatus;

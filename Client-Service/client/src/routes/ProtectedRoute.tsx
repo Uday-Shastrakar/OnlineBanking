@@ -4,7 +4,7 @@ import AuthStorage from '../services/authStorage';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
-    allowedRoles?: ('ADMIN' | 'CUSTOMER_USER' | 'BANK_STAFF' | 'AUDITOR' | 'CUSTOMER' | 'USER')[];
+    allowedRoles?: string[];
 }
 
 /**

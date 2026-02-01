@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { 
-  Box, 
-  Typography, 
-  Divider, 
-  Card, 
-  CardContent, 
-  Avatar, 
+import {
+  Box,
+  Typography,
+  Divider,
+  Card,
+  CardContent,
+  Avatar,
   Grid,
   Paper,
   CircularProgress,
   Alert
 } from "@mui/material";
-import { 
-  Person, 
-  Email, 
-  Phone, 
-  Cake, 
-  Home, 
-  Transgender 
+import {
+  Person,
+  Email,
+  Phone,
+  Cake,
+  Home,
+  Transgender
 } from "@mui/icons-material";
 import { customerService } from "../../../../services/customerService";
 import { GetCustomer } from "../../../../Types";
@@ -29,20 +29,12 @@ const Profile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const userDetails = localStorage.getItem("userDetails");
-
-    if (!userDetails) {
-      setError("User not authenticated. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    // Parse the userDetails and get userId
-    const parsedUserDetails = JSON.parse(userDetails);
-    const userId = parsedUserDetails?.[0]?.userId;
+    // Get userId from localStorage
+    const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+    const userId = userDetails?.userId;
 
     if (!userId) {
-      setError("User ID not found in local storage.");
+      setError("User not authenticated. Please log in.");
       setLoading(false);
       return;
     }
@@ -70,7 +62,7 @@ const Profile: React.FC = () => {
       </Box>
     );
   }
-  
+
   if (error) {
     return (
       <Box p={3}>
@@ -86,10 +78,10 @@ const Profile: React.FC = () => {
           <CardContent>
             {/* Profile Header */}
             <Box display="flex" alignItems="center" mb={3}>
-              <Avatar 
-                sx={{ 
-                  width: 80, 
-                  height: 80, 
+              <Avatar
+                sx={{
+                  width: 80,
+                  height: 80,
                   bgcolor: 'primary.main',
                   fontSize: '2rem',
                   mr: 3

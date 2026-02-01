@@ -18,7 +18,7 @@ export interface UserSession {
   totalBalance: number;
 }
 
-// Get Transaction Session (already implemented)
+// Get Transaction Session (✅ Backend supports this)
 export const getTransactionSession = async (): Promise<UserSession> => {
   try {
     const response = await api.get<UserSession>('/transaction/session');
@@ -29,7 +29,7 @@ export const getTransactionSession = async (): Promise<UserSession> => {
   }
 };
 
-// Fund Transfer (already implemented)
+// Fund Transfer (✅ Backend supports this)
 export const fundTransfer = async (amount: number, receiverAccountNumber: string, idempotencyKey?: string): Promise<string> => {
   try {
     const config = idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : {};
@@ -41,11 +41,10 @@ export const fundTransfer = async (amount: number, receiverAccountNumber: string
   }
 };
 
-// Get All Transactions (missing implementation)
-export const getAllTransactions = async (accountNumber?: number): Promise<Transaction[]> => {
+// Get All Transactions (✅ Backend supports this - requires accountNumber)
+export const getAllTransactions = async (accountNumber: number): Promise<Transaction[]> => {
   try {
-    const url = accountNumber ? `/transaction/getall?accountNumber=${accountNumber}` : '/transaction/getall';
-    const response = await api.get<Transaction[]>(url);
+    const response = await api.get<Transaction[]>(`/transaction/getall?accountNumber=${accountNumber}`);
     return response.data;
   } catch (error: any) {
     console.error("Error fetching transactions:", error);
@@ -53,7 +52,7 @@ export const getAllTransactions = async (accountNumber?: number): Promise<Transa
   }
 };
 
-// Get Transaction by ID
+// Get Transaction by ID (✅ Now supported!)
 export const getTransactionById = async (transactionId: number): Promise<Transaction> => {
   try {
     const response = await api.get<Transaction>(`/transaction/${transactionId}`);
@@ -64,7 +63,7 @@ export const getTransactionById = async (transactionId: number): Promise<Transac
   }
 };
 
-// Get Transactions by Status
+// Get Transactions by Status (✅ Now supported!)
 export const getTransactionsByStatus = async (status: TransactionStatus): Promise<Transaction[]> => {
   try {
     const response = await api.get<Transaction[]>(`/transaction/by-status?status=${status}`);
@@ -75,7 +74,7 @@ export const getTransactionsByStatus = async (status: TransactionStatus): Promis
   }
 };
 
-// Get Transactions by Date Range
+// Get Transactions by Date Range (✅ Now supported!)
 export const getTransactionsByDateRange = async (startDate: string, endDate: string): Promise<Transaction[]> => {
   try {
     const response = await api.get<Transaction[]>(`/transaction/by-date?startDate=${startDate}&endDate=${endDate}`);
@@ -86,7 +85,7 @@ export const getTransactionsByDateRange = async (startDate: string, endDate: str
   }
 };
 
-// Get Transactions by Amount Range
+// Get Transactions by Amount Range (✅ Now supported!)
 export const getTransactionsByAmountRange = async (minAmount: number, maxAmount: number): Promise<Transaction[]> => {
   try {
     const response = await api.get<Transaction[]>(`/transaction/by-amount?minAmount=${minAmount}&maxAmount=${maxAmount}`);
@@ -94,5 +93,16 @@ export const getTransactionsByAmountRange = async (minAmount: number, maxAmount:
   } catch (error: any) {
     console.error("Error fetching transactions by amount range:", error);
     throw new Error(error.response?.data?.message || error.message || "Failed to fetch transactions");
+  }
+};
+
+// Get Recent Transactions (✅ Now supported!)
+export const getRecentTransactions = async (accountNumber: number): Promise<Transaction[]> => {
+  try {
+    const response = await api.get<Transaction[]>(`/transaction/recent/${accountNumber}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching recent transactions:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch recent transactions");
   }
 };

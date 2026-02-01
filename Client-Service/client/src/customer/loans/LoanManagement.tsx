@@ -77,9 +77,9 @@ const LoanManagement: React.FC = () => {
 
   const fetchLoans = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         const userLoans = await loanService.getUserLoans(userId);
         setLoans(userLoans);
@@ -93,9 +93,9 @@ const LoanManagement: React.FC = () => {
 
   const handleApplyLoan = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         await loanService.applyForLoan({ ...loanApplication, userId });
         setShowApplicationDialog(false);
@@ -123,9 +123,9 @@ const LoanManagement: React.FC = () => {
 
   const handleCheckEligibility = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         setEligibilityLoading(true);
         const result = await loanService.checkLoanEligibility(

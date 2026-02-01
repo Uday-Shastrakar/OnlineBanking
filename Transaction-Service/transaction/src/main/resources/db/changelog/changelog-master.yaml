@@ -6,3 +6,10 @@ databaseChangeLog:
         - sqlFile:
             path: db/changelog/0001-create-transaction-table.sql
 
+  - changeSet:
+      id: 2
+      author: mohit.kulkarni
+      changes:
+        - sqlFile:
+            path: db/changelog/0002-create-idempotency-keys-table.sql
+

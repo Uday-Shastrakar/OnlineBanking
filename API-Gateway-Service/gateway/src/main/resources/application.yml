@@ -16,7 +16,7 @@ spring:
         - id: authentication-service
           uri: lb://authentication
           predicates:
-            - Path=/api/auth/**, /api/users/**
+            - Path=/api/auth/**, /api/users/**, /api/admin/**
         - id: accounts-service
           uri: lb://accounts
           predicates:

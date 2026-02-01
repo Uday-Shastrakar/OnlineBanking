@@ -1,11 +1,10 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Box, CircularProgress } from '@mui/material';
 import Navbar from './components/Navbar/Navbar';
 import { SidebarProvider } from './contexts/SidebarContext';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
-import { useAuth } from './hooks/useAuth';
 import './App.css';
 import ProtectedRoute from './routes/ProtectedRoute';
 
@@ -15,7 +14,6 @@ const Login = lazy(() => import('./components/Authentication/Login/Login'));
 const UserRegister = lazy(() => import('./components/Authentication/UserRegistration/UserRegisterForm'));
 const Forgotpassword = lazy(() => import('./components/Authentication/ForgotPassword/ForgotPassword'));
 const ResetPassword = lazy(() => import('./components/Authentication/ResetPassword/ResetPassword'));
-const UserDetails = lazy(() => import('./components/Pages/UserDetails/UserDetails'));
 const Dashboard = lazy(() => import('./components/Pages/dashboard/main-dashboard/Dashboard'));
 const CustomerRegistration = lazy(() => import('./components/Customer/CustomerRegistration/CustomerRegisterForm'));
 const Profile = lazy(() => import('./components/Pages/dashboard/profile/Profile'));
@@ -26,11 +24,18 @@ const AccountList = lazy(() => import('./customer/accounts/AccountList'));
 const TransferForm = lazy(() => import('./customer/transfer/TransferForm'));
 const TransactionHistory = lazy(() => import('./customer/transactions/TransactionHistory'));
 
+const CardDashboard = lazy(() => import('./customer/cards/CardDashboard'));
+const LoanDashboard = lazy(() => import('./customer/loans/LoanDashboard'));
+const SupportDashboard = lazy(() => import('./customer/support/SupportDashboard'));
+
 // Phase 2: Admin Portal
 const AdminDashboard = lazy(() => import('./admin/dashboard/EnhancedAdminDashboard'));
 const AuditCenter = lazy(() => import('./admin/audit/AuditCenter'));
 const UserManagement = lazy(() => import('./admin/users/UserManagement'));
 const AdminLayout = lazy(() => import('./admin/layout/AdminLayout'));
+
+// Shared Layouts
+const DashboardLayout = lazy(() => import('./components/Layout/DashboardLayout'));
 
 // MUI theme configuration
 const theme = createTheme({
@@ -76,6 +81,15 @@ const PageLayout: React.FC = () => {
     location.pathname === '/CustomerRegistration' ||
     location.pathname.startsWith('/admin');
 
+  // Helper for customer routes wrapped in DashboardLayout
+  const CustomerRoute = ({ children, roles }: { children: React.ReactNode, roles?: string[] }) => (
+    <ProtectedRoute allowedRoles={roles}>
+      <DashboardLayout>
+        {children}
+      </DashboardLayout>
+    </ProtectedRoute>
+  );
+
   return (
     <>
       {!isSpecialPage && <Navbar />}
@@ -88,12 +102,17 @@ const PageLayout: React.FC = () => {
           <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Protected Customer Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER_USER', 'CUSTOMER']}><AccountList /></ProtectedRoute>} />
-          <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER_USER', 'CUSTOMER']}><TransferForm /></ProtectedRoute>} />
-          <Route path="/transactions" element={<ProtectedRoute allowedRoles={['CUSTOMER_USER', 'CUSTOMER']}><TransactionHistory /></ProtectedRoute>} />
+          {/* Protected Customer Routes with Sidebar Layout */}
+          <Route path="/dashboard" element={<CustomerRoute><Dashboard /></CustomerRoute>} />
+          <Route path="/profile" element={<CustomerRoute><Profile /></CustomerRoute>} />
+          <Route path="/accounts" element={<CustomerRoute roles={['CUSTOMER_USER', 'CUSTOMER']}><AccountList /></CustomerRoute>} />
+          <Route path="/transfer" element={<CustomerRoute roles={['CUSTOMER_USER', 'CUSTOMER']}><TransferForm /></CustomerRoute>} />
+          <Route path="/transactions" element={<CustomerRoute roles={['CUSTOMER_USER', 'CUSTOMER']}><TransactionHistory /></CustomerRoute>} />
+
+          {/* New Feature Routes */}
+          <Route path="/cards" element={<CustomerRoute roles={['CUSTOMER_USER', 'CUSTOMER']}><CardDashboard /></CustomerRoute>} />
+          <Route path="/loans" element={<CustomerRoute roles={['CUSTOMER_USER', 'CUSTOMER']}><LoanDashboard /></CustomerRoute>} />
+          <Route path="/support" element={<CustomerRoute roles={['CUSTOMER_USER', 'CUSTOMER']}><SupportDashboard /></CustomerRoute>} />
 
           {/* Protected Admin Routes with Layout */}
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>

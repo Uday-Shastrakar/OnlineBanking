@@ -37,9 +37,9 @@ const Reporting: React.FC = () => {
 
   const fetchFinancialSummary = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         const summary = await reportingService.getFinancialSummary(userId, 'monthly');
         setFinancialSummary(summary);
@@ -51,9 +51,9 @@ const Reporting: React.FC = () => {
 
   const fetchAccountAnalytics = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         const analytics = await reportingService.getAccountAnalytics(userId);
         setAccountAnalytics(analytics);
@@ -65,9 +65,9 @@ const Reporting: React.FC = () => {
 
   const fetchReportHistory = async () => {
     try {
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         const history = await reportingService.getReportHistory(userId);
         setReportData(history);
@@ -80,15 +80,15 @@ const Reporting: React.FC = () => {
   const handleGenerateReport = async () => {
     try {
       setLoading(true);
-      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-      const userId = userDetails[0]?.userId;
-      
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const userId = userDetails?.userId;
+
       if (userId) {
         const report = await reportingService.generateAccountStatement({
           ...reportRequest,
           userId
         });
-        
+
         // Download the report
         const blob = await reportingService.downloadReport(report.reportId);
         const url = window.URL.createObjectURL(blob);
@@ -99,7 +99,7 @@ const Reporting: React.FC = () => {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        
+
         // Refresh report history
         fetchReportHistory();
       }
@@ -161,8 +161,8 @@ const Reporting: React.FC = () => {
         {financialSummary && (
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', 
+              <Card sx={{
+                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
                 color: 'white',
                 borderRadius: 3,
                 boxShadow: 3
@@ -184,8 +184,8 @@ const Reporting: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', 
+              <Card sx={{
+                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                 color: 'white',
                 borderRadius: 3,
                 boxShadow: 3
@@ -207,8 +207,8 @@ const Reporting: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)', 
+              <Card sx={{
+                background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
                 color: 'white',
                 borderRadius: 3,
                 boxShadow: 3
@@ -230,8 +230,8 @@ const Reporting: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)', 
+              <Card sx={{
+                background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
                 color: 'white',
                 borderRadius: 3,
                 boxShadow: 3
@@ -401,10 +401,10 @@ const Reporting: React.FC = () => {
                       <TableRow key={account.accountId}>
                         <TableCell>{account.accountNumber}</TableCell>
                         <TableCell>
-                          <Chip 
-                            label={account.accountType} 
-                            size="small" 
-                            color="primary" 
+                          <Chip
+                            label={account.accountType}
+                            size="small"
+                            color="primary"
                             variant="outlined"
                           />
                         </TableCell>
@@ -417,9 +417,9 @@ const Reporting: React.FC = () => {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Chip 
-                            label={account.riskScore} 
-                            size="small" 
+                          <Chip
+                            label={account.riskScore}
+                            size="small"
                             color={account.riskScore < 30 ? 'success' : account.riskScore < 70 ? 'warning' : 'error'}
                           />
                         </TableCell>
@@ -456,16 +456,16 @@ const Reporting: React.FC = () => {
                       <TableRow key={report.reportId}>
                         <TableCell>{report.reportName}</TableCell>
                         <TableCell>
-                          <Chip 
-                            label={report.reportType} 
-                            size="small" 
+                          <Chip
+                            label={report.reportType}
+                            size="small"
                             color={getReportColor(report.reportType)}
                           />
                         </TableCell>
                         <TableCell>
-                          <Chip 
-                            label={report.format} 
-                            size="small" 
+                          <Chip
+                            label={report.format}
+                            size="small"
                             variant="outlined"
                           />
                         </TableCell>

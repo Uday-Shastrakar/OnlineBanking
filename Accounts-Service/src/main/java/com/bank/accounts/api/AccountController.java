@@ -4,6 +4,7 @@ import com.bank.accounts.dto.*;
 import com.bank.accounts.models.Account;
 import com.bank.accounts.service.AccountManagerService;
 import com.bank.accounts.service.AccountService;
+import com.bank.accounts.repository.AccountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +24,9 @@ public class AccountController {
 
     @Autowired
     private AccountManagerService accountManagerService;
+
+    @Autowired
+    private AccountRepository accountRepository;
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
     @PostMapping("/create-account")
@@ -81,6 +85,21 @@ public class AccountController {
     @GetMapping("/getall")
     public java.util.List<Account> getAllAccounts(@RequestParam Long userId) {
         return accountService.getAllAccounts(userId);
+    }
+
+    @GetMapping("/{accountId}")
+    public ResponseEntity<Account> getAccountById(@PathVariable Long accountId) {
+        return ResponseEntity.ok(accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + accountId)));
+    }
+
+    @GetMapping("/number/{accountNumber}")
+    public ResponseEntity<Account> getAccountByNumber(@PathVariable Long accountNumber) {
+        Account account = accountRepository.getAccountDetailsByAccountNumber(accountNumber);
+        if (account == null) {
+            throw new RuntimeException("Account not found with number: " + accountNumber);
+        }
+        return ResponseEntity.ok(account);
     }
 
 }

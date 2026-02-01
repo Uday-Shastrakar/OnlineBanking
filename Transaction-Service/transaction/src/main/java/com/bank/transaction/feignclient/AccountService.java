@@ -12,6 +12,12 @@ public interface AccountService {
         CombineAccountDetailsDTO getSenderAccountDetails(@RequestParam("userId") Long userId,
                         @RequestParam("receiverAccountNumber") Long receiverAccountNumber);
 
+        @GetMapping("/api/account/{accountId}")
+        com.bank.transaction.dto.AccountDTO getAccountById(@PathVariable("accountId") Long accountId);
+
+        @GetMapping("/api/account/number/{accountNumber}")
+        com.bank.transaction.dto.AccountDTO getAccountByNumber(@PathVariable("accountNumber") Long accountNumber);
+
         @PutMapping("/api/account/update-details")
         String updateAccountDetails(@RequestBody UpdateAccountDetails updateAccountDetails);
 
@@ -22,4 +28,7 @@ public interface AccountService {
         @PostMapping("/api/account/credit")
         String creditAccount(@RequestParam("accountId") Long accountId,
                         @RequestParam("amount") java.math.BigDecimal amount);
+
+        @GetMapping("/api/account/getall")
+        java.util.List<com.bank.transaction.dto.AccountDTO> getAccountsByUserId(@RequestParam("userId") Long userId);
 }

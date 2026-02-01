@@ -12,19 +12,28 @@ import java.io.IOException;
 @Component
 public class UserSessionFilter extends OncePerRequestFilter {
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String userId = request.getHeader("userId");
-        String email = request.getHeader("email");
+        if (userId == null)
+            userId = request.getHeader("X-User-Id");
 
-        System.out.println("Incoming headers: userId=" + userId + ", email=" + email);
-        if (userId != null && email != null) {
-            UserThreadLocalContext.setUserSession(new UserSession(Long.parseLong(userId), email));
+        String email = request.getHeader("email");
+        if (email == null)
+            email = request.getHeader("X-User-Email");
+
+        System.out.println(
+                "Incoming headers: userId=" + userId + ", email=" + email + " from " + request.getRequestURI());
+        if (userId != null && email != null && !userId.isEmpty() && !email.isEmpty()) {
+            try {
+                UserThreadLocalContext.setUserSession(new UserSession(Long.parseLong(userId), email));
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid userId header format: " + userId);
+            }
         } else {
-            System.err.println("Headers are null");
+            System.err.println("User session headers missing for request: " + request.getRequestURI());
         }
 
         try {
@@ -34,4 +43,3 @@ public class UserSessionFilter extends OncePerRequestFilter {
         }
     }
 }
-

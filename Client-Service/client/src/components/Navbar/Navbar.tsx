@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  Avatar, 
-  Menu, 
-  MenuItem, 
-  Box, 
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Avatar,
+  Menu,
+  MenuItem,
+  Box,
   IconButton,
   Tooltip,
   Badge,
   Chip,
   Divider
 } from "@mui/material";
-import { 
-  AccountCircle, 
-  Logout, 
-  Settings, 
+import {
+  AccountCircle,
+  Logout,
+  Settings,
   Notifications,
   Home,
   Person,
@@ -27,6 +27,7 @@ import {
   AccountBalance
 } from "@mui/icons-material";
 import AuthStorage from "../../services/authStorage";
+import { logout } from "../../services/authService";
 
 const NavBar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -68,8 +69,10 @@ const NavBar: React.FC = () => {
     setMobileMenuAnchor(null);
   };
 
+
+
   const handleLogout = () => {
-    AuthStorage.clearAuthData();
+    logout();
     handleMenuClose();
     navigate("/login");
   };
@@ -81,8 +84,8 @@ const NavBar: React.FC = () => {
   };
 
   return (
-    <AppBar 
-      position="fixed" 
+    <AppBar
+      position="fixed"
       className={`navbar ${isScrolled ? 'scrolled' : ''}`}
       elevation={isScrolled ? 4 : 0}
     >
@@ -124,7 +127,7 @@ const NavBar: React.FC = () => {
                   <Typography variant="body2" className="user-name">
                     {userName}
                   </Typography>
-                  <Chip 
+                  <Chip
                     label={isCustomer ? "Customer" : isAdmin ? "Admin" : "Staff"}
                     size="small"
                     className="role-chip"
@@ -170,7 +173,7 @@ const NavBar: React.FC = () => {
               >
                 Home
               </Button>
-              
+
               {/* Login Button */}
               <Button
                 variant="outlined"

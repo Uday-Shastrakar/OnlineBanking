@@ -2,12 +2,12 @@
   background: rgba(26, 188, 156, 0.9); /* Sidebar background */
   height: calc(100vh - 64px); /* Full height minus navbar height */
   position: fixed;
-  top: 72px; /* Start below the navbar */
+  top: 64px; /* Align exactly below the standard navbar */
   left: 0;
-  width: 250px; /* Sidebar width */
-  transition: all 0.3s ease; /* Smooth transition for collapsing */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Sidebar shadow */
-  z-index: 1000; /* Ensure sidebar is above content */
+  width: 250px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
 .sidebar-container.collapsed {
@@ -39,8 +39,10 @@
 /* Dashboard main content styles */
 .main-content {
   margin-left: 250px;
-  transition: margin-left 0.3s ease;
-  padding: 20px;
+  padding: 84px 30px 30px 30px; /* 64px navbar + 20px gap */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+  background-color: #f8fafc;
 }
 
 .main-content.collapsed {

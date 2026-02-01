@@ -74,7 +74,7 @@ export const createSupportTicket = async (request: SupportRequest): Promise<Supp
     formData.append('description', request.description);
     formData.append('category', request.category);
     formData.append('priority', request.priority);
-    
+
     if (request.attachments) {
       request.attachments.forEach((file, index) => {
         formData.append(`attachment${index}`, file);
@@ -256,3 +256,24 @@ export const getSupportCategories = async (): Promise<string[]> => {
     throw new Error(error.response?.data?.message || error.message || "Failed to fetch support categories");
   }
 };
+
+const supportService = {
+  createSupportTicket,
+  getUserTickets,
+  getTicketDetails,
+  updateTicket,
+  closeTicket,
+  getFAQs,
+  searchFAQs,
+  getKnowledgeBaseArticles,
+  getKnowledgeBaseArticle,
+  startChatSession,
+  getChatSessions,
+  getChatMessages,
+  sendChatMessage,
+  endChatSession,
+  rateContent,
+  getSupportCategories
+};
+
+export default supportService;

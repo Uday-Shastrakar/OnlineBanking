@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Paper, 
-  Grid, 
-  Card, 
-  CardContent, 
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
   Button,
   CircularProgress,
   Alert,
@@ -81,14 +81,13 @@ const EnhancedCustomerDashboard: React.FC = () => {
         const storedData = localStorage.getItem('userDetails');
         if (storedData) {
           const parsedData = JSON.parse(storedData);
-          if (Array.isArray(parsedData) && parsedData.length > 0) {
-            setUserData(parsedData[0]);
-          }
+          // userDetails is an object, not an array
+          setUserData(parsedData);
         }
 
         // Get accounts
-        const userDetails = JSON.parse(localStorage.getItem('userDetails') || '[]');
-        const userId = userDetails[0]?.userId;
+        const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+        const userId = userDetails.userId;
 
         if (userId) {
           const accountsResponse = await api.get(`/account/getall?userId=${userId}`);
@@ -107,25 +106,25 @@ const EnhancedCustomerDashboard: React.FC = () => {
             pendingAccounts
           });
 
-          // Mock recent transactions (replace with actual API call)
-          setRecentTransactions([
-            {
-              id: '1',
-              type: 'CREDIT',
-              amount: 5000,
-              description: 'Salary Credit',
-              date: '2025-01-25',
-              accountNumber: accountsData[0]?.accountNumber || 'XXXX-XXXX-1234'
-            },
-            {
-              id: '2',
-              type: 'DEBIT',
-              amount: 1200,
-              description: 'Online Shopping',
-              date: '2025-01-24',
-              accountNumber: accountsData[0]?.accountNumber || 'XXXX-XXXX-1234'
-            }
-          ]);
+          // Fetch real recent transactions
+          const txResponse = await api.get(`/transaction/history?userId=${userData.userId}`);
+          const rawTransactions = Array.isArray(txResponse.data) ? txResponse.data : [];
+
+          // Map backend transactions to dashboard format
+          const userAccountNumbers = accountsData.map((a: Account) => a.accountNumber);
+          const mappedTransactions: RecentTransaction[] = rawTransactions.slice(0, 5).map((tx: any) => {
+            const isDebit = userAccountNumbers.includes(tx.senderAccountNumber?.toString());
+            return {
+              id: tx.id.toString(),
+              type: isDebit ? 'DEBIT' : 'CREDIT',
+              amount: isDebit ? (tx.debitAmount || tx.amount) : (tx.creditAmount || tx.amount),
+              description: tx.description || (isDebit ? `Transfer to ${tx.receiverAccountNumber}` : `Received from ${tx.senderAccountNumber}`),
+              date: new Date(tx.transactionDateTime || tx.createdAt).toLocaleDateString(),
+              accountNumber: isDebit ? tx.senderAccountNumber?.toString() : tx.receiverAccountNumber?.toString()
+            };
+          });
+
+          setRecentTransactions(mappedTransactions);
         }
       } catch (err: any) {
         setError(err.message || 'Failed to load dashboard data');
@@ -166,9 +165,9 @@ const EnhancedCustomerDashboard: React.FC = () => {
   return (
     <Box>
       {/* Welcome Section */}
-      <Box className="navbar" sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
+      <Box className="navbar" sx={{
+        display: 'flex',
+        alignItems: 'center',
         padding: '0 20px',
         background: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)',
         color: 'white',
@@ -338,7 +337,7 @@ const EnhancedCustomerDashboard: React.FC = () => {
                           </ListItemIcon>
                           <ListItemText
                             primary={`${account.accountType} Account`}
-                            secondary={`XXXX-XXXX-${account.accountNumber?.slice(-4)}`}
+                            secondary={`XXXX-XXXX-${account.accountNumber?.toString().slice(-4)}`}
                           />
                           <Chip
                             label={account.status}

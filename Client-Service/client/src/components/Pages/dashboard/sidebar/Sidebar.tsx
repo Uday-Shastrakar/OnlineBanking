@@ -1,7 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, List, ListItem, ListItemText, ListItemIcon, Divider, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Dashboard, Person, AccountBalance, Payment, ExitToApp, Assessment, People, Assignment, History as HistoryIcon } from '@mui/icons-material';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Dashboard,
+  Person,
+  AccountBalance,
+  Payment,
+  ExitToApp,
+  Assessment,
+  People,
+  Assignment,
+  History as HistoryIcon,
+  CreditCard,
+  MonetizationOn,
+  Help
+} from '@mui/icons-material';
 import { useSidebar } from '../../../../contexts/SidebarContext';
 import './Sidebar.css';
 
@@ -38,17 +53,11 @@ const Sidebar: React.FC = () => {
           <>
             <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)', my: 1 }} />
             <SidebarItem to="/accounts" icon={<AccountBalance />} text="My Accounts" collapsed={collapsed} />
+            <SidebarItem to="/cards" icon={<CreditCard />} text="Cards" collapsed={collapsed} />
+            <SidebarItem to="/loans" icon={<MonetizationOn />} text="Loans" collapsed={collapsed} />
             <SidebarItem to="/transfer" icon={<Payment />} text="Transfer Money" collapsed={collapsed} />
             <SidebarItem to="/transactions" icon={<HistoryIcon />} text="Activity History" collapsed={collapsed} />
-          </>
-        )}
-
-        {isAdmin && (
-          <>
-            <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)', my: 1 }} />
-            <SidebarItem to="/admin/dashboard" icon={<Assessment />} text="System Overview" collapsed={collapsed} />
-            <SidebarItem to="/admin/users" icon={<People />} text="User Management" collapsed={collapsed} />
-            <SidebarItem to="/admin/audit" icon={<Assignment />} text="Audit Center" collapsed={collapsed} />
+            <SidebarItem to="/support" icon={<Help />} text="Help & Support" collapsed={collapsed} />
           </>
         )}
 

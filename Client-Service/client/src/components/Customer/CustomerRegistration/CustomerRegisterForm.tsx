@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Avatar, Box, Button, Card, Container, Step, StepLabel, Stepper, TextField, Typography, Modal, Fade, Backdrop, LinearProgress, Chip, Alert } from "@mui/material";
+import { Avatar, Box, Button, Card, Container, Step, StepLabel, Stepper, TextField, Typography, Modal, Fade, Backdrop, LinearProgress, Chip, Alert, Grid, useTheme, useMediaQuery } from "@mui/material";
 
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
@@ -35,6 +35,9 @@ const steps = ["User Details", "Personal Info", "Documents"];
 
 
 const CustomerRegister: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
   const [registerForm, setRegisterForm] = useState<CustomerRegisterForm>({
 
@@ -103,13 +106,13 @@ const CustomerRegister: React.FC = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    
+
     // Clear errors when user starts typing
     setError("");
-    
+
     setRegisterForm((prevForm) => {
       const updatedForm = { ...prevForm, [name]: value };
-      
+
       // Sync firstName, lastName, email, phoneNumber to createCustomerDto
       if (name === 'firstName' || name === 'lastName' || name === 'email' || name === 'phoneNumber') {
         updatedForm.createCustomerDto = {
@@ -117,7 +120,7 @@ const CustomerRegister: React.FC = () => {
           [name]: value,
         };
       }
-      
+
       return updatedForm;
     });
   };
@@ -127,7 +130,7 @@ const CustomerRegister: React.FC = () => {
   const handleDtoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
     const { name, value } = event.target;
-    
+
     // Clear errors when user starts typing
     setError("");
 
@@ -177,7 +180,7 @@ const CustomerRegister: React.FC = () => {
 
       setFileError("");
 
-      
+
 
       // File validation
 
@@ -185,7 +188,7 @@ const CustomerRegister: React.FC = () => {
 
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'application/pdf'];
 
-      
+
 
       if (file.size > maxSize) {
 
@@ -197,7 +200,7 @@ const CustomerRegister: React.FC = () => {
 
       }
 
-      
+
 
       if (!allowedTypes.includes(file.type)) {
 
@@ -209,7 +212,7 @@ const CustomerRegister: React.FC = () => {
 
       }
 
-      
+
 
       setSelectedFile(file);
 
@@ -363,574 +366,512 @@ const CustomerRegister: React.FC = () => {
 
 
   return (
+    <Container
+      maxWidth={isMobile ? "sm" : "md"}
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        py: isMobile ? 2 : 4,
+        px: isMobile ? 1 : 2
+      }}
+    >
+      <Card
+        sx={{
+          width: '100%',
+          borderRadius: { xs: 2, sm: 3 },
+          boxShadow: {
+            xs: '0 4px 20px rgba(0,0,0,0.08)',
+            sm: '0 8px 32px rgba(0,0,0,0.12)'
+          },
+          overflow: 'hidden',
+          border: 'none'
+        }}
+      >
 
-    <Container className="container">
-
-      <Card className="card">
-
-        <div className="tag">
-
-          <Avatar className="avatar">
-
-            <PersonAddIcon fontSize="large" />
-
+        {/* Header Section */}
+        <Box
+          sx={{
+            background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+            py: { xs: 3, sm: 4 },
+            px: { xs: 2, sm: 3 },
+            textAlign: 'center',
+            color: 'white'
+          }}
+        >
+          <Avatar
+            sx={{
+              bgcolor: 'rgba(255,255,255,0.2)',
+              width: { xs: 56, sm: 64 },
+              height: { xs: 56, sm: 64 },
+              mx: 'auto',
+              mb: 2
+            }}
+          >
+            <PersonAddIcon fontSize={isMobile ? "medium" : "large"} />
           </Avatar>
 
-          <Typography component="h1" variant="h5" fontWeight="bold">
-
+          <Typography
+            component="h1"
+            variant={isMobile ? "h6" : "h5"}
+            fontWeight="bold"
+            gutterBottom
+          >
             Customer Registration
-
           </Typography>
 
-          <Typography variant="body2" sx={{ opacity: 0.8, mt: 1 }}>
-
+          <Typography
+            variant={isMobile ? "caption" : "body2"}
+            sx={{ opacity: 0.9 }}
+          >
             Join our premium banking experience
-
           </Typography>
-
-        </div>
-
+        </Box>
 
 
-        <div className="form">
 
+        {/* Form Section */}
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {error && (
-
-            <Box mb={2} p={2} bgcolor="#ffebee" borderRadius={2}>
-
-              <Typography color="error" align="center">{error}</Typography>
-
-            </Box>
-
+            <Alert
+              severity="error"
+              sx={{ mb: 3 }}
+              onClose={() => setError("")}
+            >
+              {error}
+            </Alert>
           )}
 
-
-
-          <Stepper activeStep={activeStep} alternativeLabel>
-
+          {/* Stepper */}
+          <Stepper
+            activeStep={activeStep}
+            alternativeLabel={!isMobile}
+            orientation={isMobile ? "vertical" : "horizontal"}
+            sx={{ mb: 4 }}
+          >
             {steps.map((label) => (
-
               <Step key={label}>
-
-                <StepLabel>{label}</StepLabel>
-
+                <StepLabel>{isMobile ? label.substring(0, 8) + "..." : label}</StepLabel>
               </Step>
-
             ))}
-
           </Stepper>
 
 
 
           <form onSubmit={handleSubmit} noValidate>
 
-            <div className="step-content">
-
+            {/* Step Content */}
+            <Box sx={{ minHeight: isMobile ? 200 : 300, mb: 4 }}>
               {activeStep === 0 && (
-
                 <Box>
-
                   <Typography variant="h6" gutterBottom color="textSecondary">
-
                     Account Credentials
-
                   </Typography>
 
-                  <Box display="flex" gap={2} mb={2}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        fullWidth
+                        label="Username"
+                        name="username"
+                        value={registerForm.username}
+                        onChange={handleInputChange}
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Grid>
 
-                    <TextField
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        fullWidth
+                        type="password"
+                        label="Password"
+                        name="password"
+                        value={registerForm.password}
+                        onChange={handleInputChange}
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Grid>
+                  </Grid>
 
-                      variant="outlined"
-
-                      required
-
-                      fullWidth
-
-                      label="Username"
-
-                      name="username"
-
-                      value={registerForm.username}
-
-                      onChange={handleInputChange}
-
-                    />
-
-                    <TextField
-
-                      variant="outlined"
-
-                      required
-
-                      fullWidth
-
-                      type="password"
-
-                      label="Password"
-
-                      name="password"
-
-                      value={registerForm.password}
-
-                      onChange={handleInputChange}
-
-                    />
-
-                  </Box>
-
-                  <Typography variant="h6" gutterBottom color="textSecondary" mt={3}>
-
+                  <Typography variant="h6" gutterBottom color="textSecondary" sx={{ mt: 3 }}>
                     Contact Information
-
                   </Typography>
 
-                  <Box display="flex" gap={2}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        fullWidth
+                        label="Email Address"
+                        name="email"
+                        value={registerForm.email}
+                        onChange={handleInputChange}
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Grid>
 
-                    <TextField
-
-                      variant="outlined"
-
-                      required
-
-                      fullWidth
-
-                      label="Email Address"
-
-                      name="email"
-
-                      value={registerForm.email}
-
-                      onChange={handleInputChange}
-
-                    />
-
-                    <TextField
-
-                      variant="outlined"
-
-                      required
-
-                      fullWidth
-
-                      label="Phone Number"
-
-                      name="phoneNumber"
-
-                      value={registerForm.phoneNumber}
-
-                      onChange={handleInputChange}
-
-                    />
-
-                  </Box>
-
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        fullWidth
+                        label="Phone Number"
+                        name="phoneNumber"
+                        value={registerForm.phoneNumber}
+                        onChange={handleInputChange}
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Grid>
+                  </Grid>
                 </Box>
-
               )}
 
 
 
               {activeStep === 1 && (
-
                 <Box>
-
                   <Typography variant="h6" gutterBottom color="textSecondary">
-
                     Personal Details
-
                   </Typography>
 
-                  <Box display="flex" gap={2} mb={2}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        fullWidth
+                        label="First Name"
+                        name="firstName"
+                        value={registerForm.firstName}
+                        onChange={handleInputChange}
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Grid>
 
-                    <TextField
-
-                      variant="outlined"
-
-                      required
-
-                      fullWidth
-
-                      label="First Name"
-
-                      name="firstName"
-
-                      value={registerForm.firstName}
-
-                      onChange={handleInputChange}
-
-                    />
-
-                    <TextField
-
-                      variant="outlined"
-
-                      required
-
-                      fullWidth
-
-                      label="Last Name"
-
-                      name="lastName"
-
-                      value={registerForm.lastName}
-
-                      onChange={handleInputChange}
-
-                    />
-
-                  </Box>
-
-
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        fullWidth
+                        label="Last Name"
+                        name="lastName"
+                        value={registerForm.lastName}
+                        onChange={handleInputChange}
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Grid>
+                  </Grid>
 
                   <TextField
-
                     variant="outlined"
-
                     required
-
                     fullWidth
-
                     label="Address"
-
                     name="address"
-
                     value={registerForm.createCustomerDto.address}
-
                     onChange={handleDtoChange}
-
-                    sx={{ mb: 2 }}
-
+                    sx={{ mt: 2 }}
+                    multiline
+                    rows={isMobile ? 2 : 3}
+                    size={isMobile ? "small" : "medium"}
                   />
 
+                  <Grid container spacing={2} sx={{ mt: 2 }}>
+                    <Grid item xs={12} sm={6}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Date of Birth"
+                          value={registerForm.createCustomerDto.dateOfBirth}
+                          onChange={handleDateChange}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              size: isMobile ? "small" : "medium"
+                            }
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </Grid>
 
+                    <Grid item xs={12} sm={6}>
+                      <FormControl component="fieldset" fullWidth>
+                        <FormLabel component="legend">Gender</FormLabel>
+                        <RadioGroup
+                          row={!isMobile}
+                          name="gender"
+                          value={registerForm.createCustomerDto.gender}
+                          onChange={handleDtoChange}
+                        >
+                          <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                          <FormControlLabel value="Female" control={<Radio />} label="Female" />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
 
-                  <Box display="flex" gap={4} alignItems="center" mb={2}>
-
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                      <DatePicker
-
-                        label="Date of Birth"
-
-                        value={registerForm.createCustomerDto.dateOfBirth}
-
-                        onChange={handleDateChange}
-
-                        slotProps={{ textField: { fullWidth: true } }}
-
-                      />
-
-                    </LocalizationProvider>
-
-
-
-                    <FormControl component="fieldset">
-
-                      <FormLabel component="legend">Gender</FormLabel>
-
-                      <RadioGroup row name="gender" value={registerForm.createCustomerDto.gender} onChange={handleDtoChange}>
-
-                        <FormControlLabel value="Male" control={<Radio />} label="Male" />
-
-                        <FormControlLabel value="Female" control={<Radio />} label="Female" />
-
-                      </RadioGroup>
-
-                    </FormControl>
-
-                  </Box>
-
-
-
-                  <FormControl component="fieldset" fullWidth sx={{ mt: 1 }}>
-
+                  <FormControl component="fieldset" fullWidth sx={{ mt: 2 }}>
                     <FormLabel component="legend">Account Type</FormLabel>
-
-                    <RadioGroup row name="accountType" value={registerForm.createCustomerDto.accountType} onChange={handleDtoChange}>
-
-                      <FormControlLabel value="SAVING" control={<Radio />} label="Savings Account" />
-
-                      <FormControlLabel value="CURRENT" control={<Radio />} label="Current Account" />
-
+                    <RadioGroup
+                      row={!isMobile}
+                      name="accountType"
+                      value={registerForm.createCustomerDto.accountType}
+                      onChange={handleDtoChange}
+                    >
+                      <FormControlLabel value="SAVING" control={<Radio />} label="Savings" />
+                      <FormControlLabel value="CURRENT" control={<Radio />} label="Current" />
                     </RadioGroup>
-
                   </FormControl>
-
                 </Box>
-
               )}
 
 
 
               {activeStep === 2 && (
-
                 <Box textAlign="center">
-
                   <Typography variant="h6" gutterBottom color="textSecondary">
-
                     KYC Verification
-
                   </Typography>
 
-                  <Typography variant="body2" color="textSecondary" mb={3}>
-
+                  <Typography
+                    variant={isMobile ? "caption" : "body2"}
+                    color="textSecondary"
+                    sx={{ mb: 3 }}
+                  >
                     Please upload a valid proof of address (ID Card, Utility Bill, Passport, etc.)
-
                   </Typography>
 
+                  <Box
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    sx={{
+                      border: '2px dashed #e0e0e0',
+                      borderRadius: 2,
+                      p: { xs: 3, sm: 4 },
+                      textAlign: 'center',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#fafafa',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        borderColor: '#1976d2',
+                        backgroundColor: '#f5f9ff'
+                      }
+                    }}
+                  >
+                    <CloudUploadIcon
+                      sx={{
+                        fontSize: { xs: 40, sm: 60 },
+                        color: '#bdbdbd'
+                      }}
+                    />
 
-
-                  <div className="file-upload-area" onClick={() => document.getElementById('file-upload')?.click()}>
-
-                    <CloudUploadIcon style={{ fontSize: 60, color: '#bdbdbd' }} />
-
-                    <Typography variant="body1" mt={2} color="textSecondary">
-
+                    <Typography
+                      variant={isMobile ? "body2" : "body1"}
+                      sx={{ mt: 2, color: 'textSecondary' }}
+                    >
                       Click to select a file
-
                     </Typography>
 
-                    <Typography variant="caption" color="textSecondary">
-
+                    <Typography
+                      variant="caption"
+                      color="textSecondary"
+                      sx={{ display: 'block', mt: 1 }}
+                    >
                       Supported: Images (JPG, PNG, GIF, BMP) and PDFs (Max 10MB)
-
                     </Typography>
 
                     <input
-
                       type="file"
-
                       id="file-upload"
-
                       style={{ display: "none" }}
-
                       onChange={handleFileChange}
-
                       accept="image/*,.pdf"
-
                     />
-
-                  </div>
-
-
+                  </Box>
 
                   {fileError && (
-
                     <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-
                       <ErrorIcon fontSize="small" sx={{ mr: 1 }} />
-
                       {fileError}
-
                     </Alert>
-
                   )}
-
-                  {error && (
-
-                    <Alert severity="warning" sx={{ mt: 2, mb: 2 }}>
-
-                      <ErrorIcon fontSize="small" sx={{ mr: 1 }} />
-
-                      {error}
-
-                    </Alert>
-
-                  )}
-
-
 
                   {selectedFile && (
-
-                    <Box className="selected-file" sx={{ mt: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 2 }}>
-
+                    <Box
+                      sx={{
+                        mt: 2,
+                        p: 2,
+                        border: '1px solid #e0e0e0',
+                        borderRadius: 2
+                      }}
+                    >
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-
                         <Box display="flex" alignItems="center">
-
                           <InsertDriveFileIcon color="primary" />
-
                           <Box ml={2} textAlign="left">
-
-                            <Typography variant="body2" fontWeight="medium">
-
-                              {selectedFile.name}
-
+                            <Typography
+                              variant={isMobile ? "caption" : "body2"}
+                              fontWeight="medium"
+                            >
+                              {selectedFile.name.length > 30
+                                ? selectedFile.name.substring(0, 30) + '...'
+                                : selectedFile.name}
                             </Typography>
-
                             <Typography variant="caption" color="textSecondary">
-
                               {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {selectedFile.type}
-
                             </Typography>
-
                           </Box>
-
                         </Box>
-
-                        <Chip 
-
-                          label={selectedFile.type.startsWith('image/') ? 'Image' : 'PDF'} 
-
-                          size="small" 
-
+                        <Chip
+                          label={selectedFile.type.startsWith('image/') ? 'Image' : 'PDF'}
+                          size="small"
                           color={selectedFile.type.startsWith('image/') ? 'primary' : 'secondary'}
-
                         />
-
                       </Box>
-
                     </Box>
-
                   )}
-
-
 
                   {uploadProgress > 0 && uploadProgress < 100 && (
-
                     <Box sx={{ mt: 2 }}>
-
                       <Typography variant="body2" color="textSecondary" gutterBottom>
-
                         Uploading document...
-
                       </Typography>
-
-                      <LinearProgress 
-
-                        variant="determinate" 
-
-                        value={uploadProgress} 
-
+                      <LinearProgress
+                        variant="determinate"
+                        value={uploadProgress}
                         sx={{ height: 8, borderRadius: 4 }}
-
                       />
-
                     </Box>
-
                   )}
-
                 </Box>
-
               )}
 
-            </div>
+            </Box>
 
 
 
-            <div className="navigation-buttons">
-
+            {/* Navigation Buttons */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                pt: 3,
+                borderTop: '1px solid #f0f0f0',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 2, sm: 0 }
+              }}
+            >
               <Button
-
                 disabled={activeStep === 0}
-
                 onClick={handleBack}
-
                 variant="outlined"
-
-                size="large"
-
+                size={isMobile ? "small" : "large"}
+                fullWidth={isMobile}
               >
-
                 Back
-
               </Button>
 
-
-
               {activeStep === steps.length - 1 ? (
-
                 <Button
-
                   type="submit"
-
                   variant="contained"
-
-                  size="large"
-
+                  size={isMobile ? "small" : "large"}
                   disabled={!selectedFile || uploadProgress > 0}
-
+                  fullWidth={isMobile}
+                  sx={{
+                    background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                  }}
                 >
-
                   {uploadProgress > 0 ? 'Creating Account...' : 'Create Account'}
-
                 </Button>
-
               ) : (
-
                 <Button
-
                   variant="contained"
-
                   onClick={handleNext}
-
-                  size="large"
-
+                  size={isMobile ? "small" : "large"}
+                  fullWidth={isMobile}
+                  sx={{
+                    background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                  }}
                 >
-
                   Next Step
-
                 </Button>
-
               )}
-
-            </div>
+            </Box>
 
           </form>
 
-        </div>
+        </Box>
 
       </Card>
 
 
 
       {/* Success Modal */}
-
       <Modal
-
         open={showModal}
-
         onClose={() => { }}
-
         closeAfterTransition
-
         BackdropComponent={Backdrop}
-
         BackdropProps={{ timeout: 500 }}
-
       >
-
         <Fade in={showModal}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: { xs: '90%', sm: 400 },
+              backgroundColor: 'white',
+              boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
+              p: { xs: 3, sm: 4 },
+              borderRadius: 2,
+              textAlign: 'center',
+              outline: 'none'
+            }}
+          >
+            <CheckCircleOutlineIcon
+              sx={{
+                fontSize: { xs: 60, sm: 80 },
+                color: '#4caf50',
+                mb: 2
+              }}
+            />
 
-          <Box className="success-modal">
-
-            <CheckCircleOutlineIcon style={{ fontSize: 80, color: '#4caf50', marginBottom: 16 }} />
-
-            <Typography variant="h5" fontWeight="bold" gutterBottom>
-
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              fontWeight="bold"
+              gutterBottom
+            >
               Registration Successful!
-
             </Typography>
 
-            <Typography color="textSecondary">
-
-              {documentUploaded 
+            <Typography
+              variant={isMobile ? "body2" : "body1"}
+              color="textSecondary"
+            >
+              {documentUploaded
                 ? "Your account has been created and your proof of address document uploaded successfully."
                 : "Your account has been created successfully. You can upload your proof of address document later."
               }
-
             </Typography>
 
-            <Typography variant="caption" display="block" sx={{ mt: 2 }}>
-
+            <Typography
+              variant="caption"
+              display="block"
+              sx={{ mt: 2 }}
+            >
               Redirecting to login...
-
             </Typography>
-
           </Box>
-
         </Fade>
-
       </Modal>
 
     </Container>
