@@ -107,7 +107,7 @@ const TransactionHistory: React.FC = () => {
                                     fontWeight: 'bold',
                                     color: userAccounts.includes(tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main'
                                 }}>
-                                    {userAccounts.includes(tx.senderAccountNumber?.toString()) ? `-$${tx.debitAmount}` : `+$${tx.creditAmount}`}
+                                    {userAccounts.includes(tx.senderAccountNumber?.toString()) ? `-₹${tx.debitAmount}` : `+₹${tx.creditAmount}`}
                                 </TableCell>
                                 <TableCell align="center">{getStatusChip(tx.status)}</TableCell>
                                 <TableCell align="center">

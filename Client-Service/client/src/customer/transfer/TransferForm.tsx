@@ -60,8 +60,8 @@ const TransferForm: React.FC = () => {
                 sourceAccountId: parseInt(senderId),
                 destinationAccountId: parseInt(receiverAccount),
                 amount: parseFloat(amount),
-                currency: 'USD',
-                description: description || 'Fund Transfer'
+                currency: 'INR',
+                description: description || 'Fund Transfer (INR)'
             };
 
             const response = await transactionService.initiateTransfer(transferRequest, idempotencyKey);

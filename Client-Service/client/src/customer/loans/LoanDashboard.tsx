@@ -91,11 +91,11 @@ const LoanDashboard: React.FC = () => {
                                 <Grid container spacing={2} mb={3}>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" color="textSecondary">Loan Amount</Typography>
-                                        <Typography variant="h6">${loan.loanAmount.toLocaleString()}</Typography>
+                                        <Typography variant="h6">₹{loan.loanAmount.toLocaleString('en-IN')}</Typography>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" color="textSecondary">Monthly EMI</Typography>
-                                        <Typography variant="h6" color="primary">${loan.emi.toLocaleString()}</Typography>
+                                        <Typography variant="h6" color="primary">₹{loan.emi.toLocaleString('en-IN')}</Typography>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" color="textSecondary">Interest Rate</Typography>
@@ -118,8 +118,8 @@ const LoanDashboard: React.FC = () => {
                                         sx={{ height: 8, borderRadius: 5 }}
                                     />
                                     <Box display="flex" justifyContent="space-between" mt={1}>
-                                        <Typography variant="caption" color="textSecondary">Paid: ${loan.paidAmount.toLocaleString()}</Typography>
-                                        <Typography variant="caption" color="textSecondary">Remaining: ${loan.remainingAmount.toLocaleString()}</Typography>
+                                        <Typography variant="caption" color="textSecondary">Paid: ₹{loan.paidAmount.toLocaleString('en-IN')}</Typography>
+                                        <Typography variant="caption" color="textSecondary">Remaining: ₹{loan.remainingAmount.toLocaleString('en-IN')}</Typography>
                                     </Box>
                                 </Box>
 

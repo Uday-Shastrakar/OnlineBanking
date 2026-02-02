@@ -184,7 +184,7 @@ const Dashboard: React.FC = () => {
                       Total Balance
                     </Typography>
                     <Typography variant="h4" fontWeight="bold" color="primary.main">
-                      ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      ₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </Typography>
                     <Chip
                       icon={<TrendingUp />}
@@ -285,7 +285,7 @@ const Dashboard: React.FC = () => {
                     <Divider sx={{ my: 2 }} />
 
                     <Typography variant="h5" fontWeight="bold" color="primary.main" gutterBottom>
-                      ${(account.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      ₹{(account.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </Typography>
 
                     <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -364,7 +364,7 @@ const Dashboard: React.FC = () => {
                               sx={{ color: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main' }}
                             >
                               {accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? '-' : '+'}
-                              ${(accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? tx.debitAmount : tx.creditAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              ₹{(accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? tx.debitAmount : tx.creditAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </Typography>
                           </TableCell>
                         </TableRow>
