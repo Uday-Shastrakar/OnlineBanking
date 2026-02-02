@@ -32,6 +32,7 @@ const Profile: React.FC = () => {
     // Get userId from localStorage
     const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
     const userId = userDetails?.userId;
+    const storedUserName = userDetails?.userName || userDetails?.username;
 
     if (!userId) {
       setError("User not authenticated. Please log in.");
@@ -43,7 +44,13 @@ const Profile: React.FC = () => {
     const fetchCustomerData = async () => {
       try {
         const data = await customerService.getCustomer(userId); // Fetch customer data
-        setProfileData(data);
+        if (data) {
+          // Fallback to stored username if backend doesn't provide it
+          if (!data.userName && storedUserName) {
+            data.userName = storedUserName;
+          }
+          setProfileData(data);
+        }
       } catch (err) {
         setError("Error fetching customer data");
         console.error(err);

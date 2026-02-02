@@ -25,9 +25,9 @@ class AuthStorage {
     private static readonly ROLES_KEY = 'roles';
     private static readonly PERMISSIONS_KEY = 'permissions';
     private static readonly LOGIN_TIME_KEY = 'loginTime';
-    
-    private static readonly BANKING_ROLES = ['ADMIN', 'CUSTOMER_USER', 'BANK_STAFF', 'AUDITOR'];
-    private static readonly LEGACY_ROLES = ['CUSTOMER', 'USER'];
+
+    private static readonly BANKING_ROLES = ['ADMIN', 'CUSTOMER', 'BANK_STAFF', 'AUDITOR'];
+    private static readonly LEGACY_ROLES = ['USER'];
 
     /**
      * Store authentication data securely
@@ -36,7 +36,7 @@ class AuthStorage {
         try {
             // Store token
             localStorage.setItem(this.TOKEN_KEY, token);
-            
+
             // Store user data
             const userData = {
                 userId: user.userId || null,
@@ -47,22 +47,22 @@ class AuthStorage {
                 phoneNumber: user.phoneNumber || null
             };
             localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-            
+
             // Filter and store roles
-            const validRoles = authorities.filter((role: string) => 
+            const validRoles = authorities.filter((role: string) =>
                 this.BANKING_ROLES.includes(role) || this.LEGACY_ROLES.includes(role)
             );
             localStorage.setItem(this.ROLES_KEY, JSON.stringify(validRoles));
-            
+
             // Store permissions
-            const permissions = authorities.filter((item: string) => 
+            const permissions = authorities.filter((item: string) =>
                 item.startsWith('PERMISSION_')
             );
             localStorage.setItem(this.PERMISSIONS_KEY, JSON.stringify(permissions));
-            
+
             // Store login time
             localStorage.setItem(this.LOGIN_TIME_KEY, Date.now().toString());
-            
+
         } catch (error) {
             console.error('Error storing auth data:', error);
             this.clearAuthData();
@@ -126,9 +126,9 @@ class AuthStorage {
         try {
             const rolesStr = localStorage.getItem(this.ROLES_KEY);
             const roles = rolesStr ? JSON.parse(rolesStr) : [];
-            
+
             // Validate roles against allowed banking roles
-            return roles.filter((role: string) => 
+            return roles.filter((role: string) =>
                 this.BANKING_ROLES.includes(role) || this.LEGACY_ROLES.includes(role)
             );
         } catch (error) {
@@ -180,14 +180,14 @@ class AuthStorage {
     public static isAuthenticated(): boolean {
         const token = this.getToken();
         const user = this.getUser();
-        
+
         console.log('AuthStorage.isAuthenticated() debug:', {
             token: token ? 'exists' : 'missing',
             user: user ? 'exists' : 'missing',
             tokenLength: token?.length,
             userId: user?.userId
         });
-        
+
         if (!token || !user) {
             console.log('Authentication failed: missing token or user');
             return false;
@@ -204,7 +204,7 @@ class AuthStorage {
             // Check if token is expired
             const payload = JSON.parse(atob(parts[1]));
             const now = Date.now() / 1000;
-            
+
             if (payload.exp && payload.exp < now) {
                 console.log('Authentication failed: token expired');
                 return false;
@@ -240,7 +240,7 @@ class AuthStorage {
     public static isTokenExpired(): boolean {
         const expiry = this.getTokenExpiry();
         if (!expiry) return false;
-        
+
         return Date.now() >= expiry;
     }
 
@@ -250,7 +250,7 @@ class AuthStorage {
     public static getSessionDuration(): number {
         const loginTime = localStorage.getItem(this.LOGIN_TIME_KEY);
         if (!loginTime) return 0;
-        
+
         return Date.now() - parseInt(loginTime);
     }
 
@@ -300,7 +300,7 @@ class AuthStorage {
      */
     public static refreshValidation(): boolean {
         const isValid = this.validateStoredData();
-        
+
         if (!isValid) {
             this.clearAuthData();
             return false;

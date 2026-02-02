@@ -1,21 +1,23 @@
 package com.bank.notification.listener;
 
-import com.bank.notification.event.UserRegisteredEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class NotificationListener {
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private RestTemplate restTemplate;
+
+    private final String EMAIL_SERVICE_URL = "http://email/email/send";
 
     @Autowired
     private com.bank.notification.service.NotificationService notificationService;
@@ -44,11 +46,14 @@ public class NotificationListener {
             String recipient = node.path("createdBy").asText("customer@bank.com");
             BigDecimal amount = node.path("debitAmount").decimalValue();
 
+            // Send Transaction Email
+            sendTransactionEmail(recipient, amount);
+
             notificationService.saveNotification(
                     recipient,
                     "Transaction Alert: Success",
                     "Your transfer of funds has been completed successfully. Amount: ₹" + amount);
-            System.out.println("✅ Transaction Notification Saved for: " + recipient);
+            System.out.println("✅ Transaction Notification Processed for: " + recipient);
         } catch (Exception e) {
             System.err.println("❌ Failed to process transaction notification: " + e.getMessage());
         }
@@ -56,21 +61,42 @@ public class NotificationListener {
 
     private void sendWelcomeEmail(String email, String firstName) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Welcome to Online Banking!");
-            message.setText("Dear " + firstName
-                    + ",\n\nWelcome to our Online Banking platform. We are verified and happy to have you!\n\nBest Regards,\nBank Team");
+            String subject = "Welcome to Online Banking!";
+            String content = "Dear " + firstName
+                    + ",\n\nWelcome to our Online Banking platform. We are verified and happy to have you!\n\nBest Regards,\nBank Team";
 
-            // javaMailSender.send(message); // Uncomment when real SMTP is ready
-            System.out.println("✅ Email Sent Successfully to: " + email);
+            callEmailService(email, subject, content);
+            System.out.println("✅ Welcome Email Request Sent for: " + email);
 
-            notificationService.saveNotification(
-                    email,
-                    message.getSubject(),
-                    message.getText());
+            notificationService.saveNotification(email, subject, content);
         } catch (Exception e) {
-            System.err.println("❌ Failed to send email: " + e.getMessage());
+            System.err.println("❌ Failed to delegate welcome email: " + e.getMessage());
+        }
+    }
+
+    private void sendTransactionEmail(String email, BigDecimal amount) {
+        try {
+            String subject = "Transaction Success Alert";
+            String content = "Dear Customer,\n\nYour transaction of ₹" + amount
+                    + " has been processed successfully.\n\nThank you for banking with us!\n\nBest Regards,\nBank Team";
+
+            callEmailService(email, subject, content);
+            System.out.println("✅ Transaction Email Request Sent for: " + email);
+        } catch (Exception e) {
+            System.err.println("❌ Failed to delegate transaction email: " + e.getMessage());
+        }
+    }
+
+    private void callEmailService(String toEmail, String subject, String content) {
+        try {
+            Map<String, String> request = new HashMap<>();
+            request.put("toEmail", toEmail);
+            request.put("subject", subject);
+            request.put("content", content);
+
+            restTemplate.postForObject(EMAIL_SERVICE_URL, request, String.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to call Email-Service: " + e.getMessage());
         }
     }
 }

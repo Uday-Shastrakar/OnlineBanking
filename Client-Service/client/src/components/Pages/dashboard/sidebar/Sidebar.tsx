@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, List, ListItem, ListItemText, ListItemIcon, Divider, IconButton } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../../../../services/authService';
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,15 +23,21 @@ import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
   const { collapsed, toggleSidebar } = useSidebar();
+  const navigate = useNavigate();
   const rolesRaw = localStorage.getItem('roles');
   const roles: string[] = rolesRaw ? JSON.parse(rolesRaw) : [];
   const isAdmin = roles.includes('ADMIN');
-  const isCustomer = roles.includes('CUSTOMER_USER') || roles.includes('CUSTOMER'); // Support both old and new role names
+  const isCustomer = roles.includes('CUSTOMER');
 
   // Hide normal sidebar for admin users
   if (isAdmin) {
     return null;
   }
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <Box
@@ -62,21 +69,27 @@ const Sidebar: React.FC = () => {
         )}
 
         <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)', my: 1 }} />
-        <SidebarItem to="/logout" icon={<ExitToApp />} text="Logout" collapsed={collapsed} />
+        <SidebarItem icon={<ExitToApp />} text="Logout" collapsed={collapsed} onClick={handleLogout} />
       </List>
     </Box>
   );
 };
 
 interface SidebarItemProps {
-  to: string;
+  to?: string;
   icon: React.ReactNode;
   text: string;
   collapsed: boolean;
+  onClick?: () => void;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text, collapsed }) => (
-  <ListItem component={Link} to={to}>
+const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text, collapsed, onClick }) => (
+  <ListItem
+    component={to ? Link : 'div'}
+    {...(to ? { to } : {})}
+    onClick={onClick}
+    sx={{ cursor: 'pointer' }}
+  >
     <ListItemIcon sx={{ color: 'white' }}>{icon}</ListItemIcon>
     {!collapsed && <ListItemText primary={text} sx={{ color: 'white' }} />}
   </ListItem>

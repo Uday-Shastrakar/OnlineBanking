@@ -7,15 +7,15 @@ package com.bank.authentication.enums;
  * User ≠ Customer ≠ Account
  * 
  * User = System login identity
- * Customer = Legal banking client  
+ * Customer = Legal banking client
  * Account = Holds money, belongs to Customer
  * 
  * Users NEVER directly own money
  */
 public enum BankUserRole {
-    
+
     /**
-     * 1️⃣ CUSTOMER_USER
+     * 1️⃣ CUSTOMER
      * Internet / Mobile Banking User
      * 
      * Can login to banking application
@@ -28,8 +28,8 @@ public enum BankUserRole {
      * ❌ Cannot view other customers
      * ❌ Cannot access audit logs
      */
-    CUSTOMER_USER("ROLE_CUSTOMER_USER", "Customer Internet Banking User"),
-    
+    CUSTOMER("ROLE_CUSTOMER", "Customer Internet Banking User"),
+
     /**
      * 2️⃣ BANK_STAFF
      * Internal Bank Employee
@@ -44,7 +44,7 @@ public enum BankUserRole {
      * ❌ Cannot access full audit logs
      */
     BANK_STAFF("ROLE_BANK_STAFF", "Bank Staff Employee"),
-    
+
     /**
      * 3️⃣ ADMIN
      * System Administrator
@@ -60,7 +60,7 @@ public enum BankUserRole {
      * ❌ Cannot edit balances manually
      */
     ADMIN("ROLE_ADMIN", "System Administrator"),
-    
+
     /**
      * 4️⃣ AUDITOR
      * Compliance / Regulatory User
@@ -76,7 +76,7 @@ public enum BankUserRole {
      * ❌ Cannot access customer UI
      */
     AUDITOR("ROLE_AUDITOR", "Compliance Auditor"),
-    
+
     /**
      * 5️⃣ SYSTEM
      * Non-Human Internal User
@@ -91,72 +91,72 @@ public enum BankUserRole {
      * ❌ Cannot access customer data directly
      */
     SYSTEM("ROLE_SYSTEM", "Internal System Service");
-    
+
     private final String authority;
     private final String description;
-    
+
     BankUserRole(String authority, String description) {
         this.authority = authority;
         this.description = description;
     }
-    
+
     public String getAuthority() {
         return authority;
     }
-    
+
     public String getDescription() {
         return description;
     }
-    
+
     /**
      * Check if role can login to UI
      */
     public boolean canLoginToUI() {
         return this != SYSTEM;
     }
-    
+
     /**
      * Check if role can initiate transactions
      */
     public boolean canInitiateTransactions() {
-        return this == CUSTOMER_USER;
+        return this == CUSTOMER;
     }
-    
+
     /**
      * Check if role has administrative privileges
      */
     public boolean hasAdministrativePrivileges() {
         return this == ADMIN;
     }
-    
+
     /**
      * Check if role has audit access
      */
     public boolean hasAuditAccess() {
         return this == ADMIN || this == AUDITOR;
     }
-    
+
     /**
      * Check if role can view customer data
      */
     public boolean canViewCustomerData() {
-        return this == CUSTOMER_USER || this == BANK_STAFF || this == ADMIN;
+        return this == CUSTOMER || this == BANK_STAFF || this == ADMIN;
     }
-    
+
     /**
      * Check if role can modify customer data
      */
     public boolean canModifyCustomerData() {
         return this == ADMIN; // Only admin can modify, staff is read-only
     }
-    
+
     /**
      * Check if role is internal (non-customer)
      */
     public boolean isInternalUser() {
         return this == BANK_STAFF || this == ADMIN || this == AUDITOR || this == SYSTEM;
     }
-    
+
     /**
      * Check if role is human user
      */

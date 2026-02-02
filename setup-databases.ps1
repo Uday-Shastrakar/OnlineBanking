@@ -8,21 +8,30 @@ $MySQLPort = "3306"
 $MySQLUser = "root"
 $MySQLPassword = "root"
 
-# Databases to create
-$Databases = @("authdb", "customer", "accounts", "transaction")
+# Databases to create with their specific ports
+$DatabaseConfigs = @(
+    @{ Name = "authdb"; Port = "33061" },
+    @{ Name = "customer"; Port = "33062" },
+    @{ Name = "accounts"; Port = "33063" },
+    @{ Name = "transaction"; Port = "33064" },
+    @{ Name = "auditdb"; Port = "3307" }
+)
 
 Write-Host "📊 Creating databases..." -ForegroundColor Yellow
 
-foreach ($db in $Databases) {
-    Write-Host "Creating database: $db" -ForegroundColor Cyan
+foreach ($config in $DatabaseConfigs) {
+    $db = $config.Name
+    $port = $config.Port
+    Write-Host "Creating database: $db on port $port" -ForegroundColor Cyan
     
     try {
-        $result = & mysql -h $MySQLHost -P $MySQLPort -u $MySQLUser -p$MySQLPassword -e "CREATE DATABASE IF NOT EXISTS $db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        $result = & mysql -h $MySQLHost -P $port -u $MySQLUser -p$MySQLPassword -e "CREATE DATABASE IF NOT EXISTS $db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "✅ Database '$db' created successfully" -ForegroundColor Green
-        } else {
-            Write-Host "❌ Failed to create database '$db'" -ForegroundColor Red
+        }
+        else {
+            Write-Host "❌ Failed to create database '$db' on port $port" -ForegroundColor Red
         }
     }
     catch {

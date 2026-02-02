@@ -1,7 +1,7 @@
 package com.bank.authentication.enums;
 
 public enum BankingRole {
-    CUSTOMER_USER("Customer Internet Banking User", "Access to personal banking operations"),
+    CUSTOMER("Customer Internet Banking User", "Access to personal banking operations"),
     BANK_STAFF("Bank Staff/Teller", "Access to customer service operations"),
     ADMIN("System Administrator", "Full system access and configuration"),
     AUDITOR("Read-only Audit Access", "Access to audit logs and reports");

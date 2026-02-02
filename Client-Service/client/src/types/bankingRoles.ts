@@ -12,7 +12,7 @@
 
 export enum BankUserRole {
   /**
-   * 1️⃣ CUSTOMER_USER
+   * 1️⃣ CUSTOMER
    * Internet / Mobile Banking User
    * 
    * Can login to banking application
@@ -25,8 +25,8 @@ export enum BankUserRole {
    * ❌ Cannot view other customers
    * ❌ Cannot access audit logs
    */
-  CUSTOMER_USER = 'CUSTOMER_USER',
-  
+  CUSTOMER = 'CUSTOMER',
+
   /**
    * 2️⃣ BANK_STAFF
    * Internal Bank Employee
@@ -40,7 +40,7 @@ export enum BankUserRole {
    * ❌ Cannot access full audit logs
    */
   BANK_STAFF = 'BANK_STAFF',
-  
+
   /**
    * 3️⃣ ADMIN
    * System Administrator
@@ -55,7 +55,7 @@ export enum BankUserRole {
    * ❌ Cannot edit balances manually
    */
   ADMIN = 'ADMIN',
-  
+
   /**
    * 4️⃣ AUDITOR
    * Compliance / Regulatory User
@@ -70,7 +70,7 @@ export enum BankUserRole {
    * ❌ Cannot access customer UI
    */
   AUDITOR = 'AUDITOR',
-  
+
   /**
    * 5️⃣ SYSTEM
    * Non-Human Internal User
@@ -93,14 +93,14 @@ export enum BankPermission {
   CUSTOMER_TRANSFER_OWN = 'PERMISSION_CUSTOMER_TRANSFER_OWN',
   CUSTOMER_TRANSFER_EXTERNAL = 'PERMISSION_CUSTOMER_TRANSFER_EXTERNAL',
   CUSTOMER_UPDATE_PROFILE = 'PERMISSION_CUSTOMER_UPDATE_PROFILE',
-  
+
   // BANK_STAFF PERMISSIONS
   STAFF_LOGIN = 'PERMISSION_STAFF_LOGIN',
   STAFF_VIEW_CUSTOMER_PROFILE = 'PERMISSION_STAFF_VIEW_CUSTOMER_PROFILE',
   STAFF_VIEW_ACCOUNT_METADATA = 'PERMISSION_STAFF_VIEW_ACCOUNT_METADATA',
   STAFF_CUSTOMER_ASSISTANCE = 'PERMISSION_STAFF_CUSTOMER_ASSISTANCE',
   STAFF_VIEW_LIMITED_AUDIT = 'PERMISSION_STAFF_VIEW_LIMITED_AUDIT',
-  
+
   // ADMIN PERMISSIONS
   ADMIN_LOGIN = 'PERMISSION_ADMIN_LOGIN',
   ADMIN_MANAGE_USERS = 'PERMISSION_ADMIN_MANAGE_USERS',
@@ -110,14 +110,14 @@ export enum BankPermission {
   ADMIN_MANAGE_CONFIG = 'PERMISSION_ADMIN_MANAGE_CONFIG',
   ADMIN_FORCE_PASSWORD_RESET = 'PERMISSION_ADMIN_FORCE_PASSWORD_RESET',
   ADMIN_VIEW_ALL_CUSTOMERS = 'PERMISSION_ADMIN_VIEW_ALL_CUSTOMERS',
-  
+
   // AUDITOR PERMISSIONS
   AUDITOR_LOGIN = 'PERMISSION_AUDITOR_LOGIN',
   AUDITOR_VIEW_AUDIT_LOGS = 'PERMISSION_AUDITOR_VIEW_AUDIT_LOGS',
   AUDITOR_TRACE_TRANSACTIONS = 'PERMISSION_AUDITOR_TRACE_TRANSACTIONS',
   AUDITOR_EXPORT_REPORTS = 'PERMISSION_AUDITOR_EXPORT_REPORTS',
   AUDITOR_INVESTIGATE = 'PERMISSION_AUDITOR_INVESTIGATE',
-  
+
   // SYSTEM PERMISSIONS
   SYSTEM_SERVICE_AUTH = 'PERMISSION_SYSTEM_SERVICE_AUTH',
   SYSTEM_PUBLISH_EVENTS = 'PERMISSION_SYSTEM_PUBLISH_EVENTS',
@@ -129,7 +129,7 @@ export enum BankPermission {
  * ROLE-PERMISSION MAPPING
  */
 export const ROLE_PERMISSIONS: Record<BankUserRole, BankPermission[]> = {
-  [BankUserRole.CUSTOMER_USER]: [
+  [BankUserRole.CUSTOMER]: [
     BankPermission.CUSTOMER_LOGIN,
     BankPermission.CUSTOMER_VIEW_BALANCE,
     BankPermission.CUSTOMER_VIEW_TRANSACTIONS,
@@ -137,7 +137,7 @@ export const ROLE_PERMISSIONS: Record<BankUserRole, BankPermission[]> = {
     BankPermission.CUSTOMER_TRANSFER_EXTERNAL,
     BankPermission.CUSTOMER_UPDATE_PROFILE
   ],
-  
+
   [BankUserRole.BANK_STAFF]: [
     BankPermission.STAFF_LOGIN,
     BankPermission.STAFF_VIEW_CUSTOMER_PROFILE,
@@ -145,7 +145,7 @@ export const ROLE_PERMISSIONS: Record<BankUserRole, BankPermission[]> = {
     BankPermission.STAFF_CUSTOMER_ASSISTANCE,
     BankPermission.STAFF_VIEW_LIMITED_AUDIT
   ],
-  
+
   [BankUserRole.ADMIN]: [
     BankPermission.ADMIN_LOGIN,
     BankPermission.ADMIN_MANAGE_USERS,
@@ -156,7 +156,7 @@ export const ROLE_PERMISSIONS: Record<BankUserRole, BankPermission[]> = {
     BankPermission.ADMIN_FORCE_PASSWORD_RESET,
     BankPermission.ADMIN_VIEW_ALL_CUSTOMERS
   ],
-  
+
   [BankUserRole.AUDITOR]: [
     BankPermission.AUDITOR_LOGIN,
     BankPermission.AUDITOR_VIEW_AUDIT_LOGS,
@@ -164,7 +164,7 @@ export const ROLE_PERMISSIONS: Record<BankUserRole, BankPermission[]> = {
     BankPermission.AUDITOR_EXPORT_REPORTS,
     BankPermission.AUDITOR_INVESTIGATE
   ],
-  
+
   [BankUserRole.SYSTEM]: [
     BankPermission.SYSTEM_SERVICE_AUTH,
     BankPermission.SYSTEM_PUBLISH_EVENTS,
@@ -177,7 +177,7 @@ export const ROLE_PERMISSIONS: Record<BankUserRole, BankPermission[]> = {
  * ROLE METADATA AND UTILITIES
  */
 export const ROLE_METADATA = {
-  [BankUserRole.CUSTOMER_USER]: {
+  [BankUserRole.CUSTOMER]: {
     name: 'Customer User',
     description: 'Internet/Mobile Banking User',
     canLoginToUI: true,
@@ -191,7 +191,7 @@ export const ROLE_METADATA = {
     uiPath: '/customer',
     dashboardPath: '/dashboard'
   },
-  
+
   [BankUserRole.BANK_STAFF]: {
     name: 'Bank Staff',
     description: 'Internal Bank Employee',
@@ -206,7 +206,7 @@ export const ROLE_METADATA = {
     uiPath: '/staff',
     dashboardPath: '/staff/dashboard'
   },
-  
+
   [BankUserRole.ADMIN]: {
     name: 'Administrator',
     description: 'System Administrator',
@@ -221,7 +221,7 @@ export const ROLE_METADATA = {
     uiPath: '/admin',
     dashboardPath: '/admin/dashboard'
   },
-  
+
   [BankUserRole.AUDITOR]: {
     name: 'Auditor',
     description: 'Compliance/Regulatory User',
@@ -236,7 +236,7 @@ export const ROLE_METADATA = {
     uiPath: '/audit',
     dashboardPath: '/audit/dashboard'
   },
-  
+
   [BankUserRole.SYSTEM]: {
     name: 'System',
     description: 'Internal System Service',
@@ -267,7 +267,7 @@ export const ROLE_METADATA = {
 
 export const USER_TYPE_SUMMARY = [
   {
-    userType: 'CUSTOMER_USER',
+    userType: 'CUSTOMER',
     loginUI: true,
     canTransact: true,
     canAdmin: false,
@@ -313,73 +313,73 @@ export class BankingRoleUtils {
   static getPermissionsForRole(role: BankUserRole): BankPermission[] {
     return ROLE_PERMISSIONS[role] || [];
   }
-  
+
   /**
    * Check if role has specific permission
    */
   static hasPermission(role: BankUserRole, permission: BankPermission): boolean {
     return this.getPermissionsForRole(role).includes(permission);
   }
-  
+
   /**
    * Check if role can login to UI
    */
   static canLoginToUI(role: BankUserRole): boolean {
     return ROLE_METADATA[role]?.canLoginToUI || false;
   }
-  
+
   /**
    * Check if role can initiate transactions
    */
   static canInitiateTransactions(role: BankUserRole): boolean {
     return ROLE_METADATA[role]?.canInitiateTransactions || false;
   }
-  
+
   /**
    * Check if role has administrative privileges
    */
   static hasAdministrativePrivileges(role: BankUserRole): boolean {
     return ROLE_METADATA[role]?.hasAdministrativePrivileges || false;
   }
-  
+
   /**
    * Check if role has audit access
    */
   static hasAuditAccess(role: BankUserRole): boolean {
     return ROLE_METADATA[role]?.hasAuditAccess || false;
   }
-  
+
   /**
    * Check if role is internal user
    */
   static isInternalUser(role: BankUserRole): boolean {
     return ROLE_METADATA[role]?.isInternalUser || false;
   }
-  
+
   /**
    * Get UI path for role
    */
   static getUIPath(role: BankUserRole): string | null {
     return ROLE_METADATA[role]?.uiPath || null;
   }
-  
+
   /**
    * Get dashboard path for role
    */
   static getDashboardPath(role: BankUserRole): string | null {
     return ROLE_METADATA[role]?.dashboardPath || null;
   }
-  
+
   /**
    * Validate role-permission mapping integrity
    */
   static validateRolePermissionMapping(): boolean {
     // Ensure no role can both transfer money and modify balances
-    const customerUserValid = !this.hasPermission(BankUserRole.CUSTOMER_USER, BankPermission.ADMIN_MANAGE_CONFIG);
+    const customerValid = !this.hasPermission(BankUserRole.CUSTOMER, BankPermission.ADMIN_MANAGE_CONFIG);
     const bankStaffValid = !this.hasPermission(BankUserRole.BANK_STAFF, BankPermission.CUSTOMER_TRANSFER_OWN);
     const adminValid = !this.hasPermission(BankUserRole.ADMIN, BankPermission.CUSTOMER_TRANSFER_EXTERNAL);
     const auditorValid = !this.hasPermission(BankUserRole.AUDITOR, BankPermission.ADMIN_MANAGE_USERS);
-    
-    return customerUserValid && bankStaffValid && adminValid && auditorValid;
+
+    return customerValid && bankStaffValid && adminValid && auditorValid;
   }
 }

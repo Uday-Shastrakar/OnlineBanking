@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { InfoOutlined, CheckCircle, Warning, Error as ErrorIcon, Loop } from '@mui/icons-material';
 import { transactionService } from '../../services/api/transactionService';
+import { accountService } from '../../services/api/accountService';
 import { Transaction, TransactionStatus } from '../../types/banking';
 
 /**
@@ -15,6 +16,7 @@ import { Transaction, TransactionStatus } from '../../types/banking';
  */
 const TransactionHistory: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [userAccounts, setUserAccounts] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
@@ -42,6 +44,10 @@ const TransactionHistory: React.FC = () => {
 
                 const data = await transactionService.getTransactionHistoryByUserId(userId);
                 setTransactions(Array.isArray(data) ? data : []);
+
+                // Fetch user accounts to differentiate debit/credit
+                const accounts = await accountService.getAccountsByUserId(userId);
+                setUserAccounts(Array.isArray(accounts) ? accounts.map(a => a.accountNumber.toString()) : []);
             } catch (err: any) {
                 setError("Failed to load transaction history. Please try again later.");
             } finally {
@@ -97,8 +103,11 @@ const TransactionHistory: React.FC = () => {
                                 <TableCell><Typography variant="body2" fontFamily="monospace">{tx.id}</Typography></TableCell>
                                 <TableCell>{new Date(tx.transactionDateTime).toLocaleString()}</TableCell>
                                 <TableCell>{tx.receiverAccountNumber}</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold', color: tx.debitAmount > 0 ? 'error.main' : 'success.main' }}>
-                                    {tx.debitAmount > 0 ? `-₹${tx.debitAmount}` : `+₹${tx.creditAmount}`}
+                                <TableCell align="right" sx={{
+                                    fontWeight: 'bold',
+                                    color: userAccounts.includes(tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main'
+                                }}>
+                                    {userAccounts.includes(tx.senderAccountNumber?.toString()) ? `-$${tx.debitAmount}` : `+$${tx.creditAmount}`}
                                 </TableCell>
                                 <TableCell align="center">{getStatusChip(tx.status)}</TableCell>
                                 <TableCell align="center">

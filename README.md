@@ -86,17 +86,28 @@ Edit
 cd frontend
 npm install
 npm start
-Database Setup
-Create a schema (e.g., banking_app)
+### Infrastructure Setup (Kafka & MySQL)
 
-Update DB credentials in application.properties
+The project uses Docker for infrastructure. To start Kafka and Zookeeper:
 
-properties
-Copy
-Edit
-spring.datasource.url=jdbc:mysql://localhost:3306/banking_app
-spring.datasource.username=root
-spring.datasource.password=your_password
+```powershell
+# Navigate to the docker folder
+cd docker
+
+# Run the Kafka setup script
+./run-kafka.ps1
+```
+
+To stop Kafka:
+```powershell
+./stop-kafka.ps1
+```
+
+MySQL databases for various services are defined in the root `docker-compose.yml` and can be started using:
+```powershell
+docker-compose up -d
+```
+
 ✅ API Overview (Sample)
 Endpoint	Method	Description
 /api/auth/register	POST	Register a new user

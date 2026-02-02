@@ -6,7 +6,8 @@ $services = @(
     @{ Path = "Customer-Service/customer"; Name = "customer-service"; Port = 9094 },
     @{ Path = "Transaction-Service/transaction"; Name = "transaction-service"; Port = 9096 },
     @{ Path = "Notification-Service/notification"; Name = "notification-service"; Port = 9098 },
-    @{ Path = "Audit-Service"; Name = "audit-service"; Port = 9099 }
+    @{ Path = "Audit-Service"; Name = "audit-service"; Port = 9099 },
+    @{ Path = "Email-Service/email"; Name = "email-service"; Port = 9097 }
 )
 
 foreach ($service in $services) {

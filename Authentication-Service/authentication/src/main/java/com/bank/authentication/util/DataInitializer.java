@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
-import java.util.Optional;
+
 import java.util.Set;
 
 @Component
@@ -22,99 +22,146 @@ public class DataInitializer {
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @Bean
-    public CommandLineRunner loadData(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
+    public CommandLineRunner loadData(UserRepository userRepository, RoleRepository roleRepository,
+            PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             try {
-                // Create roles
-                if (!roleRepository.existsByRoleName("ADMIN")) {
-                    Role adminRole = new Role("ADMIN");
-                    roleRepository.save(adminRole);
-                }
+                // 1. Initialize Roles from BankUserRole enum
+                initializeRoles(roleRepository);
 
-                if (!roleRepository.existsByRoleName("USER")) {
-                    Role userRole = new Role("USER");
-                    roleRepository.save(userRole);
-                }
+                // 2. Initialize Legacy Roles for compatibility
+                ensureLegacyRoles(roleRepository);
 
-                if (!roleRepository.existsByRoleName("CUSTOMER")) {
-                    Role customerRole = new Role("CUSTOMER");
-                    roleRepository.save(customerRole);
-                }
+                // 3. Initialize Granular Permissions
+                initializePermissions(permissionRepository);
 
+                // 4. Create the admin user with ADMIN role
+                ensureAdminUser(userRepository, roleRepository, permissionRepository, passwordEncoder);
 
+                // 5. Create a staff user
+                ensureStaffUser(userRepository, roleRepository, permissionRepository, passwordEncoder);
 
-                // Create permissions
-                if (!permissionRepository.existsByPermissionName("PERMISSION_READ")) {
-                    Permission readPermission = new Permission("PERMISSION_READ");
-                    permissionRepository.save(readPermission);
-                }
+                // 6. Create an auditor user
+                ensureAuditorUser(userRepository, roleRepository, permissionRepository, passwordEncoder);
 
-                if (!permissionRepository.existsByPermissionName("PERMISSION_WRITE")) {
-                    Permission writePermission = new Permission("PERMISSION_WRITE");
-                    permissionRepository.save(writePermission);
-                }
-
-                // Create the admin user with only ADMIN role
-                Optional<User> existingAdminUser = userRepository.findByUsername("adminUser");
-                if (existingAdminUser.isEmpty()) {
-                    Set<Role> roles = new HashSet<>();
-                    roles.add(roleRepository.findByRoleName("ADMIN").orElseThrow());
-
-                    // Admin user typically gets all permissions, but you can adjust as needed
-                    Set<Permission> permissions = new HashSet<>();
-                    permissions.add(permissionRepository.findByPermissionName("PERMISSION_READ").orElseThrow());
-                    permissions.add(permissionRepository.findByPermissionName("PERMISSION_WRITE").orElseThrow());
-
-                    User user = new User();
-                    user.setUsername("adminUser");
-                    user.setPassword(passwordEncoder.encode("password1")); // Encode password here
-                    user.setEmail("adminUser@bank.com");
-                    user.setPhoneNumber("1234567890");
-                    user.setFirstName("Admin");
-                    user.setLastName("User");
-                    user.setRoles(roles);
-                    user.setPermissions(permissions);
-
-                    userRepository.save(user);
-
-                    logger.info("User 'adminUser' with ADMIN role created successfully");
-                } else {
-                    logger.info("User 'adminUser' already exists");
-                }
-
-                // Create the regular user with USER role only
-                Optional<User> existingRegularUser = userRepository.findByUsername("regularUser");
-                if (existingRegularUser.isEmpty()) {
-                    Set<Role> roles = new HashSet<>();
-                    roles.add(roleRepository.findByRoleName("USER").orElseThrow());
-
-                    Set<Permission> permissions = new HashSet<>();
-                    permissions.add(permissionRepository.findByPermissionName("PERMISSION_READ").orElseThrow());
-                    permissions.add(permissionRepository.findByPermissionName("PERMISSION_WRITE").orElseThrow());
-
-                    User user = new User();
-                    user.setUsername("regularUser");
-                    user.setPassword(passwordEncoder.encode("password2")); // Encode password here
-                    user.setEmail("regularUser@bank.com");
-                    user.setPhoneNumber("0987654321");
-                    user.setFirstName("Regular");
-                    user.setLastName("User");
-                    user.setRoles(roles);
-                    user.setPermissions(permissions);
-
-                    userRepository.save(user);
-
-                    logger.info("User 'regularUser' with USER role created successfully");
-                } else {
-                    logger.info("User 'regularUser' already exists");
-                }
-
-                logger.info("Server Started Successfully and Data Initialized");
+                logger.info("Server Started Successfully and Data Initialized (Banking Model)");
             } catch (Exception e) {
                 logger.error("Error during data initialization", e);
             }
         };
     }
 
+    private void initializeRoles(RoleRepository roleRepository) {
+        String[] coreRoles = { "CUSTOMER", "BANK_STAFF", "ADMIN", "AUDITOR", "SYSTEM" };
+        for (String roleName : coreRoles) {
+            if (!roleRepository.existsByRoleName(roleName)) {
+                Role role = new Role(roleName);
+                role.setDescription("Core Banking Role: " + roleName);
+                roleRepository.save(role);
+                logger.info("Created role: {}", roleName);
+            }
+        }
+    }
+
+    private void ensureLegacyRoles(RoleRepository roleRepository) {
+        String[] legacyRoles = { "USER" };
+        for (String roleName : legacyRoles) {
+            if (!roleRepository.existsByRoleName(roleName)) {
+                roleRepository.save(new Role(roleName));
+                logger.info("Created legacy role: {}", roleName);
+            }
+        }
+    }
+
+    private void initializePermissions(PermissionRepository permissionRepository) {
+        String[] permissions = {
+                // Customer permissions
+                "PERMISSION_CUSTOMER_LOGIN", "PERMISSION_CUSTOMER_VIEW_BALANCE",
+                "PERMISSION_CUSTOMER_VIEW_TRANSACTIONS", "PERMISSION_CUSTOMER_TRANSFER_OWN",
+                "PERMISSION_CUSTOMER_TRANSFER_EXTERNAL", "PERMISSION_CUSTOMER_UPDATE_PROFILE",
+                // Staff permissions
+                "PERMISSION_STAFF_LOGIN", "PERMISSION_STAFF_VIEW_CUSTOMER_PROFILE",
+                "PERMISSION_STAFF_VIEW_ACCOUNT_METADATA", "PERMISSION_STAFF_CUSTOMER_ASSISTANCE",
+                // Admin permissions
+                "PERMISSION_ADMIN_LOGIN", "PERMISSION_ADMIN_MANAGE_USERS",
+                "PERMISSION_ADMIN_BLOCK_ACCOUNTS", "PERMISSION_ADMIN_VIEW_METRICS",
+                "PERMISSION_ADMIN_ACCESS_AUDIT", "PERMISSION_ADMIN_MANAGE_CONFIG",
+                // Auditor permissions
+                "PERMISSION_AUDITOR_LOGIN", "PERMISSION_AUDITOR_VIEW_AUDIT_LOGS",
+                "PERMISSION_AUDITOR_TRACE_TRANSACTIONS", "PERMISSION_AUDITOR_EXPORT_REPORTS",
+                // Legacy permissions
+                "PERMISSION_READ", "PERMISSION_WRITE"
+        };
+
+        for (String permName : permissions) {
+            if (!permissionRepository.existsByPermissionName(permName)) {
+                permissionRepository.save(new Permission(permName));
+                logger.info("Created permission: {}", permName);
+            }
+        }
+    }
+
+    private void ensureAdminUser(UserRepository userRepository, RoleRepository roleRepository,
+            PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
+        if (userRepository.findByUsername("adminUser").isEmpty()) {
+            User admin = new User();
+            admin.setUsername("adminUser");
+            admin.setPassword(passwordEncoder.encode("password123"));
+            admin.setEmail("admin@numsbank.com");
+            admin.setFirstName("System");
+            admin.setLastName("Admin");
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(roleRepository.findByRoleName("ADMIN").orElseThrow());
+            admin.setRoles(roles);
+
+            Set<Permission> perms = new HashSet<>();
+            permissionRepository.findByPermissionName("PERMISSION_ADMIN_LOGIN").ifPresent(perms::add);
+            permissionRepository.findByPermissionName("PERMISSION_ADMIN_MANAGE_USERS").ifPresent(perms::add);
+            permissionRepository.findByPermissionName("PERMISSION_ADMIN_ACCESS_AUDIT").ifPresent(perms::add);
+            admin.setPermissions(perms);
+
+            userRepository.save(admin);
+            logger.info("Default admin user created");
+        }
+    }
+
+    private void ensureStaffUser(UserRepository userRepository, RoleRepository roleRepository,
+            PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
+        if (userRepository.findByUsername("staffUser").isEmpty()) {
+            User user = new User();
+            user.setUsername("staffUser");
+            user.setPassword(passwordEncoder.encode("password123"));
+            user.setEmail("staff@numsbank.com");
+            user.setFirstName("Bank");
+            user.setLastName("Staff");
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(roleRepository.findByRoleName("BANK_STAFF").orElseThrow());
+            user.setRoles(roles);
+
+            userRepository.save(user);
+            logger.info("Default staff user created");
+        }
+    }
+
+    private void ensureAuditorUser(UserRepository userRepository, RoleRepository roleRepository,
+            PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
+        if (userRepository.findByUsername("auditorUser").isEmpty()) {
+            User user = new User();
+            user.setUsername("auditorUser");
+            user.setPassword(passwordEncoder.encode("password123"));
+            user.setEmail("auditor@numsbank.com");
+            user.setFirstName("Compliance");
+            user.setLastName("Auditor");
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(roleRepository.findByRoleName("AUDITOR").orElseThrow());
+            user.setRoles(roles);
+
+            userRepository.save(user);
+            logger.info("Default auditor user created");
+        }
+    }
 
 }

@@ -41,7 +41,7 @@ const NavBar: React.FC = () => {
   const userName = AuthStorage.getUser()?.userName || "User";
 
   // Role checks
-  const isCustomer = userRoles.includes("CUSTOMER") || userRoles.includes("CUSTOMER_USER");
+  const isCustomer = userRoles.includes("CUSTOMER");
   const isAdmin = userRoles.includes("ADMIN");
 
   // Handle scroll effect
@@ -74,7 +74,7 @@ const NavBar: React.FC = () => {
   const handleLogout = () => {
     logout();
     handleMenuClose();
-    navigate("/login");
+    navigate("/");
   };
 
   const handleNavigation = (path: string) => {

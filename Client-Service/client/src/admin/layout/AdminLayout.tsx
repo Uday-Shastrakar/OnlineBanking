@@ -26,7 +26,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
     const handleLogout = () => {
         AuthStorage.clearAuthData();
-        navigate('/login');
+        navigate('/');
     };
 
     const handleDrawerToggle = () => {

@@ -27,6 +27,34 @@ public class EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Async
+    public void sendNotificationEmail(String toEmail, String subject, String title, String message)
+            throws MessagingException {
+        try {
+            Context context = new Context();
+            context.setVariable("title", title);
+            context.setVariable("message", message.replace("\n", "<br/>"));
+
+            String htmlContent = templateEngine.process("notification-email", context);
+            sendMail(toEmail, subject, htmlContent, true);
+            logger.info("✅ Notification HTML email successfully sent to: {}", toEmail);
+        } catch (MessagingException e) {
+            logger.error("❌ Error sending notification email: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Async
+    public void sendSimpleMail(String toEmail, String subject, String content) throws MessagingException {
+        try {
+            sendMail(toEmail, subject, content, false);
+            logger.info("✅ Simple email successfully sent to: {}", toEmail);
+        } catch (MessagingException e) {
+            logger.error("❌ Error sending simple email: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Async
     public void sendOtpEmail(String toEmail, String otp) throws MessagingException {
         try {
             String subject = "Your OTP Code";
@@ -51,7 +79,8 @@ public class EmailService {
     }
 
     @Async
-    public void sendEmailWithAttachment(String toEmail, String subject, String text, byte[] attachment, String attachmentName) throws MessagingException {
+    public void sendEmailWithAttachment(String toEmail, String subject, String text, byte[] attachment,
+            String attachmentName) throws MessagingException {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -77,7 +106,8 @@ public class EmailService {
     private void sendMail(String toEmail, String subject, String message, boolean isHTML) throws MessagingException {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
 
             mimeMessageHelper.setFrom(fromMail);
             mimeMessageHelper.setTo(toEmail);

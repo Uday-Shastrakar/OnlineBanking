@@ -16,7 +16,12 @@ import {
   IconButton,
   Tooltip,
   LinearProgress,
-  Fab
+  Fab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
 } from '@mui/material';
 import {
   AccountBalance,
@@ -40,7 +45,10 @@ import {
 import { useSidebar } from '../../../../contexts/SidebarContext';
 import { customerService } from '../../../../services/customerService';
 import { accountService, AccountQueryDto } from '../../../../services/api/accountService';
+import { transactionService } from '../../../../services/api/transactionService';
 import { GetCustomer } from '../../../../Types';
+import { Transaction } from '../../../../types/banking';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../sidebar/Sidebar';
 import './Dashboard.css';
 
@@ -67,7 +75,9 @@ const Dashboard: React.FC = () => {
   const [userData, setUserData] = useState<any | null>(null);
   const [customerData, setCustomerData] = useState<GetCustomer | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
   // Fetch user details from localStorage
@@ -108,6 +118,10 @@ const Dashboard: React.FC = () => {
         // Fetch customer accounts using userId (not customerId)
         const customerAccounts = await accountService.getAccountsByUserId(userData.userId);
         setAccounts(customerAccounts as Account[]);
+
+        // Fetch recent transactions
+        const history = await transactionService.getTransactionHistoryByUserId(userData.userId);
+        setRecentTransactions(Array.isArray(history) ? history.slice(0, 5) : []);
 
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -298,6 +312,69 @@ const Dashboard: React.FC = () => {
               </Grid>
             ))}
           </Grid>
+        </Box>
+
+        {/* Recent Activity Section */}
+        <Box mb={4}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Typography variant="h5" fontWeight="bold">
+              Recent Activity
+            </Typography>
+            <Button variant="text" onClick={() => navigate('/transactions')}>
+              View All
+            </Button>
+          </Box>
+          <Card elevation={3} sx={{ borderRadius: 4 }}>
+            <CardContent sx={{ p: '0 !important' }}>
+              {recentTransactions.length === 0 ? (
+                <Box p={4} textAlign="center">
+                  <Typography color="text.secondary">No recent transactions found.</Typography>
+                </Box>
+              ) : (
+                <TableContainer>
+                  <Table>
+                    <TableBody>
+                      {recentTransactions.map((tx) => (
+                        <TableRow key={tx.id} hover>
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                            <Box display="flex" alignItems="center">
+                              <Avatar
+                                sx={{
+                                  bgcolor: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.light' : 'success.light',
+                                  color: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main',
+                                  mr: 2, width: 40, height: 40
+                                }}
+                              >
+                                {accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                  {tx.description || (accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'Transfer' : 'Deposit')}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {new Date(tx.transactionDateTime).toLocaleDateString()}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell align="right" sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                            <Typography
+                              variant="subtitle1"
+                              fontWeight="bold"
+                              sx={{ color: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main' }}
+                            >
+                              {accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? '-' : '+'}
+                              ${(accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? tx.debitAmount : tx.creditAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </CardContent>
+          </Card>
         </Box>
 
         {/* Quick Actions */}
