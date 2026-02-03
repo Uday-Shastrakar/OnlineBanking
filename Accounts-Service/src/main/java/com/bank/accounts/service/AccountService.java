@@ -19,5 +19,9 @@ public interface AccountService {
 
     void creditAccount(Long accountId, java.math.BigDecimal amount);
 
+    java.math.BigDecimal debitAccountAndReturnBalance(Long accountId, java.math.BigDecimal amount);
+
+    java.math.BigDecimal creditAccountAndReturnBalance(Long accountId, java.math.BigDecimal amount);
+
     java.util.List<Account> getAllAccounts(Long userId);
 }

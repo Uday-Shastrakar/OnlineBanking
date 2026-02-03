@@ -23,10 +23,11 @@ const UserManagement: React.FC = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await api.get('/users/get'); // Existing Authentication-Service endpoint
-                setUsers(response.data.data || []);
+                const response = await api.get('/users/get-summary'); // New endpoint that returns UserSummary format
+                setUsers(response.data || []);
             } catch (err: any) {
                 setError("Failed to fetch user directory.");
+                console.error("Error fetching users:", err);
             } finally {
                 setLoading(false);
             }

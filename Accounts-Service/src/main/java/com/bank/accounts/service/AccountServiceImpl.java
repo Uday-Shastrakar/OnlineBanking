@@ -125,6 +125,36 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
+    public java.math.BigDecimal debitAccountAndReturnBalance(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account Not Found with ID: " + accountId));
+
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient Balance");
+        }
+
+        BigDecimal updatedBalance = account.getBalance().subtract(amount);
+        account.setBalance(updatedBalance);
+        accountRepository.save(account);
+        
+        return updatedBalance;
+    }
+
+    @Override
+    @Transactional
+    public java.math.BigDecimal creditAccountAndReturnBalance(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account Not Found with ID: " + accountId));
+
+        BigDecimal updatedBalance = account.getBalance().add(amount);
+        account.setBalance(updatedBalance);
+        accountRepository.save(account);
+        
+        return updatedBalance;
+    }
+
+    @Override
     public List<Account> getAllAccounts(Long userId) {
         return accountRepository.findByUserId(userId);
     }

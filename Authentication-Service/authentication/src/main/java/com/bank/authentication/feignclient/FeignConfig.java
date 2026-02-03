@@ -20,9 +20,9 @@ public class FeignConfig {
                 if (session != null) {
                     template.header("userId", session.userId().toString());
                     template.header("email", session.email());
-                } else {
-                    System.err.println("UserSession is null in Feign interceptor");
                 }
+                // For admin dashboard calls, UserSession might be null
+                // Don't add headers if session is not available
             }
         };
     }

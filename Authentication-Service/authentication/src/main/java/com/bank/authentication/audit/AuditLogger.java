@@ -10,12 +10,18 @@ public class AuditLogger {
     private AuditLogService auditLogService;
 
     public void logAction(String action, String username) {
-        String ipAddress = AuditContext.getIpAddress();
-        String userAgent = AuditContext.getUserAgent();
-        String acceptLanguage = AuditContext.getAcceptLanguage();
-        String referer = AuditContext.getReferer();
-        String correlationId = AuditContext.getCorrelationId();
+        try {
+            String ipAddress = AuditContext.getIpAddress();
+            String userAgent = AuditContext.getUserAgent();
+            String acceptLanguage = AuditContext.getAcceptLanguage();
+            String referer = AuditContext.getReferer();
+            String correlationId = AuditContext.getCorrelationId();
 
-        auditLogService.logAction(action, username, ipAddress, userAgent, acceptLanguage, referer, correlationId);
+            auditLogService.logAction(action, username, ipAddress, userAgent, acceptLanguage, referer, correlationId);
+        } catch (Exception e) {
+            // Log the error but don't rethrow - audit failures should not block admin actions
+            System.err.println("Failed to log audit action: " + action + " for user: " + username);
+            e.printStackTrace();
+        }
     }
 }

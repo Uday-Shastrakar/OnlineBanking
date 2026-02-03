@@ -106,3 +106,94 @@ export const getRecentTransactions = async (accountNumber: number): Promise<Tran
     throw new Error(error.response?.data?.message || error.message || "Failed to fetch recent transactions");
   }
 };
+
+// Get Transaction History by User ID (✅ Now supported with role-based descriptions!)
+export const getTransactionHistoryByUserId = async (userId: number): Promise<Transaction[]> => {
+  try {
+    const response = await api.get<Transaction[]>(`/transaction/history?userId=${userId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching transaction history:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch transaction history");
+  }
+};
+
+// Get Sent Transactions (✅ New - sender perspective!)
+export const getSentTransactions = async (userId: number): Promise<Transaction[]> => {
+  try {
+    const response = await api.get<Transaction[]>(`/transaction/sent?userId=${userId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching sent transactions:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch sent transactions");
+  }
+};
+
+// Get Received Transactions (✅ New - receiver perspective!)
+export const getReceivedTransactions = async (userId: number): Promise<Transaction[]> => {
+  try {
+    const response = await api.get<Transaction[]>(`/transaction/received?userId=${userId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching received transactions:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch received transactions");
+  }
+};
+
+// Get Bifurcated Transaction Summary (✅ New - complete view!)
+export const getBifurcatedTransactionSummary = async (userId: number): Promise<any> => {
+  try {
+    const response = await api.get<any>(`/transaction/bifurcated-summary?userId=${userId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching bifurcated transaction summary:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch transaction summary");
+  }
+};
+
+// Get Banking-Grade Transaction History (✅ New - Credit/Debit Ledger!)
+export const getLedgerTransactionHistory = async (userId: number, page?: number, size?: number): Promise<any> => {
+  try {
+    const params = new URLSearchParams();
+    params.append('userId', userId.toString());
+    if (page !== undefined) params.append('page', page.toString());
+    if (size !== undefined) params.append('size', size.toString());
+    
+    const response = await api.get<any>(`/transactions?${params.toString()}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching ledger transaction history:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch transaction history");
+  }
+};
+
+// Get All Ledger Transaction History (✅ New - no pagination)
+export const getAllLedgerTransactionHistory = async (userId: number): Promise<any[]> => {
+  try {
+    const response = await api.get<any[]>(`/transactions/all?userId=${userId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching all ledger transaction history:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to fetch transaction history");
+  }
+};
+
+// Default export for transactionService object
+const transactionService = {
+  fundTransfer,
+  getAllTransactions,
+  getTransactionById,
+  getTransactionsByStatus,
+  getTransactionsByDateRange,
+  getTransactionsByAmountRange,
+  getTransactionHistoryByUserId,
+  getSentTransactions,
+  getReceivedTransactions,
+  getBifurcatedTransactionSummary,
+  getRecentTransactions,
+  getLedgerTransactionHistory,
+  getAllLedgerTransactionHistory,
+  getTransactionSession
+};
+
+export default transactionService;

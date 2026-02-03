@@ -13,3 +13,17 @@ databaseChangeLog:
         - sqlFile:
             path: db/changelog/0002-create-idempotency-keys-table.sql
 
+  - changeSet:
+      id: 3
+      author: system
+      changes:
+        - sqlFile:
+            path: db/changelog/0003-update-transaction-descriptions.sql
+
+  - changeSet:
+      id: 4
+      author: system
+      changes:
+        - sqlFile:
+            path: db/changelog/0004-create-ledger-entry-table.sql
+

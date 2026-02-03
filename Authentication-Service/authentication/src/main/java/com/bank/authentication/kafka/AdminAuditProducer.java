@@ -88,12 +88,17 @@ public class AdminAuditProducer {
      * Emit dashboard access event
      */
     public void emitDashboardAccess(Long userId, String username, String dashboardType) {
-        Map<String, Object> event = createBaseEvent("DASHBOARD_ACCESS", userId);
-        event.put("username", username);
-        event.put("dashboard_type", dashboardType); // ADMIN, USER_MANAGEMENT, AUDIT
-        event.put("access_timestamp", LocalDateTime.now());
+        try {
+            Map<String, Object> event = createBaseEvent("DASHBOARD_ACCESS", userId);
+            event.put("username", username);
+            event.put("dashboard_type", dashboardType); // ADMIN, USER_MANAGEMENT, AUDIT
+            event.put("access_timestamp", LocalDateTime.now());
 
-        publishEvent(event);
+            publishEvent(event);
+        } catch (Exception e) {
+            logger.error("Failed to emit dashboard access event to Kafka", e);
+            // Don't rethrow - Kafka failures should not block admin actions
+        }
     }
 
     /**

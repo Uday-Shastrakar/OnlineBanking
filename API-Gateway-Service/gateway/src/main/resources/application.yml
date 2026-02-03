@@ -28,7 +28,7 @@ spring:
         - id: transaction-service
           uri: lb://transaction
           predicates:
-            - Path=/api/transaction/**
+            - Path=/api/transaction/**, /api/transactions/**
         - id: audit-service
           uri: lb://audit-service
           predicates:

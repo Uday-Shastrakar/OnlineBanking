@@ -83,7 +83,9 @@ const AccountList: React.FC = () => {
 
                                 <Box mt={3} p={1.5} bgcolor="#f8f9fa" borderRadius={2} display="flex" justifyContent="space-between">
                                     <Typography variant="caption" color="textSecondary">ACCOUNT NUMBER</Typography>
-                                    <Typography variant="body2" fontWeight="medium">{maskAccountNumber(acc.accountNumber)}</Typography>
+                                    <Typography variant="body2" fontWeight="medium" sx={{ fontFamily: 'monospace' }}>
+                                        {acc.accountNumber}
+                                    </Typography>
                                 </Box>
 
                                 {acc.status === 'BLOCKED' && (

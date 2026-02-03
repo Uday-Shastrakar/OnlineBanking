@@ -82,6 +82,20 @@ public class AccountController {
         return ResponseEntity.ok("Credit Successful");
     }
 
+    @PostMapping("/debit-and-return-balance")
+    public ResponseEntity<java.math.BigDecimal> debitAccountAndReturnBalance(@RequestParam Long accountId,
+            @RequestParam java.math.BigDecimal amount) {
+        java.math.BigDecimal updatedBalance = accountService.debitAccountAndReturnBalance(accountId, amount);
+        return ResponseEntity.ok(updatedBalance);
+    }
+
+    @PostMapping("/credit-and-return-balance")
+    public ResponseEntity<java.math.BigDecimal> creditAccountAndReturnBalance(@RequestParam Long accountId,
+            @RequestParam java.math.BigDecimal amount) {
+        java.math.BigDecimal updatedBalance = accountService.creditAccountAndReturnBalance(accountId, amount);
+        return ResponseEntity.ok(updatedBalance);
+    }
+
     @GetMapping("/getall")
     public java.util.List<Account> getAllAccounts(@RequestParam Long userId) {
         return accountService.getAllAccounts(userId);

@@ -158,6 +158,45 @@ public class UserController {
         return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 
+    @GetMapping("/get-summary")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getAllUsersSummary(
+            @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {
+        try {
+            List<User> users = userService.findAllUsers();
+            List<java.util.Map<String, Object>> summaryList = new java.util.ArrayList<>();
+            
+            for (User user : users) {
+                java.util.Map<String, Object> summary = new java.util.HashMap<>();
+                summary.put("userId", user.getUserId());
+                summary.put("userName", user.getUsername());
+                summary.put("email", user.getEmail());
+                
+                // Extract primary role (first role or default to USER)
+                String primaryRole = "USER";
+                if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                    primaryRole = user.getRoles().iterator().next().getRoleName();
+                }
+                summary.put("role", primaryRole);
+                
+                // Determine status based on lockedUntil
+                String status = "ACTIVE";
+                if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(java.time.LocalDateTime.now())) {
+                    status = "LOCKED";
+                }
+                summary.put("status", status);
+                
+                summaryList.add(summary);
+            }
+            
+            logger.debug("bank-correlation-id found: {} ", correlationId);
+            return new ResponseEntity<>(summaryList, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            logger.error("Error fetching user summary", e);
+            return new ResponseEntity<>(java.util.Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/{userId}/exists")
     public ResponseEntity<java.util.Map<String, Object>> checkUserExists(@PathVariable Long userId,
             @RequestHeader(value = "bank-correlation-id", required = false) String correlationId) {

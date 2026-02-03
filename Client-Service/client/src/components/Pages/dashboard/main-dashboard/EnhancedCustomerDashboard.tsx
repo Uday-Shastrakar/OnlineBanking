@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../../services/api';
+import transactionService from '../../../../services/transactionService';
 import './Dashboard.css';
 
 interface Account {
@@ -50,11 +51,12 @@ interface CustomerStats {
 }
 
 interface RecentTransaction {
-  id: string;
-  type: 'CREDIT' | 'DEBIT';
+  entryId: string;
+  entryType: 'CREDIT' | 'DEBIT';
   amount: number;
+  balanceAfter: number;
   description: string;
-  date: string;
+  timestamp: string;
   accountNumber: string;
 }
 
@@ -106,23 +108,20 @@ const EnhancedCustomerDashboard: React.FC = () => {
             pendingAccounts
           });
 
-          // Fetch real recent transactions
-          const txResponse = await api.get(`/transaction/history?userId=${userData.userId}`);
-          const rawTransactions = Array.isArray(txResponse.data) ? txResponse.data : [];
+          // Fetch real recent transactions using banking-grade ledger API
+          const ledgerData = await transactionService.getLedgerTransactionHistory(userData.userId, 0, 5);
+          const rawTransactions = ledgerData.content || [];
 
-          // Map backend transactions to dashboard format
-          const userAccountNumbers = accountsData.map((a: Account) => a.accountNumber);
-          const mappedTransactions: RecentTransaction[] = rawTransactions.slice(0, 5).map((tx: any) => {
-            const isDebit = userAccountNumbers.includes(tx.senderAccountNumber?.toString());
-            return {
-              id: tx.id.toString(),
-              type: isDebit ? 'DEBIT' : 'CREDIT',
-              amount: isDebit ? (tx.debitAmount || tx.amount) : (tx.creditAmount || tx.amount),
-              description: tx.description || (isDebit ? `Transfer to ${tx.receiverAccountNumber}` : `Received from ${tx.senderAccountNumber}`),
-              date: new Date(tx.transactionDateTime || tx.createdAt).toLocaleDateString(),
-              accountNumber: isDebit ? tx.senderAccountNumber?.toString() : tx.receiverAccountNumber?.toString()
-            };
-          });
+          // Map ledger entries to dashboard format
+          const mappedTransactions: RecentTransaction[] = rawTransactions.map((tx: any) => ({
+            entryId: tx.entryId.toString(),
+            entryType: tx.entryType,
+            amount: tx.amount,
+            balanceAfter: tx.balanceAfter,
+            description: tx.description || (tx.entryType === 'DEBIT' ? 'Transfer Out' : 'Transfer In'),
+            timestamp: new Date(tx.timestamp).toLocaleDateString(),
+            accountNumber: tx.accountNumber?.toString()
+          }));
 
           setRecentTransactions(mappedTransactions);
         }
@@ -366,10 +365,10 @@ const EnhancedCustomerDashboard: React.FC = () => {
               ) : (
                 <List>
                   {recentTransactions.map((transaction, index) => (
-                    <React.Fragment key={transaction.id}>
+                    <React.Fragment key={transaction.entryId}>
                       <ListItem>
                         <ListItemIcon>
-                          {transaction.type === 'CREDIT' ? (
+                          {transaction.entryType === 'CREDIT' ? (
                             <TrendingUp color="success" />
                           ) : (
                             <Payment color="error" />
@@ -377,13 +376,13 @@ const EnhancedCustomerDashboard: React.FC = () => {
                         </ListItemIcon>
                         <ListItemText
                           primary={transaction.description}
-                          secondary={`${transaction.date} • ${transaction.accountNumber}`}
+                          secondary={`${transaction.timestamp} • A/C ****${transaction.accountNumber?.slice(-4)}`}
                         />
                         <Typography
                           variant="h6"
-                          color={transaction.type === 'CREDIT' ? 'success.main' : 'error.main'}
+                          color={transaction.entryType === 'CREDIT' ? 'success.main' : 'error.main'}
                         >
-                          {transaction.type === 'CREDIT' ? '+' : '-'}₹{transaction.amount.toLocaleString('en-IN')}
+                          {transaction.entryType === 'CREDIT' ? '+' : '-'}₹{transaction.amount.toLocaleString('en-IN')}
                         </Typography>
                       </ListItem>
                       {index < recentTransactions.length - 1 && <Divider />}

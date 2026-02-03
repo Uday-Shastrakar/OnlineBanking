@@ -2,10 +2,11 @@ package com.bank.transaction.feignclient;
 
 import com.bank.transaction.dto.CombineAccountDetailsDTO;
 import com.bank.transaction.dto.UpdateAccountDetails;
+import com.bank.transaction.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "accounts")
+@FeignClient(name = "accounts", configuration = FeignConfig.class)
 public interface AccountService {
 
         @GetMapping("/api/account/get-details")
@@ -27,6 +28,14 @@ public interface AccountService {
 
         @PostMapping("/api/account/credit")
         String creditAccount(@RequestParam("accountId") Long accountId,
+                        @RequestParam("amount") java.math.BigDecimal amount);
+
+        @PostMapping("/api/account/debit-and-return-balance")
+        java.math.BigDecimal debitAccountAndReturnBalance(@RequestParam("accountId") Long accountId,
+                        @RequestParam("amount") java.math.BigDecimal amount);
+
+        @PostMapping("/api/account/credit-and-return-balance")
+        java.math.BigDecimal creditAccountAndReturnBalance(@RequestParam("accountId") Long accountId,
                         @RequestParam("amount") java.math.BigDecimal amount);
 
         @GetMapping("/api/account/getall")

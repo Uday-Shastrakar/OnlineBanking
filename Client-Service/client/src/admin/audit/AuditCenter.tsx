@@ -49,46 +49,7 @@ const AuditCenter: React.FC = () => {
                 } else {
                     setError("Audit logs could not be retrieved. Ensure Audit-Service is reachable.");
                 }
-                // Mock data for UI demonstration
-                setLogs([
-                    { 
-                        id: 1, 
-                        eventId: "audit-001",
-                        domain: "TRANSACTION", 
-                        action: "TRANSFER_INITIATED", 
-                        entityId: "tx-001",
-                        userId: "admin", 
-                        eventTimestamp: new Date().toISOString(),
-                        details: { amount: 1000, currency: "USD" },
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    },
-                    { 
-                        id: 2, 
-                        eventId: "audit-002",
-                        domain: "TRANSACTION", 
-                        action: "TRANSFER_COMPLETED", 
-                        entityId: "tx-001",
-                        userId: "uday", 
-                        eventTimestamp: new Date().toISOString(),
-                        details: { amount: 1000, currency: "USD", status: "COMPLETED" },
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    },
-                    { 
-                        id: 3, 
-                        eventId: "audit-003",
-                        domain: "SECURITY", 
-                        action: "ACCOUNT_BLOCKED", 
-                        entityId: "acc-001",
-                        userId: "sys", 
-                        eventTimestamp: new Date().toISOString(),
-                        details: { reason: "Suspicious activity detected" },
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    },
-                ]);
-                setTotalPages(1);
+                // Service will return mock data automatically on error
             } finally {
                 setLoading(false);
             }
@@ -168,22 +129,32 @@ const AuditCenter: React.FC = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {logs.map((log) => (
-                            <TableRow key={log.id} hover>
-                                <TableCell>{new Date(log.eventTimestamp || log.timestamp || new Date()).toLocaleString()}</TableCell>
-                                <TableCell><Typography variant="body2" fontWeight="bold">{log.userId}</Typography></TableCell>
-                                <TableCell>
-                                    <Chip label={log.action} size="small" color={getActionColor(log.action) as any} />
-                                </TableCell>
-                                <TableCell>{log.status || 'N/A'}</TableCell>
-                                <TableCell><Typography variant="caption" fontFamily="monospace">{log.eventId}</Typography></TableCell>
-                                <TableCell align="center">
-                                    <Tooltip title={log.details ? JSON.stringify(log.details) : "No extra data"}>
-                                        <IconButton size="small"><InfoOutlined fontSize="small" /></IconButton>
-                                    </Tooltip>
+                        {logs && logs.length > 0 ? (
+                            logs.map((log) => (
+                                <TableRow key={log.id} hover>
+                                    <TableCell>{new Date(log.eventTimestamp || log.timestamp || new Date()).toLocaleString()}</TableCell>
+                                    <TableCell><Typography variant="body2" fontWeight="bold">{log.userId}</Typography></TableCell>
+                                    <TableCell>
+                                        <Chip label={log.action} size="small" color={getActionColor(log.action) as any} />
+                                    </TableCell>
+                                    <TableCell>{log.status || 'N/A'}</TableCell>
+                                    <TableCell><Typography variant="caption" fontFamily="monospace">{log.eventId}</Typography></TableCell>
+                                    <TableCell align="center">
+                                        <Tooltip title={log.details ? JSON.stringify(log.details) : "No extra data"}>
+                                            <IconButton size="small"><InfoOutlined fontSize="small" /></IconButton>
+                                        </Tooltip>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                    <Typography variant="body2" color="textSecondary">
+                                        {loading ? 'Loading audit logs...' : 'No audit logs found'}
+                                    </Typography>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>

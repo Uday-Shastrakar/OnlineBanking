@@ -2,10 +2,10 @@ package com.bank.transaction.api;
 
 import com.bank.transaction.service.TransactionService;
 import com.bank.transaction.session.UserSession;
-import com.bank.transaction.session.UserThreadLocalContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -57,5 +57,51 @@ public class TransactionController {
     public java.util.List<com.bank.transaction.model.Transaction> getTransactionHistory(
             @RequestParam Long userId) {
         return transactionService.getTransactionHistoryByUserId(userId);
+    }
+
+    @GetMapping("/health-check")
+    public java.util.Map<String, Object> healthCheck() {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        boolean accountServiceHealthy = transactionService.checkAccountServiceHealth();
+        
+        response.put("transaction_service", "healthy");
+        response.put("account_service", accountServiceHealthy ? "healthy" : "unhealthy");
+        response.put("overall", accountServiceHealthy ? "healthy" : "degraded");
+        
+        return response;
+    }
+
+    // Get transactions where user is the SENDER (money sent out)
+    @GetMapping("/sent")
+    public java.util.List<com.bank.transaction.model.Transaction> getSentTransactions(
+            @RequestParam Long userId) {
+        return transactionService.getSentTransactions(userId);
+    }
+
+    // Get transactions where user is the RECEIVER (money received)
+    @GetMapping("/received")
+    public java.util.List<com.bank.transaction.model.Transaction> getReceivedTransactions(
+            @RequestParam Long userId) {
+        return transactionService.getReceivedTransactions(userId);
+    }
+
+    // Get bifurcated transaction summary with both sent and received
+    @GetMapping("/bifurcated-summary")
+    public java.util.Map<String, Object> getBifurcatedTransactionSummary(
+            @RequestParam Long userId) {
+        return transactionService.getBifurcatedTransactionSummary(userId);
+    }
+
+    // Migrate existing transaction descriptions to new role-based format
+    @PostMapping("/migrate-descriptions")
+    public ResponseEntity<String> migrateTransactionDescriptions() {
+        try {
+            String result = ((com.bank.transaction.service.serviceImpl.TransactionServiceImpl) transactionService)
+                    .migrateExistingTransactionDescriptions();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Migration failed: " + e.getMessage());
+        }
     }
 }

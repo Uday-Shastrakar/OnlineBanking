@@ -32,4 +32,12 @@ public interface TransactionService {
     java.util.Map<String, Object> getFailedTransactionMetrics();
 
     List<Transaction> getTransactionHistoryByUserId(Long userId);
+
+    boolean checkAccountServiceHealth();
+
+    List<Transaction> getSentTransactions(Long userId);
+
+    List<Transaction> getReceivedTransactions(Long userId);
+
+    java.util.Map<String, Object> getBifurcatedTransactionSummary(Long userId);
 }

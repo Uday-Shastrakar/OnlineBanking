@@ -45,7 +45,7 @@ import {
 import { useSidebar } from '../../../../contexts/SidebarContext';
 import { customerService } from '../../../../services/customerService';
 import { accountService, AccountQueryDto } from '../../../../services/api/accountService';
-import { transactionService } from '../../../../services/api/transactionService';
+import transactionService from '../../../../services/transactionService';
 import { GetCustomer } from '../../../../Types';
 import { Transaction } from '../../../../types/banking';
 import { useNavigate } from 'react-router-dom';
@@ -75,10 +75,25 @@ const Dashboard: React.FC = () => {
   const [userData, setUserData] = useState<any | null>(null);
   const [customerData, setCustomerData] = useState<GetCustomer | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [showFullAccountNumbers, setShowFullAccountNumbers] = useState<{[key: string]: boolean}>({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  // Toggle account number visibility
+  const toggleAccountNumberVisibility = (accountId: string) => {
+    setShowFullAccountNumbers(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId]
+    }));
+  };
+
+  // Get display account number (masked or full)
+  const getDisplayAccountNumber = (account: Account) => {
+    const isShowing = showFullAccountNumbers[account.accountId];
+    return isShowing ? account.accountNumber : `****${account.accountNumber?.toString().slice(-4)}`;
+  };
 
   // Fetch user details from localStorage
   useEffect(() => {
@@ -119,9 +134,9 @@ const Dashboard: React.FC = () => {
         const customerAccounts = await accountService.getAccountsByUserId(userData.userId);
         setAccounts(customerAccounts as Account[]);
 
-        // Fetch recent transactions
-        const history = await transactionService.getTransactionHistoryByUserId(userData.userId);
-        setRecentTransactions(Array.isArray(history) ? history.slice(0, 5) : []);
+        // Fetch recent transactions using banking-grade ledger API
+        const ledgerData = await transactionService.getLedgerTransactionHistory(userData.userId, 0, 5);
+        setRecentTransactions(ledgerData.content || []);
 
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -273,9 +288,35 @@ const Dashboard: React.FC = () => {
                         <Typography variant="h6" fontWeight="bold" gutterBottom>
                           {account.accountType || 'Savings Account'}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          ****{account.accountNumber?.toString().slice(-4)}
-                        </Typography>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ 
+                              fontFamily: 'monospace',
+                              userSelect: 'none'
+                            }}
+                          >
+                            {getDisplayAccountNumber(account)}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            onClick={() => toggleAccountNumberVisibility(account.accountId)}
+                            title={showFullAccountNumbers[account.accountId] ? "Click to hide" : "Click to show full account number"}
+                            sx={{ 
+                              padding: 0.5,
+                              '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                            }}
+                          >
+                            <Visibility 
+                              fontSize="small" 
+                              sx={{ 
+                                color: showFullAccountNumbers[account.accountId] ? 'primary.main' : 'text.secondary',
+                                fontSize: '1rem'
+                              }} 
+                            />
+                          </IconButton>
+                        </Box>
                       </Box>
                       <Avatar sx={{ bgcolor: 'primary.main' }}>
                         <CreditCard />
@@ -295,11 +336,6 @@ const Dashboard: React.FC = () => {
                         size="small"
                       />
                       <Box>
-                        <Tooltip title="View Details">
-                          <IconButton size="small">
-                            <Visibility />
-                          </IconButton>
-                        </Tooltip>
                         <Tooltip title="Transfer">
                           <IconButton size="small">
                             <SwapHoriz />
@@ -335,24 +371,24 @@ const Dashboard: React.FC = () => {
                   <Table>
                     <TableBody>
                       {recentTransactions.map((tx) => (
-                        <TableRow key={tx.id} hover>
+                        <TableRow key={tx.entryId} hover>
                           <TableCell sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                             <Box display="flex" alignItems="center">
                               <Avatar
                                 sx={{
-                                  bgcolor: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.light' : 'success.light',
-                                  color: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main',
+                                  bgcolor: tx.entryType === 'DEBIT' ? 'error.light' : 'success.light',
+                                  color: tx.entryType === 'DEBIT' ? 'error.main' : 'success.main',
                                   mr: 2, width: 40, height: 40
                                 }}
                               >
-                                {accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+                                {tx.entryType === 'DEBIT' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
                               </Avatar>
                               <Box>
                                 <Typography variant="subtitle1" fontWeight="bold">
-                                  {tx.description || (accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'Transfer' : 'Deposit')}
+                                  {tx.description || (tx.entryType === 'DEBIT' ? 'Transfer Out' : 'Transfer In')}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
-                                  {new Date(tx.transactionDateTime).toLocaleDateString()}
+                                  {new Date(tx.timestamp).toLocaleDateString()}
                                 </Typography>
                               </Box>
                             </Box>
@@ -361,10 +397,13 @@ const Dashboard: React.FC = () => {
                             <Typography
                               variant="subtitle1"
                               fontWeight="bold"
-                              sx={{ color: accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? 'error.main' : 'success.main' }}
+                              sx={{ color: tx.entryType === 'DEBIT' ? 'error.main' : 'success.main' }}
                             >
-                              {accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? '-' : '+'}
-                              ₹{(accounts.some(a => a.accountNumber.toString() === tx.senderAccountNumber?.toString()) ? tx.debitAmount : tx.creditAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              {tx.entryType === 'DEBIT' ? '-' : '+'}
+                              ₹{tx.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              Balance: ₹{tx.balanceAfter?.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </Typography>
                           </TableCell>
                         </TableRow>
