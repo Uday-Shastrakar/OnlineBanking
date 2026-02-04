@@ -47,6 +47,7 @@ import { customerService } from '../../../../services/customerService';
 import { accountService, AccountQueryDto } from '../../../../services/api/accountService';
 import transactionService from '../../../../services/transactionService';
 import { GetCustomer } from '../../../../Types';
+import AuthStorage from '../../../../services/authStorage';
 import { Transaction } from '../../../../types/banking';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../sidebar/Sidebar';
@@ -80,6 +81,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const userRoles = AuthStorage.getRoles();
 
   // Toggle account number visibility
   const toggleAccountNumberVisibility = (accountId: string) => {
@@ -112,16 +114,30 @@ const Dashboard: React.FC = () => {
   // Fetch customer data and accounts
   useEffect(() => {
     const fetchCustomerDataAndAccounts = async () => {
-      if (!userData || !userData.userId) {
-        if (loading) setLoading(false);
-        return;
-      }
+      if (!userData) return;
 
       try {
         setLoading(true);
         setError(null);
 
-        // Get customer data directly by userId
+        // Check if user is staff or admin and redirect them
+        const isStaffOrAdmin = userRoles.includes('BANK_STAFF') || userRoles.includes('ADMIN');
+        
+        if (isStaffOrAdmin) {
+          // Redirect staff to staff dashboard
+          if (userRoles.includes('BANK_STAFF')) {
+            navigate('/staff/dashboard');
+            return;
+          }
+          
+          // Redirect admin to admin dashboard
+          if (userRoles.includes('ADMIN')) {
+            navigate('/admin/dashboard');
+            return;
+          }
+        }
+
+        // For regular customers, fetch real data
         const customer = await customerService.getCustomer(userData.userId);
         if (!customer) {
           setError('No customer account found for this user');

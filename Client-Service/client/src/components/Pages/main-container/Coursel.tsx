@@ -10,7 +10,7 @@ const Coursel: React.FC = () => {
     <Box mt="30px">
       <div className="coursel-page">
         <div className="hero">
-          <h1>Welcome to NUMS Bank</h1>
+          <h1>Welcome to <span className="gradient-text">NUMS</span> Bank</h1>
           <p>Your gateway to seamless banking and financial solutions.</p>
         </div>
         <div className="fab-container">

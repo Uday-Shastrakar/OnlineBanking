@@ -3,6 +3,17 @@ import { ApiResponse } from "./api"
 import { Credentials, LoginResponse, RegisterForm, User } from "../Types";
 import AuthStorage from './authStorage';
 
+interface StaffCredentials {
+    employeeId: string;
+    password: string;
+}
+
+interface StaffLoginResponse {
+    token: string;
+    user: User;
+    roles: string[];
+}
+
 export const login = async (credentials: Credentials): Promise<void> => {
     try {
         const response = await api.post<ApiResponse<LoginResponse>>('auth/login', credentials);
@@ -154,4 +165,50 @@ export const validateToken = (): boolean => {
     }
 
     return true;
+};
+
+// Staff authentication for BANK_STAFF role
+export const staffLogin = async (credentials: StaffCredentials): Promise<StaffLoginResponse> => {
+    try {
+        const response = await api.post<ApiResponse<StaffLoginResponse>>('auth/staff/login', credentials);
+        
+        if (!response.data.data) {
+            throw new Error('Invalid staff login response from server');
+        }
+
+        const staffData = response.data.data;
+        
+        // Validate that the user has BANK_STAFF role
+        if (!staffData.roles.includes('BANK_STAFF')) {
+            throw new Error('Access denied. Not authorized as bank staff.');
+        }
+
+        console.log('Staff login successful:', {
+            user_id: staffData.user.userId,
+            roles: staffData.roles
+        });
+
+        return staffData;
+    } catch (error: any) {
+        console.error('Staff login error:', error);
+        
+        if (error.response) {
+            const status = error.response.status;
+            const message = error.response.data?.message || error.response.data?.error || 'Staff login failed';
+
+            if (status === 401) {
+                throw new Error('Invalid employee ID or password');
+            } else if (status === 403) {
+                throw new Error('Access denied. Not authorized as bank staff.');
+            } else if (status === 404) {
+                throw new Error('Staff account not found');
+            } else {
+                throw new Error(message || `Staff login failed with status ${status}`);
+            }
+        } else if (error.request) {
+            throw new Error('Network error. Please check your connection.');
+        } else {
+            throw new Error(error.message || 'Staff login failed. Please try again.');
+        }
+    }
 };

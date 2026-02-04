@@ -49,5 +49,11 @@ export const customerService = {
       }
     });
     return response.data;
+  },
+
+  // Get all customers (for staff/admin dashboard)
+  getAllCustomers: async (): Promise<GetCustomer[]> => {
+    const response = await api.get<GetCustomer[]>('customer/getall');
+    return response.data;
   }
 };

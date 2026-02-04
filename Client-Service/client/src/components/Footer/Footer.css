@@ -8,7 +8,6 @@
 section {
   width: 100%;
   background: #333;
-  height: 50vh;
   text-align: center;
   font-size: 22px;
   font-weight: 700;
@@ -18,12 +17,13 @@ section {
 }
 
 .footer-distributed {
-  background:white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.8) 0%, rgba(26, 188, 156, 0.6) 100%);
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  padding: 40px 50px;
+  padding: 20px 40px;
   color: #fff;
-  font: 16px 'Open Sans', sans-serif;
+  font: 14px 'Open Sans', sans-serif;
+  box-sizing: border-box;
 }
 
 .footer-distributed .footer-left,
@@ -40,22 +40,24 @@ section {
 }
 
 .footer-distributed h3 {
-  color:black;
-  font-size: 36px;
+  color: #000; /* Black for NUMS */
+  font-size: 28px;
   margin: 0;
   font-weight: 700;
   letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .footer-distributed h3 span {
-  color: #1abc9c;
+  color: #fff; /* White for Bank */
+  font-weight: 700;
 }
 
 /* Footer links */
 
 .footer-distributed .footer-links {
   color: #ddd;
-  margin: 20px 0;
+  margin: 12px 0;
   padding: 0;
   list-style: none;
 }
@@ -64,13 +66,15 @@ section {
   display: inline-block;
   line-height: 1.8;
   text-decoration: none;
-  color: black;
+  color: #fff;
   margin: 0 10px;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .footer-distributed .footer-links a:hover {
-  color: #1abc9c;
+  color: #fff; /* White for better contrast on teal */
+  text-decoration: underline;
 }
 
 /* Footer Center */
@@ -79,21 +83,30 @@ section {
   width: 30%;
 }
 
-.footer-distributed .footer-center i {
-  background-color: #1abc9c;
-  color:black;
-  font-size: 20px;
-  width: 40px;
-  height: 40px;
+.footer-distributed .footer-center .footer-icon {
+  background-color: #fff; /* White icons on teal background */
+  color: #1abc9c; /* Darker teal for icon fill */
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   text-align: center;
-  line-height: 40px;
-  margin: 10px 15px;
+  line-height: 32px;
+  margin: 6px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.footer-distributed .footer-center div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .footer-distributed .footer-center p {
   display: inline-block;
-  color:black;
+  color: #fff;
   margin: 0;
 }
 
@@ -101,11 +114,18 @@ section {
   display: block;
   font-size: 14px;
   line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .footer-distributed .footer-center p a {
-  color: #1abc9c;
+  color: #fff; /* White for better contrast on teal */
   text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-distributed .footer-center p a:hover {
+  color: #f0f0f0; /* Lighter white on hover */
+  text-decoration: underline;
 }
 
 /* Footer Right */
@@ -115,40 +135,34 @@ section {
 }
 
 .footer-distributed .footer-company-about {
-  color:black;
+  color: #fff;
   font-size: 14px;
   line-height: 1.8;
 }
 
 .footer-distributed .footer-company-about span {
-  color: black;
+  color: #fff; /* White for better contrast on teal */
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .footer-distributed .footer-icons {
-  margin-top: 25px;
+  margin-top: 10px;
 }
 
-.footer-distributed .footer-icons a {
-  display: inline-block;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  background-color: #33383b;
-  border-radius: 50%;
+.footer-distributed .footer-icons .social-icon {
   font-size: 18px;
-  color: black;
-  text-align: center;
-  line-height: 35px;
-  margin-right: 10px;
-  margin-bottom: 5px;
-  transition: background-color 0.3s ease;
+  color: #fff; /* White icons on teal background */
+  margin-right: 8px;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.footer-distributed .footer-icons a:hover {
-  background-color: #1abc9c;
+.footer-distributed .footer-icons .social-icon:hover {
+  color: #f0f0f0; /* Lighter white on hover */
+  transform: translateY(-2px);
 }
 
 /* Responsive */
@@ -156,7 +170,7 @@ section {
 @media (max-width: 880px) {
   .footer-distributed {
     font-size: 14px;
-    padding: 30px 20px;
+    padding: 15px 20px;
   }
 
   .footer-distributed .footer-left,
@@ -164,7 +178,7 @@ section {
   .footer-distributed .footer-right {
     display: block;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
   }
   

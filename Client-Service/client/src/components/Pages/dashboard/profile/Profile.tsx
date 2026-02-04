@@ -17,22 +17,27 @@ import {
   Phone,
   Cake,
   Home,
-  Transgender
+  Transgender,
+  Security,
+  Work
 } from "@mui/icons-material";
 import { customerService } from "../../../../services/customerService";
 import { GetCustomer } from "../../../../Types";
+import AuthStorage from "../../../../services/authStorage";
 import "./Profile.css";
 
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<GetCustomer | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const userRoles = AuthStorage.getRoles();
 
   useEffect(() => {
-    // Get userId from localStorage
+    // Get userId and roles from localStorage
     const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
     const userId = userDetails?.userId;
     const storedUserName = userDetails?.userName || userDetails?.username;
+    const userRoles = AuthStorage.getRoles();
 
     if (!userId) {
       setError("User not authenticated. Please log in.");
@@ -40,7 +45,29 @@ const Profile: React.FC = () => {
       return;
     }
 
-    // Fetch user data using the userId
+    // Check if user is staff or admin
+    const isStaffOrAdmin = userRoles.includes('BANK_STAFF') || userRoles.includes('ADMIN');
+    
+    if (isStaffOrAdmin) {
+      // For staff/admin, create profile from user details
+      setProfileData({
+        id: userId,
+        userId: userId,
+        email: userDetails.email || 'staff@numsbank.com',
+        firstName: storedUserName || 'Bank',
+        lastName: 'Staff',
+        phoneNumber: 'N/A',
+        userName: storedUserName || 'staffUser',
+        gender: 'N/A',
+        address: 'Bank Headquarters',
+        dateOfBirth: 'N/A',
+        status: 'ACTIVE'
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Fetch customer data for regular customers
     const fetchCustomerData = async () => {
       try {
         const data = await customerService.getCustomer(userId); // Fetch customer data
@@ -85,26 +112,23 @@ const Profile: React.FC = () => {
           <CardContent>
             {/* Profile Header */}
             <Box display="flex" alignItems="center" mb={3}>
-              <Avatar
-                sx={{
-                  width: 80,
-                  height: 80,
-                  bgcolor: 'primary.main',
-                  fontSize: '2rem',
-                  mr: 3
-                }}
-              >
-                {profileData.firstName?.charAt(0)}{profileData.lastName?.charAt(0)}
+              <Avatar sx={{ bgcolor: 'primary.main', width: 80, height: 80, mr: 3 }}>
+                {userRoles.includes('BANK_STAFF') || userRoles.includes('ADMIN') ? (
+                  <Security fontSize="large" />
+                ) : (
+                  <Person fontSize="large" />
+                )}
               </Avatar>
               <Box>
                 <Typography variant="h4" fontWeight="bold" color="primary">
                   {profileData.firstName} {profileData.lastName}
                 </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  @{profileData.userName}
-                </Typography>
                 <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
                   Status: {profileData.status || 'ACTIVE'}
+                </Typography>
+                <Typography variant="body2" color="primary.main" sx={{ mt: 0.5 }}>
+                  Role: {userRoles.includes('ADMIN') ? 'Administrator' : 
+                         userRoles.includes('BANK_STAFF') ? 'Bank Staff' : 'Customer'}
                 </Typography>
               </Box>
             </Box>
@@ -148,7 +172,7 @@ const Profile: React.FC = () => {
                     <strong>Date of Birth:</strong> {profileData.dateOfBirth || "Not provided"}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    <strong>Customer ID:</strong> {profileData.id}
+                    <strong>ID:</strong> {profileData.id}
                   </Typography>
                 </Paper>
               </Grid>
@@ -171,7 +195,7 @@ const Profile: React.FC = () => {
         </Card>
       ) : (
         <Alert severity="info">
-          No customer data found. Please complete your profile.
+          No profile data found. Please complete your profile.
         </Alert>
       )}
     </Box>

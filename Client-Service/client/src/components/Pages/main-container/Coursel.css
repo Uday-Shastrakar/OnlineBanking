@@ -42,6 +42,16 @@ html, body {
   font-weight: 700;
   margin-bottom: 20px;
   animation: fadeInUp 1s ease-out;
+  color: #000;
+}
+
+.hero h1 .gradient-text {
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.8) 0%, rgba(26, 188, 156, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
 }
 
 .hero p {

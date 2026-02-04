@@ -34,6 +34,14 @@ const AuditCenter = lazy(() => import('./admin/audit/AuditCenter'));
 const UserManagement = lazy(() => import('./admin/users/UserManagement'));
 const AdminLayout = lazy(() => import('./admin/layout/AdminLayout'));
 
+// Phase 3: Staff Portal
+const StaffDashboard = lazy(() => import('./admin/staff/StaffDashboard'));
+const StaffLogin = lazy(() => import('./admin/staff/StaffLogin'));
+const CustomerLookup = lazy(() => import('./admin/staff/CustomerLookup'));
+const KYCVerification = lazy(() => import('./admin/staff/KYCVerification'));
+const AccountSupport = lazy(() => import('./admin/staff/AccountSupport'));
+const IssueEscalation = lazy(() => import('./admin/staff/IssueEscalation'));
+
 // Shared Layouts
 const DashboardLayout = lazy(() => import('./components/Layout/DashboardLayout'));
 
@@ -77,13 +85,24 @@ const App: React.FC = () => {
 const PageLayout: React.FC = () => {
   const location = useLocation();
   const isSpecialPage = location.pathname === '/login' ||
+    location.pathname === '/staff/login' ||
     location.pathname === '/register' ||
     location.pathname === '/CustomerRegistration' ||
-    location.pathname.startsWith('/admin');
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/staff');
 
   // Helper for customer routes wrapped in DashboardLayout
   const CustomerRoute = ({ children, roles }: { children: React.ReactNode, roles?: string[] }) => (
     <ProtectedRoute allowedRoles={roles}>
+      <DashboardLayout>
+        {children}
+      </DashboardLayout>
+    </ProtectedRoute>
+  );
+
+  // Helper for staff routes wrapped in DashboardLayout
+  const StaffRoute = ({ children }: { children: React.ReactNode }) => (
+    <ProtectedRoute allowedRoles={['BANK_STAFF']}>
       <DashboardLayout>
         {children}
       </DashboardLayout>
@@ -97,6 +116,7 @@ const PageLayout: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/staff/login" element={<StaffLogin />} />
           <Route path="/register" element={<UserRegister />} />
           <Route path="/forgotpassword" element={<Forgotpassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
@@ -120,6 +140,14 @@ const PageLayout: React.FC = () => {
             <Route path="audit" element={<AuditCenter />} />
             <Route path="users" element={<UserManagement />} />
           </Route>
+
+          {/* Protected Staff Routes */}
+          <Route path="/staff/dashboard" element={<StaffRoute><StaffDashboard /></StaffRoute>} />
+          <Route path="/staff/customers/:customerId" element={<StaffRoute><CustomerLookup /></StaffRoute>} />
+          <Route path="/staff/customers" element={<StaffRoute><CustomerLookup /></StaffRoute>} />
+          <Route path="/staff/kyc" element={<StaffRoute><KYCVerification /></StaffRoute>} />
+          <Route path="/staff/accounts" element={<StaffRoute><AccountSupport /></StaffRoute>} />
+          <Route path="/staff/escalations" element={<StaffRoute><IssueEscalation /></StaffRoute>} />
 
           <Route path="/CustomerRegistration" element={<CustomerRegistration />} />
         </Routes>
