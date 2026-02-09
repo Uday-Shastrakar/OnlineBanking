@@ -1,17 +1,1 @@
-{
-  "version": 2,
-  "name": "online-banking-frontend",
-  "buildCommand": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true DISABLE_ESLINT_PLUGIN=true npm run build",
-  "outputDirectory": "build",
-  "installCommand": "npm install --legacy-peer-deps",
-  "framework": "create-react-app",
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "env": {
-    "REACT_APP_API_BASE_URL": "https://your-backend-domain.com/api"
-  }
-}
+{"version": 2, "name": "online-banking-frontend", "buildCommand": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true DISABLE_ESLINT_PLUGIN=true npm run build", "outputDirectory": "build", "installCommand": "npm install --legacy-peer-deps", "framework": "create-react-app", "routes": [{"src": "/static/(.*)", "dest": "/static/$1"}, {"src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))", "dest": "/$1"}, {"src": "/(.*)", "dest": "/index.html"}], "env": {"REACT_APP_API_BASE_URL": "https://your-backend-domain.com/api"}}
