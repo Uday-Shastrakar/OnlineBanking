@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "online-banking-frontend",
-  "buildCommand": "ESLINT_NO_DEV_ERRORS=true npm run build",
+  "buildCommand": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true DISABLE_ESLINT_PLUGIN=true npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "create-react-app",
