@@ -1,6 +1,7 @@
 package com.bank.transaction.service.serviceImpl;
 
 import com.bank.transaction.dto.CombineAccountDetailsDTO;
+import com.bank.transaction.dto.TransactionEvent;
 import com.bank.transaction.exception.InsufficientBalanceException;
 import com.bank.transaction.feignclient.AccountService;
 import com.bank.transaction.model.Transaction;
@@ -199,11 +200,17 @@ public class TransactionServiceImpl implements TransactionService {
                         logger.error("Error creating ledger entries: {}", e.getMessage(), e);
                     }
 
-                    // Publish Events for both transactions
+                    // Publish Events for both transactions with user information
                     try {
-                        kafkaTemplate.send("transaction-completed", senderTransaction);
-                        kafkaTemplate.send("transaction-completed", receiverTransaction);
-                    } catch (Exception ignore) {
+                        TransactionEvent senderEvent = new TransactionEvent(senderTransaction, userId, userSession.email());
+                        TransactionEvent receiverEvent = new TransactionEvent(receiverTransaction, userId, userSession.email());
+                        
+                        kafkaTemplate.send("transaction-completed", senderEvent);
+                        kafkaTemplate.send("transaction-completed", receiverEvent);
+                        
+                        System.out.println("📤 Published transaction events for user: " + userId);
+                    } catch (Exception e) {
+                        System.err.println("Failed to publish transaction events: " + e.getMessage());
                     }
 
                     // Update Idempotency
@@ -419,9 +426,11 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.setUpdatedAt(Instant.now());
                 transactionRepository.save(transaction);
 
-                // Publish Event to Kafka
+                // Publish Event to Kafka with user information
                 try {
-                    kafkaTemplate.send("transaction-completed", transaction);
+                    TransactionEvent transactionEvent = new TransactionEvent(transaction, userId, userSession.email());
+                    kafkaTemplate.send("transaction-completed", transactionEvent);
+                    System.out.println("📤 Published fund transfer event for user: " + userId);
                 } catch (Exception e) {
                     System.err.println("Failed to publish transaction-completed event: " + e.getMessage());
                 }

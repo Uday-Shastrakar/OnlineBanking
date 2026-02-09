@@ -13,10 +13,17 @@ public class Notification {
 
     private String recipient;
     private String subject;
+    private String type; // EMAIL, SMS, PUSH, IN_APP
+    private String priority; // LOW, MEDIUM, HIGH, URGENT
+    private String category; // TRANSACTION, SECURITY, MARKETING, SYSTEM, ACCOUNT
 
     @Column(length = 1000)
     private String content;
 
     private LocalDateTime timestamp;
-    private String status;
+    private LocalDateTime readAt;
+    private String status; // SENT, DELIVERED, READ, FAILED
+    private Boolean isRead;
+    private String channel; // EMAIL, SMS, PUSH, IN_APP
+    private String metadata; // JSON metadata for additional info
 }

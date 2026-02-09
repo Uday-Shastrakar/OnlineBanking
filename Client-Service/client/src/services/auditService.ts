@@ -51,3 +51,9 @@ export const getAuditLogsByDateRange = async (startDate: string, endDate: string
   const response = await api.get<AuditEvent[]>(`/audit/by-date?startDate=${startDate}&endDate=${endDate}`);
   return response.data;
 };
+
+// Create Test Audit Data (for development/testing)
+export const createTestAuditData = async (): Promise<string> => {
+  const response = await api.get<string>('/audit/test-data');
+  return response.data;
+};

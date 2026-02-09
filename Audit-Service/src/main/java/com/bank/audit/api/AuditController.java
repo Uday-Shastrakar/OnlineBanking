@@ -62,6 +62,17 @@ public class AuditController {
         }
     }
 
+    @GetMapping("/test-data")
+    public ResponseEntity<?> createTestData() {
+        try {
+            // Create some sample audit events for testing
+            auditService.createSampleAuditData();
+            return ResponseEntity.ok("Sample audit data created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating test data: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/metrics")
     public ResponseEntity<?> getMetrics(
             @RequestHeader(value = "X-User-Id", required = false) String userId,

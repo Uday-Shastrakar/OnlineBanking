@@ -22,6 +22,13 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       properties:
         spring.json.trusted.packages: "*"
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 100
+      thread-name-prefix: notification-task-
   cloud:
     config:
       enabled: false
@@ -34,3 +41,27 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+# Email Service Integration
+email:
+  service:
+    url: http://localhost:9097
+
+# SMS Configuration (mock)
+sms:
+  api:
+    key: dummy-key
+    url: https://api.sms-provider.com/send
+
+# Push Notification Configuration (mock)
+push:
+  notification:
+    enabled: true
+    fcm:
+      server-key: dummy-fcm-key
+      api-url: https://fcm.googleapis.com/fcm/send
+
+# Logging
+logging:
+  level:
+    com.bank.notification: DEBUG

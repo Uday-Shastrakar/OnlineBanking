@@ -60,39 +60,38 @@ export const auditService = {
           'X-Request-ID': generateRequestId()
         }
       });
-      return response.data;
+      
+      // Handle different response structures
+      const data = response.data;
+      if (Array.isArray(data)) {
+        // Backend returns array directly, convert to paginated format
+        return {
+          content: data.map(transformAuditEvent),
+          totalElements: data.length,
+          totalPages: Math.ceil(data.length / (params?.size || 50))
+        };
+      } else if (data.content) {
+        // Backend returns paginated format
+        return {
+          content: data.content.map(transformAuditEvent),
+          totalElements: data.totalElements || data.content.length,
+          totalPages: data.totalPages || 1
+        };
+      } else {
+        // Fallback
+        return {
+          content: [],
+          totalElements: 0,
+          totalPages: 0
+        };
+      }
     } catch (error: any) {
       console.error('Failed to fetch audit events:', error);
-      // Return mock data for UI demonstration
+      // Return empty result instead of mock data
       return {
-        content: [
-          { 
-            id: 1, 
-            eventId: "audit-001",
-            domain: "TRANSACTION", 
-            action: "TRANSFER_INITIATED", 
-            entityId: "tx-001",
-            userId: "admin", 
-            eventTimestamp: new Date().toISOString(),
-            details: { amount: 1000, currency: "USD" },
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
-          { 
-            id: 2, 
-            eventId: "audit-002",
-            domain: "TRANSACTION", 
-            action: "TRANSFER_COMPLETED", 
-            entityId: "tx-001",
-            userId: "uday", 
-            eventTimestamp: new Date().toISOString(),
-            details: { amount: 1000, currency: "USD", status: "COMPLETED" },
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        ],
-        totalElements: 2,
-        totalPages: 1
+        content: [],
+        totalElements: 0,
+        totalPages: 0
       };
     }
   },
@@ -134,13 +133,24 @@ export const auditService = {
 
   // Legacy method for backward compatibility
   getAllLogs: async (): Promise<AuditEvent[]> => {
-    const response = await api.get<any>('audit/all', {
-      params: { page: 0, size: 1000 }, // Get large page for backward compatibility
-      headers: {
-        'X-Request-ID': generateRequestId()
+    try {
+      const response = await api.get<any>('audit/all', {
+        params: { page: 0, size: 1000 }, // Get large page for backward compatibility
+        headers: {
+          'X-Request-ID': generateRequestId()
+        }
+      });
+      const data = response.data;
+      if (Array.isArray(data)) {
+        return data.map(transformAuditEvent);
+      } else if (data.content) {
+        return data.content.map(transformAuditEvent);
       }
-    });
-    return response.data.content || response.data || [];
+      return [];
+    } catch (error: any) {
+      console.error('Failed to fetch audit logs:', error);
+      return [];
+    }
   },
 
   // Get audit logs by user ID
@@ -200,6 +210,29 @@ export const auditService = {
     });
   }
 };
+
+// Transform backend audit event to frontend format
+function transformAuditEvent(backendEvent: any): AuditEvent {
+  return {
+    id: backendEvent.id,
+    eventId: backendEvent.auditId || `audit-${backendEvent.id}`,
+    domain: backendEvent.eventType || 'SYSTEM',
+    action: backendEvent.action || 'UNKNOWN',
+    entityId: backendEvent.customerId?.toString() || backendEvent.userId?.toString() || 'unknown',
+    userId: backendEvent.userId?.toString() || 'unknown',
+    eventTimestamp: backendEvent.timestamp || backendEvent.eventTimestamp || new Date().toISOString(),
+    details: backendEvent.payload ? JSON.parse(backendEvent.payload) : {},
+    createdAt: backendEvent.timestamp || new Date().toISOString(),
+    updatedAt: backendEvent.timestamp || new Date().toISOString(),
+    // Legacy fields for backward compatibility
+    eventType: backendEvent.eventType,
+    serviceName: backendEvent.serviceName,
+    payload: backendEvent.payload,
+    timestamp: backendEvent.timestamp,
+    status: backendEvent.status,
+    correlationId: backendEvent.correlationId
+  };
+}
 
 // Helper function
 function generateRequestId(): string {

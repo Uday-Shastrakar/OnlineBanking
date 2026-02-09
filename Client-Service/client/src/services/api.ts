@@ -40,8 +40,12 @@ api.interceptors.request.use(
     }
 
     // Add X-Request-ID for tracking
+    if (!config.headers['X-Request-Id']) {
+      config.headers['X-Request-Id'] = generateRequestId();
+    }
+    // Also add X-Request-ID for backward compatibility
     if (!config.headers['X-Request-ID']) {
-      config.headers['X-Request-ID'] = generateRequestId();
+      config.headers['X-Request-ID'] = config.headers['X-Request-Id'];
     }
 
     // Add Idempotency-Key if provided in request config

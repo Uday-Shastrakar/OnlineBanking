@@ -14,7 +14,10 @@ import {
   Tooltip,
   Badge,
   Chip,
-  Divider
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent
 } from "@mui/material";
 import {
   AccountCircle,
@@ -28,11 +31,16 @@ import {
 } from "@mui/icons-material";
 import AuthStorage from "../../services/authStorage";
 import { logout } from "../../services/authService";
+import NotificationDropdown from "../Notifications/NotificationDropdown";
+import NotificationCenter from "../Notifications/NotificationCenter";
+import NotificationPreferences from "../Notifications/NotificationPreferences";
 
 const NavBar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [preferencesDialogOpen, setPreferencesDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   // Check authentication status
@@ -105,13 +113,10 @@ const NavBar: React.FC = () => {
           {isAuthenticated ? (
             <>
               {/* Notifications */}
-              <Tooltip title="Notifications">
-                <IconButton className="action-button">
-                  <Badge badgeContent={3} color="error">
-                    <Notifications />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
+              <NotificationDropdown
+                onOpenNotificationCenter={() => setNotificationDialogOpen(true)}
+                onOpenPreferences={() => setPreferencesDialogOpen(true)}
+              />
 
               {/* User Menu */}
               <Button
@@ -232,6 +237,48 @@ const NavBar: React.FC = () => {
           ]}
         </Menu>
       </Toolbar>
+
+      {/* Notification Center Dialog */}
+      <Dialog
+        open={notificationDialogOpen}
+        onClose={() => setNotificationDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { height: '80vh', maxHeight: 600 }
+        }}
+      >
+        <DialogTitle>Notifications</DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <NotificationCenter
+            onPreferencesClick={() => {
+              setNotificationDialogOpen(false);
+              setPreferencesDialogOpen(true);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Preferences Dialog */}
+      <Dialog
+        open={preferencesDialogOpen}
+        onClose={() => setPreferencesDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { height: '80vh', maxHeight: 600 }
+        }}
+      >
+        <DialogTitle>Notification Preferences</DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <NotificationPreferences
+            onBack={() => {
+              setPreferencesDialogOpen(false);
+              setNotificationDialogOpen(true);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </AppBar>
   );
 };

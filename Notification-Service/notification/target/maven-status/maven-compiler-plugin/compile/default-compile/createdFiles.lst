@@ -1,7 +1,1 @@
-com\bank\notification\service\NotificationService.class
-com\bank\notification\api\NotificationController.class
-com\bank\notification\model\Notification.class
-com\bank\notification\repository\NotificationRepository.class
-com\bank\notification\listener\NotificationListener.class
-com\bank\notification\event\UserRegisteredEvent.class
 com\bank\notification\NotificationServiceApplication.class
